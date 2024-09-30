@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@include('common.navbar', ['userRole' => auth()->user()->credential->role, 'userName' => auth()->user()->first_name . ' ' . auth()->user()->last_name])
+@include('common.navbar')
 
 @section('content')
 <style>
@@ -50,16 +50,16 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header text-center">{{ __('Register') }}</div>
+                <div class="card-header text-center">{{ __('Update User Account') }}</div>
                 <div class="card-body">
                     <!-- Alert Messages -->
                     @include('common.alert')
-                    <form method="POST" action="{{ url('account_management') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ url('account_management/update/' . $user->user_id) }}" enctype="multipart/form-data">
                         @csrf
-
+                        @method('PUT') <!-- needed to update form -->
                         <div class="form-group mb-3">
                             <label for="">{{ __('Choose Profile Picture') }}</label>
-                            <input type="file" name="image_url" class="form-control"  accept="image/*" required>
+                            <input type="file" name="image_url" class="form-control"  accept="image/*" value="{{ $user->image_url }}" required>
                         </div> 
 
                         <div class="row mb-3">
@@ -67,7 +67,7 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">First Name</label>
                                 </span>
-                                <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" placeholder="Format Sample: Gabriel" value="{{ old('first_name') }}" required>
+                                <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" placeholder="Format Sample: Gabriel" value="{{ $user->first_name }}" required>
 
                                 @error('first_name')
                                     <span class="invalid-feedback" role="alert">
@@ -80,7 +80,7 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">Last Name</label>
                                 </span>
-                                <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" placeholder="Format Sample: Madriago" value="{{ old('last_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
+                                <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" placeholder="Format Sample: Madriago" value="{{ $user->last_name }}" pattern="^[A-Z]{1}[a-z]*$" required>
 
                                 @error('last_name')
                                     <span class="invalid-feedback" role="alert">
@@ -95,7 +95,7 @@
                                 <span class="input-group-text">
                                     <i class="fa-solid fa-envelope fa-lg"></i><label class="ms-2">Email Address</label>
                                 </span>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" placeholder="Email Address should be valid" value="{{ old('email') }}" required>
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" placeholder="Email Address should be valid" value="{{ $userJoined->email }}" required>
 
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
@@ -108,7 +108,7 @@
                                 <span class="input-group-text">
                                     <i class="fa-solid fa-sim-card fa-lg"></i><label class="ms-2">Mobile Number</label>
                                 </span>
-                                <input id="cp_number" type="number" class="form-control @error('mobile_number') is-invalid @enderror" name="mobile_number" placeholder="Format Sample: 09123456789 and is 11 digits" value="{{ old('mobile_number') }}" pattern="^09\d{9}$" required>
+                                <input id="cp_number" type="number" class="form-control @error('mobile_number') is-invalid @enderror" name="mobile_number" placeholder="Format Sample: 09123456789 and is 11 digits" value="{{ $userJoined->mobile_number }}" pattern="^09\d{9}$" required>
 
                                 @error('mobile_number')
                                     <span class="invalid-feedback" role="alert">
@@ -143,7 +143,7 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
                                 </span>
-                                <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Username must be unique" value="{{ old('username') }}" pattern="^[A-Za-z0-9]*" required>
+                                <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Username must be unique" value="{{ $userJoined->username }}" pattern="^[A-Za-z0-9]*" required>
 
                                 @error('username')
                                     <span class="invalid-feedback" role="alert">
@@ -181,7 +181,7 @@
 
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">
-                                <button type="submit" name="create" class="btn btn-primary">
+                                <button type="submit" name="update" class="btn btn-primary">
                                     {{ __('Register') }}
                                 </button>
                             </div>

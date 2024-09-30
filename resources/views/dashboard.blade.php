@@ -3,51 +3,34 @@
 @include('common.navbar')
 
 <style>
-/* Main content styling */
-.content {
-    margin-right: 250px; /* Leave space for the sidebar on the right */
-    padding: 20px;
-    overflow: hidden; /* Prevent content overflow */
-}
-
-/* Responsive: Hide the sidebar on smaller screens */
-@media (max-width: 768px) {
-    #sidebar {
-        display: none;
-    }
-
-    .toggle-btn {
-        display: block;
-    }
-
+    /* Main content styling */
     .content {
-        margin-right: 0; /* Remove margin on smaller screens */
+        margin-right: 250px; /* Leave space for the sidebar on larger screens */
+        padding: 20px;
+        overflow: hidden; /* Prevent content overflow */
+        transition: margin-right 0.3s; /* Smooth transition when sidebar toggles */
     }
-}
 
-/* Ensure that the card does not overflow horizontally */
-.card {
-    max-width: 100%;
-    overflow: hidden;
-}
+    /* Ensure that the card does not overflow horizontally */
+    .card {
+        max-width: 100%;
+        overflow: hidden;
+    }
 
-/* Toggle button for small screens */
-.toggle-btn {
-    display: none;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 30px;
-    color: white;
-    cursor: pointer;
-}
+    @media (max-width: 768px) {
+        .content {
+            margin-right: 0; /* Remove margin on smaller screens */
+        }
+    }
 </style>
 
 @section('content')
 <body>
     <div class="content"> <!-- Add the content class to prevent overlap -->
-        @if(Auth::user()->credential->role == "Administrator") <!-- checks if user is an administrator -->
+        @if(Auth::user()->credential->role == "Administrator")
         <div class="container">
+            <!-- Alert Messages -->
+            @include('common.alert')
             <div class="row justify-content-center">
                 <div class="col">
                     <div class="card">
@@ -62,8 +45,10 @@
         </div>
         @endif
 
-        @if(Auth::user()->credential->role == "Inventory Manager") <!-- checks if user is an inventory manager -->
+        @if(Auth::user()->credential->role == "Inventory Manager")
         <div class="container">
+            <!-- Alert Messages -->
+            @include('common.alert')
             <div class="row justify-content-center">
                 <div class="col">
                     <div class="card">
@@ -78,8 +63,10 @@
         </div>
         @endif
 
-        @if(Auth::user()->credential->role == "Auditor") <!-- checks if user is an inventory manager -->
+        @if(Auth::user()->credential->role == "Auditor")
         <div class="container">
+            <!-- Alert Messages -->
+            @include('common.alert')
             <div class="row justify-content-center">
                 <div class="col">
                     <div class="card">

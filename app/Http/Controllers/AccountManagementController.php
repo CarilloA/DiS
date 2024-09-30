@@ -107,7 +107,7 @@ class AccountManagementController extends Controller
         // Filename to store
         $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
         // Upload Image
-        $request->file('image_url')->storeAs('public/userImage', $fileNameToStore);
+        $request->file('image_url')->storeAs('public/userImage', $fileNameToStore); // this will craete a folder name userImage for storing images in the public folder
     } else {
         $fileNameToStore = 'noimage.jpg';
     }
@@ -170,11 +170,8 @@ public function confirmEmail($id)
     }
 
     // Redirect to the accounts table with a success message
-    return redirect()->route('accounts_table')->with('success', 'Email has been confirmed!');
+    return redirect()->route('login')->with('success', 'Email has been confirmed!');
 }
-
-
-
 
     /**
      * Display the specified resource.
@@ -206,9 +203,10 @@ public function confirmEmail($id)
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        //
-    }
+{
+    //
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -216,8 +214,44 @@ public function confirmEmail($id)
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        // Validate admin credentials
+        $request->validate([
+            'admin_username' => 'required|string',
+            'admin_password' => 'required|string',
+        ]);
+
+        // Get the authenticated admin user
+        $admin = auth()->user();
+
+        // Check if the admin credentials are correct
+        if ($admin->credential->username !== $request->admin_username || 
+            !Hash::check($request->admin_password, $admin->credential->password)) {
+            return redirect()->route('accounts_table')->with('error', 'Invalid admin credentials.');
+        }
+
+        // Find the user to be deleted
+        $user = User::find($id);
+
+        // Check if the user exists
+        if (!$user) {
+            return redirect()->route('accounts_table')->with('error', 'User not found.');
+        }
+
+        // Delete the related credentials and contact details
+        if ($user->credential) {
+            $user->credential->delete();
+        }
+
+        if ($user->contact) {
+            $user->contact->delete();
+        }
+
+        // Finally, delete the user
+        $user->delete();
+
+        return redirect()->route('accounts_table')->with('success', 'User deleted successfully.');
     }
+
 }

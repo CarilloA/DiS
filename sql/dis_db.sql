@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Sep 29, 2024 at 02:57 PM
+-- Generation Time: Sep 30, 2024 at 07:17 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `contact_details` (
   `email` varchar(191) NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`contact_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `contact_details`
@@ -42,10 +42,9 @@ CREATE TABLE IF NOT EXISTS `contact_details` (
 
 INSERT INTO `contact_details` (`contact_id`, `mobile_number`, `email`, `email_verified_at`) VALUES
 (1, '09754523622', 'admin@gmail.com', '0000-00-00 00:00:00'),
-(3, '09123456789', 'preyl@gmail.com', '0000-00-00 00:00:00'),
 (4, '09123456790', 'besh@gmail.com', '0000-00-00 00:00:00'),
-(5, '09656523124', 'asjdha@gmail.com', '0000-00-00 00:00:00'),
-(15, '09264003188', 'carilloaira@gmail.com', '2024-09-29 06:53:29');
+(17, '09264003188', 'carilloaira@gmail.com', '2024-09-29 20:06:24'),
+(18, '09123456789', 'hiddenskylink@gmail.com', '2024-09-29 20:09:14');
 
 -- --------------------------------------------------------
 
@@ -60,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `credentials` (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `role` varchar(191) NOT NULL,
   PRIMARY KEY (`credential_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `credentials`
@@ -68,10 +67,9 @@ CREATE TABLE IF NOT EXISTS `credentials` (
 
 INSERT INTO `credentials` (`credential_id`, `username`, `password`, `role`) VALUES
 (1, 'admin', '$2y$10$sx9nssUhIv//v2.59L6AhuCuJ2iweHbqAkSBhclFiFzfoAc7gFOnW', 'Administrator'),
-(3, 'preyl', '$2y$10$DN2SzdIwTNGQtUleY2vuiuTvhshDQmDzNN5Ev.6L7YOvAqwlpmf8q', 'Inventory Manager'),
 (4, 'besh', '$2y$10$wLujTIiR1G0osttxG/IWmu1oz.nSL1PN7DymUCBM5Sq81EUGsyIvy', 'Inventory Manager'),
-(5, 'yi', '$2y$10$mhYgoMrkghBavM8FKY0aJ.rJDH0gKPFx0yYgwFMICXYMWFaCw3Ihi', 'Auditor'),
-(15, 'aira', '$2y$10$IoI.YdcS/6wFbSLxmkn8/OacheYQWYLeu7Z.OC37o3EVS0klh7hgq', 'Auditor');
+(17, 'aira', '$2y$10$H8Vsx5FvI2fxiogKs70iye.tWubGZTrWllfowt54j.syhH/sdQJh.', 'Inventory Manager'),
+(18, 'Besha', '$2y$10$FyTckCNu5rNq4HEPzbagk.sljDl/Heb7bDw9DexwK7gCM/NQ/FyOi', 'Auditor');
 
 -- --------------------------------------------------------
 
@@ -106,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`user_id`),
   KEY `contact_idFK` (`contact_id`),
   KEY `credential_idFK` (`credential_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `user`
@@ -114,10 +112,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `image_url`, `contact_id`, `credential_id`, `created_at`, `updated_at`) VALUES
 (1, 'Owner', 'Dis', '', 1, 1, '2024-09-29 11:42:38', '2024-09-29 11:42:38'),
-(3, 'Preyl', 'Carillo', 'WAGON_1727612528.png', 3, 3, '2024-09-29 04:22:09', '2024-09-29 04:22:09'),
 (4, 'Besh', 'Craillo', '1000001006_1727612731.png', 4, 4, '2024-09-29 04:25:31', '2024-09-29 04:25:31'),
-(5, 'Yi', 'Er', 'IMG_8967 (2)_1727615202.jpg', 5, 5, '2024-09-29 05:06:44', '2024-09-29 05:06:44'),
-(15, 'Aira', 'Carillo', 'WAGON_1727621278.png', 15, 15, '2024-09-29 06:47:59', '2024-09-29 06:47:59');
+(17, 'AiraLo', 'Carillo', 'WAGON_1727669089.png', 17, 17, '2024-09-29 20:04:49', '2024-09-29 22:18:19'),
+(18, 'Besha', 'Carillo', 'IMG_8967 (2)_1727669319.jpg', 18, 18, '2024-09-29 20:08:40', '2024-09-29 23:14:10');
 
 --
 -- Constraints for dumped tables

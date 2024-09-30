@@ -35,6 +35,11 @@
             align-items: stretch; /* Ensure elements fill the card body height */
             justify-content: space-between;
         }
+        .alert {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 @endpush
 
@@ -49,6 +54,8 @@
 
                     <!-- Right Side: Login Form -->
                     <div class="login-form w-50" style="color: white;">
+                        <!-- Alert Messages -->
+                        @include('common.alert')
                         <!-- Logo Image -->
                         <div class="text-center mb-4">
                             <img src="/storage/images/DiS_Logo.png" class="img-fluid" alt="logo" style="width: 25vw; height: auto; background: transparent;">

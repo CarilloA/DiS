@@ -7,7 +7,7 @@
         color: #f8f9fa; /* Light text color */
     }
     .card {
-        background-color: #989898; /* Card background */
+        background-color: #d3d6d3; /* Card background */
         border: none; /* Remove border */
         border-radius: 8px; /* Rounded corners */
     }
@@ -18,6 +18,7 @@
     }
     .btn-primary {
         background-color: #74e39a; /* Green button */
+        color: black;
         border: none; /* Remove button borders */
     }
     .btn-primary:hover {
@@ -49,15 +50,16 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header text-center">{{ __('Register') }}</div>
-
                 <div class="card-body">
+                    <!-- Alert Messages -->
+                    @include('common.alert')
                     <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                         @csrf
 
-                        {{-- <div class="form-group mb-3">
-                            <label for="profile_picture" class="form-label">{{ __('Choose Profile Picture') }}</label>
-                            <input type="file" name="image_url" class="form-control" required>
-                        </div> --}}
+                        <div class="form-group mb-3">
+                            <label for="">{{ __('Choose Profile Picture') }}</label>
+                            <input type="file" name="image_url" class="form-control"  accept="image/*" required>
+                        </div> 
 
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -119,11 +121,11 @@
                             <label for="role" class="col-md-4 col-form-label text-md-end">{{ __('Select User Role:') }}</label>
                             <div class="col-md-6">
                                 <div class="form-check form-check-inline">
-                                    <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager">
+                                    <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager" required>
                                     <label for="inventory_manager" class="form-check-label btn btn-secondary">{{ __('Inventory Manager') }}</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor">
+                                    <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor" required>
                                     <label for="auditor" class="form-check-label btn btn-secondary">{{ __('Auditor') }}</label>
                                 </div>
 
@@ -155,8 +157,10 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-key fa-lg"></i><label class="ms-2">Password</label>
                                 </span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Entered password should match." required>
-
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
+                                <small class="form-text text-danger mt-2" style="color: red">
+                                    Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                </small>
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
