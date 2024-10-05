@@ -41,6 +41,5 @@ class Credentials extends Authenticatable
     public $timestamps = false; // false = to enable customization on timestamp at DB, true = automatic timestamp
     public function User(){ // Credentials is a foregnkey of User
          return $this->hasOne(User::class, 'credential_id');
-        //  return $this->belongsTo('App\Models\User');
     }
 }

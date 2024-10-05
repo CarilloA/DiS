@@ -57,8 +57,9 @@
                 <h5 class="card-header text-center">My Credentials</h5>
                 <div class="card-body text-center">
                     <ul class="list-group list-group-flush text-center">
-                        <li class="list-group-item">Username: <strong>{{ Auth::user()->credential->username }}</strong></li>
                         <li class="list-group-item">Role: <strong>{{ Auth::user()->credential->role }}</strong></li>
+                        <li class="list-group-item">Username: <strong>{{ Auth::user()->credential->username }}</strong></li>
+                        <li class="list-group-item">Password: <strong>********</strong></li>
                     </ul>
                 </div>
             </div>

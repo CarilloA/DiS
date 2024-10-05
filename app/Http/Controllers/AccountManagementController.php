@@ -203,9 +203,9 @@ public function confirmEmail($id)
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-{
-    //
-}
+    {
+        //
+    }
 
 
     /**

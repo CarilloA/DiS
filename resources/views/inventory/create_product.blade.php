@@ -50,26 +50,21 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header text-center">{{ __('Register') }}</div>
+                <div class="card-header text-center">{{ __('Create Product') }}</div>
                 <div class="card-body">
                     <!-- Alert Messages -->
                     @include('common.alert')
-                    <form method="POST" action="{{ url('account_management') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ url('inventory') }}" enctype="multipart/form-data">
                         @csrf
 
-                        <div class="form-group mb-3">
-                            <label for="">{{ __('Choose Profile Picture') }}</label>
-                            <input type="file" name="image_url" class="form-control"  accept="image/*" required>
-                        </div> 
-
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <span class="input-group-text">
-                                    <i class="fa fa-user fa-lg"></i><label class="ms-2">First Name</label>
+                                    <i class="fa-solid fa-box-open"></i><label class="ms-2">Product Name</label>
                                 </span>
-                                <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" placeholder="Format Sample: Gabriel" value="{{ old('first_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
+                                <input id="product_name" type="text" class="form-control @error('product_name') is-invalid @enderror" name="product_name" placeholder="Format Sample: name" value="{{ old('product_name') }}" required>
 
-                                @error('first_name')
+                                @error('product_name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -78,11 +73,11 @@
 
                             <div class="col-md-6">
                                 <span class="input-group-text">
-                                    <i class="fa fa-user fa-lg"></i><label class="ms-2">Last Name</label>
+                                    <i class="fa fa-table-list"></i><label class="ms-2">Category</label>
                                 </span>
-                                <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" placeholder="Format Sample: Madriago" value="{{ old('last_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
+                                <input id="category_name" type="text" class="form-control @error('category_name') is-invalid @enderror" name="category_name" placeholder="Format Sample: category" value="{{ old('category_name') }}" required>
 
-                                @error('last_name')
+                                @error('category_name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -93,11 +88,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <span class="input-group-text">
-                                    <i class="fa-solid fa-envelope fa-lg"></i><label class="ms-2">Email Address</label>
+                                    <i class="fa-solid fa-pen-to-square"></i><label class="ms-2">Description</label>
                                 </span>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" placeholder="Email Address should be valid" value="{{ old('email') }}" required>
+                                <input id="description" type="text" class="form-control @error('description') is-invalid @enderror" name="description" placeholder="Desciption" value="{{ old('description') }}" required>
 
-                                @error('email')
+                                @error('description')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -106,63 +101,13 @@
 
                             <div class="col-md-6">
                                 <span class="input-group-text">
-                                    <i class="fa-solid fa-sim-card fa-lg"></i><label class="ms-2">Mobile Number</label>
+                                    <i class="fa-solid fa-tag"></i><label class="ms-2">Unit Price</label>
                                 </span>
-                                <input id="cp_number" type="number" class="form-control @error('mobile_number') is-invalid @enderror" name="mobile_number" placeholder="Format Sample: 09123456789 and is 11 digits" value="{{ old('mobile_number') }}" pattern="^09\d{9}$" required>
-
-                                @error('mobile_number')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="role" class="col-md-4 col-form-label text-md-end">{{ __('Select User Role:') }}</label>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-inline">
-                                    <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager" required>
-                                    <label for="inventory_manager" class="form-check-label btn btn-secondary">{{ __('Inventory Manager') }}</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor" required>
-                                    <label for="auditor" class="form-check-label btn btn-secondary">{{ __('Auditor') }}</label>
-                                </div>
-
-                                @error('role')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <span class="input-group-text">
-                                    <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
-                                </span>
-                                <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Username must be unique" value="{{ old('username') }}" pattern="^[A-Za-z0-9]*" required>
-
-                                @error('username')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <span class="input-group-text">
-                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">Password</label>
-                                </span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
+                                <input id="unit_price" type="text" class="form-control @error('unit_price') is-invalid @enderror" name="unit_price" placeholder="Format Sample: unit_price" value="{{ old('unit_price') }}" required>
                                 <small class="form-text text-danger mt-2" style="color: red">
-                                    Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                    Note: Please enter a whole number like 5999.
                                 </small>
-                                @error('password')
+                                @error('unit_price')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -173,16 +118,50 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <span class="input-group-text">
-                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Password</label>
+                                    <i class="fa-solid fa-scale-balanced"></i><label class="ms-2">Unit of Measure</label>
                                 </span>
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="Entered password should match." required>
+                                <input id="UoM" type="text" class="form-control @error('UoM') is-invalid @enderror" name="UoM" placeholder="UoM" value="{{ old('UoM') }}" required>
+
+                                @error('UoM')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-warehouse"></i><label class="ms-2">Quantity in Stock</label>
+                                </span>
+                                <input id="quantity_in_stock" type="text" class="form-control @error('quantity_in_stock') is-invalid @enderror" name="quantity_in_stock" placeholder="quantity_in_stock" value="{{ old('quantity_in_stock') }}" required>
+                                @error('quantity_in_stock')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-warehouse"></i><label class="ms-2">Reorder Level</label>
+                                </span>
+                                <input id="reorder_level" type="text" class="form-control @error('reorder_level') is-invalid @enderror" name="reorder_level" placeholder="reorder_level" value="{{ old('reorder_level') }}" required>
+                                @error('reorder_level')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
                         </div>
 
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" name="create" class="btn btn-primary">
-                                    {{ __('Register') }}
+                                    {{ __('ADD') }}
                                 </button>
                             </div>
                         </div>

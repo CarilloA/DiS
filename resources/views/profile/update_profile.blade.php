@@ -107,6 +107,51 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="input-group-text">
+                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">New Password</label>
+                                </span>
+                                <input id="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$">
+                                <small class="form-text text-danger mt-2" style="color: red">
+                                    Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                </small>
+                                @error('new_password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- New Password Confirmation -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="input-group-text">
+                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm New Password</label>
+                                </span>
+                                <input id="new_password_confirmation" type="password" class="form-control" name="new_password_confirmation" placeholder="Confirm new password">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="input-group-text">
+                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Update</label>
+                                </span>
+
+                                    <div class="form-group">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="password">Password</label>
+                                        <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" required>
+                                    </div>
+                            </div>
+                        </div>
+
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary" name="update">

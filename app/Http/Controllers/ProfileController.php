@@ -97,7 +97,22 @@ class ProfileController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-{
+{   
+    // Validate user credentials
+    $request->validate([
+        'confirm_username' => 'required|string',
+        'confirm_password' => 'required|string',
+    ]);
+
+    // Get the authenticated user
+    $user = auth()->user();
+
+    // Check if the user credentials are correct
+    if ($user->credential->username !== $request->confirm_username || 
+        !Hash::check($request->confirm_password, $user->credential->password)) {
+        return redirect()->back()->with('error', 'Invalid credential in the Confirm Update field.');
+    }
+
     // Validate the incoming request data
     $validatedData = $request->validate([
         'image_url' => ['image'],
@@ -106,6 +121,7 @@ class ProfileController extends Controller
         'mobile_number' => ['required', 'digits:11', 'unique:contact_details,mobile_number,'.auth()->user()->contact->contact_id.',contact_id'],
         'email' => ['required', 'string', 'email', 'max:255', 'unique:contact_details,email,'.auth()->user()->contact->contact_id.',contact_id'],
         'username' => ['required', 'string', 'max:255', 'unique:credentials,username,'.auth()->user()->credential->credential_id.',credential_id'],
+        'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
     ]);
 
     // Handle file upload (if a new image is uploaded)
@@ -129,10 +145,17 @@ class ProfileController extends Controller
             'email' => $validatedData['email'],
         ]);
 
-        // Update credentials
-        Credentials::where('credential_id', auth()->user()->credential->credential_id)->update([
+        // Update credentials (including new password if provided)
+        $updateCredentials = [
             'username' => $validatedData['username'],
-        ]);
+        ];
+
+        if (!empty($validatedData['new_password'])) {
+            // Hash the new password before saving it
+            $updateCredentials['password'] = Hash::make($validatedData['new_password']);
+        }
+
+        Credentials::where('credential_id', auth()->user()->credential->credential_id)->update($updateCredentials);
 
         // Update user
         User::where('user_id', $id)->update([

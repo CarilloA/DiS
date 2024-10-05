@@ -22,6 +22,14 @@ Route::get('/', function () {
     return redirect('/login'); // If the user is not authenticated, redirect to the login page.
 });
 
+// Forgot Password Routes
+Route::get('password/reset', 'App\Http\Controllers\Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'App\Http\Controllers\Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+
+// Reset Password Routes
+Route::get('password/reset/{token}', 'App\Http\Controllers\Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'App\Http\Controllers\Auth\ResetPasswordController@reset')->name('password.update');
+
 
 Auth::routes();
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
@@ -50,3 +58,12 @@ Route::resource('profile', ProfileController::class);
 Route::get('show_profile', [ProfileController::class, 'show'])->name('show_profile');
 Route::get('edit_profile/{id}', [ProfileController::class, 'edit'])->name('edit_profile');
 Route::put('update_profile/{id}', [ProfileController::class, 'update'])->name('update_profile');
+
+use App\Http\Controllers\InventoryController;
+Route::resource('inventory', InventoryController::class);
+Route::get('products_table', [InventoryController::class, 'index'])->name('products_table');
+Route::get('show/{id}', [InventoryController::class, 'show'])->name('show_product');
+Route::get('create', [InventoryController::class, 'create'])->name('create_product');
+Route::get('edit_product/{id}', [InventoryController::class, 'edit'])->name('edit_product');
+Route::put('update_product/{id}', [InventoryController::class, 'update'])->name('update_product');
+Route::delete('delete/{id}', [InventoryController::class, 'destroy'])->name('delete_product');

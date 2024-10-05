@@ -48,7 +48,7 @@
         transition: all 0.3s;
     }
 
-    #sidebar .components li.active a,
+    #sidebar .components li a:active,
     #sidebar .components li a:hover {
         background-color: #1abc9c; /* Soft green on hover/active */
         color: #fff;
@@ -170,11 +170,11 @@
         </div>
     </div>
     <ul class="list-unstyled components">
-        <li class="active">
+        <li>
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
+            <a href="{{ route('products_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
         <li>
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
