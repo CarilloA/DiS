@@ -38,6 +38,6 @@ class User extends Authenticatable
 
     public function contact()
     {
-        return $this->belongsTo(Contact_Details::class, 'contact_id', 'email');
+        return $this->belongsTo(Contact_Details::class, 'contact_id');
     }
 }
