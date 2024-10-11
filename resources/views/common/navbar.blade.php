@@ -118,7 +118,7 @@
     
     <div class="sidebar-header d-flex flex-row align-items-center py-3">
         @if($userImage)
-            <img class="image rounded-circle" src="storage/userImage/{{$userImage}}">
+            <img class="image rounded-circle" src="{{ asset('storage/userImage/' . $userImage) }}">
         @else
             <i class="fa-solid fa-circle-user fa-3x me-3"></i>
         @endif
@@ -159,7 +159,7 @@
     
     <div class="sidebar-header d-flex flex-row align-items-center py-3">
         @if($userImage)
-            <img class="image rounded-circle" src="storage/userImage/{{$userImage}}">
+            <img class="image rounded-circle" src="{{ asset('storage/userImage/' . $userImage) }}">
         @else
             <i class="fa-solid fa-circle-user fa-3x me-3"></i>
         @endif
@@ -200,7 +200,7 @@
     
     <div class="sidebar-header d-flex flex-row align-items-center py-3">
         @if($userImage)
-            <img class="image rounded-circle" src="storage/userImage/{{$userImage}}">
+            <img class="image rounded-circle" src="{{ asset('storage/userImage/' . $userImage) }}">
         @else
             <i class="fa-solid fa-circle-user fa-3x me-3"></i>
         @endif
