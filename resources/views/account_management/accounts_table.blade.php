@@ -62,7 +62,7 @@
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form action="{{ url('delete/'.$data->user_id) }}" method="POST">
+                                                    <form action="{{ route('account_management.destroy', $data->user_id) }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
 
@@ -101,6 +101,8 @@
 @endsection
 
 <!-- JavaScript to clear the input fields when the modal is closed -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function(){
         // Loop through each delete modal

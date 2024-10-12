@@ -163,10 +163,10 @@ class InventoryController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'product_name' => ['required', 'string', 'max:255'],
-            'category_name' => ['required', 'string', 'max:255'],
+            'product_name' => ['required', 'string', 'max:30'],
+            'category_name' => ['required', 'string', 'max:30'],
             'unit_price' => ['required', 'numeric'],
-            'UoM' => ['required', 'string', 'max:255'],
+            'UoM' => ['required', 'string', 'max:30'],
             'quantity_in_stock' => ['required', 'numeric'],
             'reorder_level' => ['required', 'numeric'],
             'description' => ['required', 'string', 'max:255'],

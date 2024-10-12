@@ -40,15 +40,15 @@ class AccountManagementController extends Controller
             
             // Check if the logged-in user is an Administrator
             if ($user_role === "Administrator") {
-                // Join `user`, `credentials`, and `contact_details` to get Inventory Manager details
+                // Join `user`, `credentials`, and `contact_details` to get user details
                 $userJoined = DB::table('user')
                     ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
                     ->join('contact_details', 'user.contact_id', '=', 'contact_details.contact_id')
                     ->select('user.*', 'credentials.*', 'contact_details.*')
-                    ->where('credentials.role', '!=', 'Administrator') // Only select Inventory Managers
+                    ->where('credentials.role', '!=', 'Administrator')
                     ->get();
     
-                // Pass the inventory managers and user role to the view
+                // Pass the user details to the view
                 return view('account_management.accounts_table', [
                     'userJoined' => $userJoined,
                     'userRole' => $user_role,
@@ -87,91 +87,145 @@ class AccountManagementController extends Controller
     // Validate the incoming request data
     $validatedData = $request->validate([
         'image_url' => ['nullable', 'image'],
-        'first_name' => ['required', 'string', 'max:255'],
-        'last_name' => ['required', 'string', 'max:255'],
+        'first_name' => ['required', 'string', 'max:15'],
+        'last_name' => ['required', 'string', 'max:15'],
         'mobile_number' => ['required', 'digits:11', 'unique:contact_details'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:contact_details'],
+        'email' => ['required', 'string', 'email', 'max:30', 'unique:contact_details'],
         'role' => ['required'],
-        'username' => ['required', 'string', 'max:255', 'unique:credentials'],
+        'username' => ['required', 'string', 'max:15', 'unique:credentials'],
         'password' => ['required', 'string', 'min:8', 'confirmed'],
     ]);
 
-    // Handle File Upload
+    // Handle file upload with a default image if no file is provided
+    $fileNameToStore = 'noimage.jpg'; 
     if ($request->hasFile('image_url')) {
-        // Get Filename with the extension
-        $fileNameWithExt = $request->file('image_url')->getClientOriginalName();
-        // Get Just Filename
-        $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
-        // Get just extension
-        $extension = $request->file('image_url')->getClientOriginalExtension();
-        // Filename to store
-        $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
-        // Upload Image
-        $request->file('image_url')->storeAs('public/userImage', $fileNameToStore); // this will craete a folder name userImage for storing images in the public folder
-    } else {
-        $fileNameToStore = 'noimage.jpg';
+        $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
     }
 
+    // Generate a custom user ID
+    $userId = $this->generateUserId();
+
     // Use a transaction to ensure data integrity
-    $user = DB::transaction(function () use ($validatedData, $fileNameToStore) {
-        // Create the Contact_Details first
+    $user = DB::transaction(function () use ($validatedData, $fileNameToStore, $userId) {
+        // Create contact details
         $contact_details = Contact_Details::create([
             'mobile_number' => $validatedData['mobile_number'],
             'email' => $validatedData['email'],
         ]);
 
-        // Determine the role based on selected value and username
-        $adminPattern = '/admin/i';
-        $selectedRole = $validatedData['role'];
-        $role = preg_match($adminPattern, $validatedData['username']) ? 'Administrator' : $selectedRole;
-
-        // Store credentials
+        // Create credentials
         $credential = Credentials::create([
             'username' => $validatedData['username'],
             'password' => Hash::make($validatedData['password']),
-            'role' => $role,
+            'role' => $validatedData['role'],
         ]);
 
-        // Store user
-        return User::create([
+        // Create the user
+        $user = User::create([
+            'user_id' => $userId,
             'first_name' => $validatedData['first_name'],
             'last_name' => $validatedData['last_name'],
             'image_url' => $fileNameToStore,
             'contact_id' => $contact_details->contact_id,
             'credential_id' => $credential->credential_id,
         ]);
+
+        Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
+        return $user; // Return the user object
     });
 
     // Send confirmation email
     Mail::to($validatedData['email'])->send(new ConfirmRegistration($user));
+    Log::info('Sending confirmation email for user: ', $user->toArray()); // Log email sending
 
-    // Redirect or return response after successful creation
     return redirect()->route('accounts_table')->with('success', 'User registered successfully! A confirmation email has been sent.');
 }
+
+/**
+ * Handle file upload and return the filename.
+ *
+ * @param  \Illuminate\Http\UploadedFile  $file
+ * @return string
+ */
+private function handleFileUpload($file)
+{
+    $fileNameWithExt = $file->getClientOriginalName();
+    $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+    $extension = $file->getClientOriginalExtension();
+    $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
+    $file->storeAs('public/userImage', $fileNameToStore);
+
+    return $fileNameToStore;
+}
+
+/**
+ * Generate a custom user ID based on the current year and latest user ID.
+ *
+ * @return string
+ */
+private function generateUserId()
+{
+    $currentYear = date('Y');
+    $latestUser = DB::table('user')
+                    ->where('user_id', 'like', "{$currentYear}%")
+                    ->orderBy('user_id', 'desc')
+                    ->first();
+
+    Log::info('Latest user found: ', (array)$latestUser); // Log latest user information
+
+    // Initialize newIdNumber to 1
+    $newIdNumber = '0000';
+
+    if ($latestUser) {
+        // Extract the last four digits and increment them
+        $latestIdNumber = substr($latestUser->user_id, -4); // Get the last 4 digits of user_id
+        Log::info('Latest ID Number: ' . $latestIdNumber); // Log the latest ID Number
+        
+        $incrementedIdNumber = (int)$latestIdNumber + 1; // Increment the ID Number
+        $newIdNumber = str_pad($incrementedIdNumber, 4, '0', STR_PAD_LEFT); // Format to 4 digits
+    }
+
+    // Concatenate year with new ID number
+    $generatedUserId = $currentYear . $newIdNumber; // e.g., '20240001'
+    Log::info('Generated User ID: ' . $generatedUserId); // Log the generated User ID
+    
+    return $generatedUserId; // Return the new User ID
+}
+
+
+
 
 
 public function confirmEmail($id)
 {
-    Log::info("User ID for email confirmation: {$id}"); // Debugging log
+    Log::info('Email confirmation called for user ID: ' . $id); // Log the incoming ID
 
-    // Find the user by ID
-    $user = User::find($id);
-    
-    if (!$user) {
-        return redirect()->route('login')->withErrors('User not found.');
+    try {
+        // Find the user by ID
+        $user = User::find($id);
+        Log::info('User found: ', ['user' => $user]); // Log the found user details
+
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'User not found.');
+        }
+
+        // Retrieve the related contact details and update the email_verified_at field
+        $contactDetails = $user->contact;
+        
+        if ($contactDetails) {
+            $contactDetails->email_verified_at = now();
+            $contactDetails->save();
+            return redirect()->route('login')->with('success', 'Email has been confirmed!');
+        }
+
+        return redirect()->route('login')->with('error', 'User contact details not found.');
+    } catch (Exception $e) {
+        Log::error('Email confirmation error: ' . $e->getMessage());
+        return redirect()->route('login')->with('error', 'There was an error confirming your email.');
     }
-
-    // Retrieve the related contact details and update the email_verified_at field
-    $contactDetails = $user->contact;
-    
-    if ($contactDetails) {
-        $contactDetails->email_verified_at = now();
-        $contactDetails->save();
-    }
-
-    // Redirect to the accounts table with a success message
-    return redirect()->route('login')->with('success', 'Email has been confirmed!');
 }
+
+
 
     /**
      * Display the specified resource.

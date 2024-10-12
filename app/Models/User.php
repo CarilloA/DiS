@@ -23,6 +23,7 @@ class User extends Authenticatable
     // Primary Key can be change here('id')
     public $primaryKey = 'user_id';
     protected $fillable = [
+        'user_id',
         'first_name', 
         'last_name', 
         'image_url', 
