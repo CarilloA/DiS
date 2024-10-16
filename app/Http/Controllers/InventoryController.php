@@ -33,12 +33,10 @@ class InventoryController extends Controller
             return redirect('/login')->withErrors('You must be logged in.');
         }
 
-        // Join `user`, `credentials`, and `contact_details` to get Inventory Manager details
-        $userJoined = DB::table('user')
-        ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
-        ->join('contact_details', 'user.contact_id', '=', 'contact_details.contact_id')
-        ->select('user.*', 'credentials.*', 'contact_details.*')
-        ->where('credentials.role', '!=', 'Administrator') // Only select Inventory Managers
+        // SQL `user` to get Inventory Manager details
+        $userSQL = DB::table('user')
+        ->select('user.*')
+        ->where('role', '!=', 'Administrator') // Only select Inventory Managers
         ->get();
 
         $inventoryJoined = DB::table('products')
@@ -50,7 +48,7 @@ class InventoryController extends Controller
 
         // Pass the inventory managers and user role to the view
         return view('inventory.products_table', [
-            'userJoined' => $userJoined,
+            'userSQL' => $userSQL,
             'inventoryJoined' => $inventoryJoined,
         ]);
     }
@@ -231,8 +229,8 @@ class InventoryController extends Controller
             $user = auth()->user();
     
             // Check if the admin credentials are correct
-            if ($user->credential->username !== $request->username || 
-                !Hash::check($request->password, $user->credential->password)) {
+            if ($user->username !== $request->username || 
+                !Hash::check($request->password, $user->password)) {
                 return redirect()->route('products_table')->with('error', 'Invalid user credentials.');
             }
     

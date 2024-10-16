@@ -46,29 +46,15 @@ class ResetPasswordController extends Controller
         ]);
 
         // Find the contact details by email
-        $contact = Contact_Details::where('email', $request->email)->first();
-
-        if (!$contact) {
-            return back()->withErrors(['email' => trans('User not found.')]);
-        }
-
-        // Find the user associated with the contact details
-        $user = User::where('contact_id', $contact->contact_id)->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return back()->withErrors(['email' => trans('User not found.')]);
         }
 
-        // Now, retrieve the credentials associated with the user
-        $credentials = Credentials::where('credential_id', $user->credential_id)->first();
-
-        if (!$credentials) {
-            return back()->withErrors(['email' => trans('Credentials not found.')]);
-        }
-
         // Update the password in the credentials table
-        $credentials->password = Hash::make($request->password);
-        $credentials->save();
+        $user->password = Hash::make($request->password);
+        $user->save();
 
         // Redirect with success message
         return redirect($this->redirectTo)->with('success', trans('Password has been reset.'));

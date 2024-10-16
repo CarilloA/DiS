@@ -4,7 +4,7 @@
 @include('common.navbar')
 
 @section('content')
-@if(Auth::user()->credential->role == "Administrator") <!-- Check if user is an administrator -->
+@if(Auth::user()->role == "Administrator") <!-- Check if user is an administrator -->
     <div class="container-fluid">
         <div class="row">
             <!-- Main Content -->
@@ -36,8 +36,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if(count($userJoined) > 0) <!-- Check if userJoined is not null and not empty -->
-                            @foreach($userJoined as $data)
+                        @if(count($userSQL) > 0) <!-- Check if userSQL is not null and not empty -->
+                            @foreach($userSQL as $data)
                                 <tr>
                                     <td>{{ $data->first_name }}</td>
                                     <td>{{ $data->last_name }}</td>
@@ -89,7 +89,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="6" class="text-center">No Inventory Managers found.</td>
+                                <td colspan="6" class="text-center">No user found.</td>
                             </tr>
                         @endif
                     </tbody>
@@ -106,7 +106,7 @@
 <script>
     $(document).ready(function(){
         // Loop through each delete modal
-        @foreach($userJoined as $data)
+        @foreach($userSQL as $data)
         $('#deleteModal{{ $data->user_id }}').on('hidden.bs.modal', function () {
             // Clear input fields
             $('#admin_username_{{ $data->user_id }}').val('');

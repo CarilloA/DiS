@@ -121,11 +121,11 @@
                             <label for="role" class="col-md-4 col-form-label text-md-end">{{ __('Select User Role:') }}</label>
                             <div class="col-md-6">
                                 <div class="form-check form-check-inline">
-                                    <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager" required>
+                                    <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager">
                                     <label for="inventory_manager" class="form-check-label btn btn-secondary">{{ __('Inventory Manager') }}</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor" required>
+                                    <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor">
                                     <label for="auditor" class="form-check-label btn btn-secondary">{{ __('Auditor') }}</label>
                                 </div>
 

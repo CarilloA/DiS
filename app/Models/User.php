@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -27,18 +29,14 @@ class User extends Authenticatable
         'first_name', 
         'last_name', 
         'image_url', 
-        'contact_id',
-        'credential_id',
+        'mobile_number',
+        'email',
+        'username',
+        'password',
+        'role',
+        'email_verified_at',
+        'updated_at'
     ];
 
-    public function credential()
-    {
-        // return $this->belongsTo(Credentials::class, 'credential_id', 'credential_id');
-        return $this->belongsTo(Credentials::class, 'credential_id');
-    }
-
-    public function contact()
-    {
-        return $this->belongsTo(Contact_Details::class, 'contact_id');
-    }
+    public $timestamps = true;
 }

@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
-use App\Models\Contact_Details;
-use App\Models\Credentials;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -60,31 +58,22 @@ class RegisterController extends Controller
 
         // Use a transaction to ensure data integrity
         $user = DB::transaction(function () use ($request, $fileNameToStore) {
-            // Create the Contact_Details first
-            $contact_details = Contact_Details::create([
-                'mobile_number' => $request->mobile_number,
-                'email' => $request->email,
-            ]);
 
             // Determine the role based on selected value and username
             $adminPattern = '/admin/i';
             $selectedRole = $request->role;
             $role = preg_match($adminPattern, $request->username) ? 'Administrator' : $selectedRole;
 
-            // Store credentials
-            $credential = Credentials::create([
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role' => $role,
-            ]);
-
             // Store user and return the user instance
             return User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'image_url' => $fileNameToStore,
-                'contact_id' => $contact_details->contact_id,
-                'credential_id' => $credential->credential_id,
+                'mobile_number' => $request->mobile_number,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'role' => $role,
             ]);
         });
 
@@ -101,10 +90,9 @@ class RegisterController extends Controller
             'image_url' => ['nullable', 'image'],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'mobile_number' => ['required', 'digits:11', 'unique:contact_details'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:contact_details'],
-            'role' => ['required'],
-            'username' => ['required', 'string', 'max:255', 'unique:credentials'],
+            'mobile_number' => ['required', 'digits:11', 'unique:user'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:user'],
+            'username' => ['required', 'string', 'max:255', 'unique:user'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }

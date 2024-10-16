@@ -57,8 +57,8 @@
                 <h5 class="card-header text-center">My Credentials</h5>
                 <div class="card-body text-center">
                     <ul class="list-group list-group-flush text-center">
-                        <li class="list-group-item">Role: <strong>{{ Auth::user()->credential->role }}</strong></li>
-                        <li class="list-group-item">Username: <strong>{{ Auth::user()->credential->username }}</strong></li>
+                        <li class="list-group-item">Role: <strong>{{ Auth::user()->role }}</strong></li>
+                        <li class="list-group-item">Username: <strong>{{ Auth::user()->username }}</strong></li>
                         <li class="list-group-item">Password: <strong>********</strong></li>
                     </ul>
                 </div>
@@ -68,8 +68,8 @@
             <div class="card mb-4 shadow-sm" style="width: 18rem; height: 15rem;">
                 <h5 class="card-header text-center">My Contact Details</h5>
                 <ul class="list-group list-group-flush text-center">
-                    <li class="list-group-item">Mobile Number: <strong>{{ Auth::user()->contact->mobile_number }}</strong></li>
-                    <li class="list-group-item">Email: <strong>{{ Auth::user()->contact->email }}</strong></li>
+                    <li class="list-group-item">Mobile Number: <strong>{{ Auth::user()->mobile_number }}</strong></li>
+                    <li class="list-group-item">Email: <strong>{{ Auth::user()->email }}</strong></li>
                 </ul>
             </div>
         </div>

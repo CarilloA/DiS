@@ -105,12 +105,12 @@
 
 @php
     $userImage = auth()->user()->image_url;
-    $userRole = auth()->user()->credential->role;
+    $userRole = auth()->user()->role;
     $userName = auth()->user()->first_name . ' ' . auth()->user()->last_name;
 @endphp
 
 <!-- Sidebar Navigation -->
-@if(Auth::user()->credential->role == "Administrator")
+@if(Auth::user()->role == "Administrator")
 <nav id="sidebar" class="vh-100 navbar-expand-lg">
     <button class="navbar-toggler toggle-btn" type="button" onclick="toggleSidebar()">
         <span class="navbar-toggler-icon"></span>
@@ -151,7 +151,7 @@
 @endif
 
 <!-- Sidebar Navigation -->
-@if(Auth::user()->credential->role == "Inventory Manager")
+@if(Auth::user()->role == "Inventory Manager")
 <nav id="sidebar" class="vh-100 navbar-expand-lg">
     <button class="navbar-toggler toggle-btn" type="button" onclick="toggleSidebar()">
         <span class="navbar-toggler-icon"></span>
@@ -192,7 +192,7 @@
 @endif
 
 <!-- Sidebar Navigation -->
-@if(Auth::user()->credential->role == "Auditor")
+@if(Auth::user()->role == "Auditor")
 <nav id="sidebar" class="vh-100 navbar-expand-lg">
     <button class="navbar-toggler toggle-btn" type="button" onclick="toggleSidebar()">
         <span class="navbar-toggler-icon"></span>

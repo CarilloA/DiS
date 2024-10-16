@@ -24,7 +24,7 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 // Check if the authenticated user's role is "Administrator"
-                if (Auth::user()->credential->role === 'Administrator') {
+                if (Auth::user()->role === 'Administrator') {
                     return $next($request);  // Allow "Administrator" to proceed without redirection
                 }
 

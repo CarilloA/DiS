@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Contact_Details;
-use App\Models\Credentials;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -34,25 +32,19 @@ class AccountManagementController extends Controller
         $user = Auth::user();
         
         // Check if the user has credentials
-        if ($user && $user->credential) {
-            $user_name = $user->first_name . ' ' . $user->last_name;
-            $user_role = $user->credential->role; // Get the role from credentials
+        if ($user) {
             
             // Check if the logged-in user is an Administrator
-            if ($user_role === "Administrator") {
+            if ($user->role === "Administrator") {
                 // Join `user`, `credentials`, and `contact_details` to get user details
-                $userJoined = DB::table('user')
-                    ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
-                    ->join('contact_details', 'user.contact_id', '=', 'contact_details.contact_id')
-                    ->select('user.*', 'credentials.*', 'contact_details.*')
-                    ->where('credentials.role', '!=', 'Administrator')
+                $userSQL = DB::table('user')
+                    ->select('user.*')
+                    ->where('role', '!=', 'Administrator')
                     ->get();
     
                 // Pass the user details to the view
                 return view('account_management.accounts_table', [
-                    'userJoined' => $userJoined,
-                    'userRole' => $user_role,
-                    'userName' => $user_name
+                    'userSQL' => $userSQL,
                 ]);
             } else {
                 // If the user is not an Administrator, redirect with an error
@@ -89,10 +81,10 @@ class AccountManagementController extends Controller
         'image_url' => ['nullable', 'image'],
         'first_name' => ['required', 'string', 'max:15'],
         'last_name' => ['required', 'string', 'max:15'],
-        'mobile_number' => ['required', 'digits:11', 'unique:contact_details'],
-        'email' => ['required', 'string', 'email', 'max:30', 'unique:contact_details'],
+        'mobile_number' => ['required', 'digits:11', 'unique:user'],
+        'email' => ['required', 'string', 'email', 'max:30', 'unique:user'],
         'role' => ['required'],
-        'username' => ['required', 'string', 'max:15', 'unique:credentials'],
+        'username' => ['required', 'string', 'max:15', 'unique:user'],
         'password' => ['required', 'string', 'min:8', 'confirmed'],
     ]);
 
@@ -107,18 +99,6 @@ class AccountManagementController extends Controller
 
     // Use a transaction to ensure data integrity
     $user = DB::transaction(function () use ($validatedData, $fileNameToStore, $userId) {
-        // Create contact details
-        $contact_details = Contact_Details::create([
-            'mobile_number' => $validatedData['mobile_number'],
-            'email' => $validatedData['email'],
-        ]);
-
-        // Create credentials
-        $credential = Credentials::create([
-            'username' => $validatedData['username'],
-            'password' => Hash::make($validatedData['password']),
-            'role' => $validatedData['role'],
-        ]);
 
         // Create the user
         $user = User::create([
@@ -126,8 +106,11 @@ class AccountManagementController extends Controller
             'first_name' => $validatedData['first_name'],
             'last_name' => $validatedData['last_name'],
             'image_url' => $fileNameToStore,
-            'contact_id' => $contact_details->contact_id,
-            'credential_id' => $credential->credential_id,
+            'mobile_number' => $validatedData['mobile_number'],
+            'email' => $validatedData['email'],
+            'username' => $validatedData['username'],
+            'password' => Hash::make($validatedData['password']),
+            'role' => $validatedData['role'],
         ]);
 
         Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
@@ -208,13 +191,10 @@ public function confirmEmail($id)
         if (!$user) {
             return redirect()->route('login')->with('error', 'User not found.');
         }
-
-        // Retrieve the related contact details and update the email_verified_at field
-        $contactDetails = $user->contact;
         
-        if ($contactDetails) {
-            $contactDetails->email_verified_at = now();
-            $contactDetails->save();
+        if ($user) {
+            $user->email_verified_at = now();
+            $user->save();
             return redirect()->route('login')->with('success', 'Email has been confirmed!');
         }
 
@@ -280,8 +260,8 @@ public function confirmEmail($id)
         $admin = auth()->user();
 
         // Check if the admin credentials are correct
-        if ($admin->credential->username !== $request->admin_username || 
-            !Hash::check($request->admin_password, $admin->credential->password)) {
+        if ($admin->username !== $request->admin_username || 
+            !Hash::check($request->admin_password, $admin->password)) {
             return redirect()->route('accounts_table')->with('error', 'Invalid admin credentials.');
         }
 
@@ -291,15 +271,6 @@ public function confirmEmail($id)
         // Check if the user exists
         if (!$user) {
             return redirect()->route('accounts_table')->with('error', 'User not found.');
-        }
-
-        // Delete the related credentials and contact details
-        if ($user->credential) {
-            $user->credential->delete();
-        }
-
-        if ($user->contact) {
-            $user->contact->delete();
         }
 
         // Finally, delete the user
