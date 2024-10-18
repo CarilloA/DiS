@@ -176,6 +176,7 @@
         <li>
             <a href="{{ route('products_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
+        
         <li>
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Products extends Authenticatable
+class SalesOrder extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,22 +19,23 @@ class Products extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'products';
+    protected $table = 'sales_order';
     // Primary Key can be change here('id')
-    public $primaryKey = 'product_id';
+    public $primaryKey = 'sales_order_id';
     protected $fillable = [
-        'product_name', 
-        'description', 
-        'unit_price', 
-        'UoM',
-        'quantity_in_stock',
-        'reorder_level',
-        'category_id',
-        'stroom_id',
+        'sales_order_id',
+        'total_amount', 
+        'sales_date', 
+        'user_id',
     ];
 
-    public function category()
+    public function user()
     {
-        return $this->belongsTo(Categories::class, 'category_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function sales_order_detail()
+    {
+        return $this->hasMany(SalesOrderDetail::class, 'sales_order_detail_id');
     }
 }
