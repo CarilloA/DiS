@@ -46,20 +46,23 @@
         width: 1500px; 
         max-width: 90%; 
         height: 100%; 
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     }
 
     .card-body {
         display: flex; 
-        border: 2px solid #79fabd; 
         align-items: stretch; 
         justify-content: space-between;
         padding: 40px;
+        border-radius: 15px;
     }
 
     .loginIMG {
         width: 40%; 
         height: 100%; 
         object-fit: cover; 
+        border-radius: 10px;
     }
 
     .alert {
@@ -119,6 +122,10 @@
         background-color: #0d0d0d;
     }
 
+    .forgot-password {
+        margin-right: 0px;
+    }
+
     @media (max-width: 768px) {
         .card-body {
             flex-direction: column; 
@@ -147,7 +154,7 @@
                     <img src="/storage/images/loginIMG.png" class="loginIMG img-fluid" alt="login.jpg">
 
                     <!-- Right Side: Login Form -->
-                    <div class="login-form w-50" style="color: white;">
+                    <div class="login-form w-50" style="color: white; margin-top: 20px;"> <!-- Added margin-top here -->
                         <!-- Alert Messages -->
                         @include('common.alert')
                         <!-- Logo Image -->
@@ -191,16 +198,10 @@
 
                             <!-- Remember Me & Forgot Password -->
                             <div class="mb-4 d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }} style="border: 2px solid white;">
-                                    <label class="form-check-label" for="remember" style="color: #fff;">
-                                        {{ __('Remember Me') }}
-                                    </label>
-                                </div>
-                                <div class="ms-auto"> <!-- Added this div for right alignment -->
+                                <div class="ms-auto"> 
                                     @if (Route::has('password.request'))
-                                        <a class="btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
-                                            {{ __('Forgot Your Password?') }}
+                                        <a class="forgot-password btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
+                                            {{ __('Forgot Password?') }}
                                         </a>
                                     @endif
                                 </div>
@@ -214,11 +215,13 @@
                             </div>
 
                             <!-- Register Button with Gap -->
+                            <!--
                             <div class="d-grid gap-2" style="margin-top: 10px;"> 
                                 <a class="btn btn-register" href="{{ route('register') }}">
                                     {{ __('Register') }}
                                 </a>
                             </div>
+                            -->
                         </form>
                     </div> <!-- End of Login Form -->
                 </div>
