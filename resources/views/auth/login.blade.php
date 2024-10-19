@@ -9,9 +9,9 @@
         background-repeat: no-repeat; 
         height: 100vh; 
         margin: 0; 
-        display: flex; /* Use flexbox for centering */
-        justify-content: center; /* Center horizontally */
-        align-items: center; /* Center vertically */
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
     }
 
     .form-control::placeholder {
@@ -21,8 +21,9 @@
     .form-control {
         background-color: #565656;
         color: white;
-        border: 0.px solid white; /* Set border weight here */
-        border-radius: .25rem; /* Rounded corners */
+        border: 0.8px solid white; 
+        border-radius: .25rem; 
+        font-family: Arial, sans-serif;
     }
 
     input::placeholder {
@@ -33,16 +34,18 @@
     input {
         background-color: #212529;
         color: white;
-        border: 2px solid white; /* Set border weight here */
+        border: 2px solid white; 
+        font-family: Arial, sans-serif;
     }
 
     .card {
         border: none; 
         min-height: 400px;
-        background-color: #565656; /* Semi-transparent card background */
-        backdrop-filter: blur(10px); /* Optional: Adds a blur effect behind the card */
-        width: 1500px; /* Fixed width for the card */
-        max-width: 90%; /* Ensure it doesn't exceed 90% on small screens */
+        background-color: #565656; 
+        backdrop-filter: blur(10px); 
+        width: 1500px; 
+        max-width: 90%; 
+        height: 100%; /* Set height to allow children to expand */
     }
 
     .card-body {
@@ -50,6 +53,13 @@
         border: 2px solid #79fabd; 
         align-items: stretch; 
         justify-content: space-between;
+        padding: 40px;
+    }
+
+    .loginIMG {
+        width: 40%; 
+        height: 100%; /* Make the image fill the entire height of the card */
+        object-fit: cover; /* Ensure the image covers the space without distortion */
     }
 
     .alert {
@@ -59,43 +69,69 @@
     }
 
     .input-group {
-        position: relative; /* Make the input group relative for absolute positioning */
+        position: relative; 
     }
 
     .input-group .form-control {
-        padding-right: 40px; /* Add padding to the right for the icon */
-        background-color: #212529; /* Input background color */
-        color: white; /* Text color */
-        border: 0.8px solid white; /* Set border weight */
-        border-radius: .25rem; /* Rounded corners */
+        padding-right: 40px; 
+        background-color: #212529; 
+        color: white; 
+        border: 0.8px solid white; 
+        border-radius: .25rem; 
+        font-family: Arial, sans-serif;
     }
 
     .input-group .input-group-text {
-        position: absolute; /* Position absolutely within the input group */
-        right: 10px; /* Position the icon to the right */
-        top: 50%; /* Center vertically */
-        transform: translateY(-50%); /* Adjust vertical alignment */
-        background-color: transparent; /* Make background transparent */
-        border: none; /* Remove border */
-        color: white; /* Icon color */
-        display: flex; /* Flexbox to center the icon */
-        align-items: center; /* Center the icon vertically */
-        justify-content: center; /* Center the icon horizontally */
+        position: absolute; 
+        right: 10px; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        background-color: transparent; 
+        border: none; 
+        color: white; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+    }
+
+    .btn {
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .btn-login {
+        background-color: #3a8f66; 
+        color: white; 
+        border: none;
+    }
+
+    .btn-login:hover {
+        background-color: #2f6b5a; /* Darkens the button */
+    }
+
+    .btn-register {
+        background-color: #231f20; 
+        color: white; 
+        border: none;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .btn-register:hover {
+        background-color: #0d0d0d; /* Darker hover color */
     }
 
     @media (max-width: 768px) {
         .card-body {
-            flex-direction: column; /* Stack elements on smaller screens */
-            align-items: center; /* Center align elements */
+            flex-direction: column; 
+            align-items: center; 
         }
 
         .loginIMG {
-            width: 100%; /* Full width for image on small screens */
-            margin-bottom: 20px; /* Space between image and form */
+            width: 100%; 
+            margin-bottom: 20px; 
         }
 
         .login-form {
-            width: 100%; /* Full width for form on small screens */
+            width: 100%; 
         }
     }
 </style>
@@ -108,7 +144,7 @@
             <div class="card">
                 <div class="card-body d-flex align-items-center justify-content-between">
                     <!-- Left Side: Login Image -->
-                    <img src="/storage/images/loginIMG.png" class="loginIMG img-fluid" alt="login.jpg" style="width: 40%; height: auto; object-fit: cover;">
+                    <img src="/storage/images/loginIMG.png" class="loginIMG img-fluid" alt="login.jpg">
 
                     <!-- Right Side: Login Form -->
                     <div class="login-form w-50" style="color: white;">
@@ -130,7 +166,6 @@
                                     <span class="input-group-text" id="basic-addon1">
                                         <i class="fa fa-user fa-lg"></i>
                                     </span>
-                                    </input>
                                 </div>
                                 @error('username')
                                     <span class="invalid-feedback" role="alert" style="color: #dc3545;">
@@ -162,23 +197,25 @@
                                         {{ __('Remember Me') }}
                                     </label>
                                 </div>
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
-                                        {{ __('Forgot Your Password?') }}
-                                    </a>
-                                @endif
+                                <div class="ms-auto"> <!-- Added this div for right alignment -->
+                                    @if (Route::has('password.request'))
+                                        <a class="btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
+                                            {{ __('Forgot Your Password?') }}
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
 
                             <!-- Login Button -->
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn" style="background-color: #3a8f66; color: white; border: none;">
+                                <button type="submit" class="btn btn-login">
                                     {{ __('Login') }}
                                 </button>
                             </div>
 
-                            <!-- Register Button -->
-                            <div class="d-grid gap-2">
-                                <a class="btn btn-link" href="{{ route('register') }}" style="color: #fff;">
+                            <!-- Register Button with Gap -->
+                            <div class="d-grid gap-2" style="margin-top: 10px;"> 
+                                <a class="btn btn-register" href="{{ route('register') }}">
                                     {{ __('Register') }}
                                 </a>
                             </div>
