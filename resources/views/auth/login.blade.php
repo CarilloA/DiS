@@ -61,7 +61,7 @@
     .loginIMG {
         width: 40%; 
         height: 100%; 
-        object-fit: cover; 
+        object-fit: cover;  
         border-radius: 10px;
     }
 

@@ -3,7 +3,7 @@
     #sidebar {
         width: 250px;
         height: 100vh;
-        background-color: #2c3e50; /* Dark background for better readability */
+        background-color: #565656; /* Dark background for better readability */
         color: #ecf0f1; /* Light text for contrast */
         position: fixed;
         top: 0;
@@ -17,7 +17,7 @@
 
     /* Sidebar header */
     .sidebar-header {
-        background-color: #34495e; /* Darker header for distinction */
+        background-color: #3a8f66; /* Darker header for distinction */
         padding: 20px;
         text-align: center;
         color: #fff;
@@ -44,13 +44,13 @@
     #sidebar .components li {
         list-style: none;
         padding: 15px 20px;
-        margin: 5px 0;
+        margin: 1px 0;
         transition: all 0.3s;
     }
 
     #sidebar .components li a:active,
     #sidebar .components li a:hover {
-        background-color: #1abc9c; /* Soft green on hover/active */
+        background-color: #3a8f66; /* Soft green on hover/active */
         color: #fff;
         text-decoration: none;
         border-radius: 5px;
@@ -62,11 +62,19 @@
         padding: 10px; /* Updated padding for better touch targets */
         display: block;
         transition: color 0.3s;
+        text-decoration: none;
+        list-style: none;
     }
 
     #sidebar .components li a i {
         margin-right: 10px;
     }
+
+    #sidebar .components li a:hover {
+        text-decoration: none; /* Ensure underline remains removed on hover */
+    }
+
+    
 
     /* Responsive behavior */
     @media (max-width: 768px) {
@@ -124,13 +132,13 @@
         @endif
 
         <div class="d-flex flex-column">
-            <h6>{{ $userRole }}</h6>
-            <h6>{{ $userName }}</h6>
+            <h6 style="font-size: 0.99rem; font-weight: 300;">{{ $userRole }}</h6>
+            <h6 style="font-size: 1.00rem; font-weight: bold;">{{ $userName }}</h6>
         </div>
     </div>
     <ul class="list-unstyled components">
         <li class="active">
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-user-shield"></i> ACCOUNT MANAGEMENT</a>
+            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-user-shield"></i> ACCOUNT</a>
         </li>
         <li>
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
