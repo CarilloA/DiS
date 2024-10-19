@@ -45,7 +45,7 @@
         backdrop-filter: blur(10px); 
         width: 1500px; 
         max-width: 90%; 
-        height: 100%; /* Set height to allow children to expand */
+        height: 100%; 
     }
 
     .card-body {
@@ -58,8 +58,8 @@
 
     .loginIMG {
         width: 40%; 
-        height: 100%; /* Make the image fill the entire height of the card */
-        object-fit: cover; /* Ensure the image covers the space without distortion */
+        height: 100%; 
+        object-fit: cover; 
     }
 
     .alert {
@@ -95,7 +95,7 @@
     }
 
     .btn {
-        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        transition: background-color 0.3s ease; 
     }
 
     .btn-login {
@@ -105,18 +105,18 @@
     }
 
     .btn-login:hover {
-        background-color: #2f6b5a; /* Darkens the button */
+        background-color: #2f6b5a; 
     }
 
     .btn-register {
         background-color: #231f20; 
         color: white; 
         border: none;
-        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        transition: background-color 0.3s ease; 
     }
 
     .btn-register:hover {
-        background-color: #0d0d0d; /* Darker hover color */
+        background-color: #0d0d0d;
     }
 
     @media (max-width: 768px) {
