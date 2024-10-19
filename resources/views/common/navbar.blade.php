@@ -13,6 +13,7 @@
         overflow-y: auto;
         font-size: 1rem; /* Base font size */
         z-index: 1000; /* Ensure sidebar is above other elements */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     }
 
     /* Sidebar header */
