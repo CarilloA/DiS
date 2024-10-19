@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 16, 2024 at 01:47 PM
+-- Generation Time: Oct 19, 2024 at 02:12 AM
 -- Server version: 5.7.40
 -- PHP Version: 8.0.26
 
@@ -24,24 +24,40 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Table structure for table `category`
 --
 
-DROP TABLE IF EXISTS `categories`;
-CREATE TABLE IF NOT EXISTS `categories` (
-  `category_id` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `category`;
+CREATE TABLE IF NOT EXISTS `category` (
+  `category_id` int(8) NOT NULL AUTO_INCREMENT,
   `category_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `categories`
+-- Table structure for table `inventory`
 --
 
-INSERT INTO `categories` (`category_id`, `category_name`) VALUES
-(4, 'Paints'),
-(20, 'Wheels'),
-(21, 'Wheels');
+DROP TABLE IF EXISTS `inventory`;
+CREATE TABLE IF NOT EXISTS `inventory` (
+  `inventory_id` int(8) NOT NULL AUTO_INCREMENT,
+  `product_id` int(8) NOT NULL,
+  `purchase_price_per_unit` int(11) NOT NULL,
+  `sale_price_per_unit` int(11) NOT NULL,
+  `unit_of_measure` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `in_stock` int(11) NOT NULL,
+  `reorder_level` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `stockroom_id` int(8) NOT NULL,
+  `stock_transfer_id` int(8) NOT NULL,
+  PRIMARY KEY (`inventory_id`),
+  KEY `inventory_productFK` (`product_id`),
+  KEY `inventory_stockTransferFK` (`stock_transfer_id`),
+  KEY `inventory_stockroomFK` (`stockroom_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -82,34 +98,127 @@ INSERT INTO `password_resets` (`password_reset_id`, `email`, `token`, `created_a
 -- --------------------------------------------------------
 
 --
--- Table structure for table `products`
+-- Table structure for table `product`
 --
 
-DROP TABLE IF EXISTS `products`;
-CREATE TABLE IF NOT EXISTS `products` (
-  `product_id` int(11) NOT NULL AUTO_INCREMENT,
-  `stroom_id` int(11) DEFAULT NULL,
-  `category_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `product`;
+CREATE TABLE IF NOT EXISTS `product` (
+  `product_id` int(8) NOT NULL AUTO_INCREMENT,
+  `category_id` int(8) NOT NULL,
+  `supplier_id` int(8) NOT NULL,
   `product_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `unit_price` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `UoM` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `quantity_in_stock` int(11) NOT NULL,
-  `reorder_level` int(11) NOT NULL,
   `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`product_id`),
-  KEY `categoryFK` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `product_categoryFK` (`category_id`),
+  KEY `product_supplierFK` (`supplier_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `products`
+-- Table structure for table `sales_order`
 --
 
-INSERT INTO `products` (`product_id`, `stroom_id`, `category_id`, `product_name`, `unit_price`, `UoM`, `quantity_in_stock`, `reorder_level`, `description`, `created_at`, `updated_at`) VALUES
-(1, NULL, 4, 'Name Sample', '250.256', 'Liter', 21, 0, 'color red', '2024-10-04 18:56:01', '2024-10-04 20:56:40'),
-(17, NULL, 20, 'Car Modified Wheels', '6,254.00', 'piece', 15, 3, 'any description', '2024-10-04 21:36:03', '2024-10-04 21:51:29'),
-(18, NULL, 21, 'Any Name', '899.00', 'piece', 18, 3, 'any description', '2024-10-04 21:39:39', '2024-10-04 21:55:22');
+DROP TABLE IF EXISTS `sales_order`;
+CREATE TABLE IF NOT EXISTS `sales_order` (
+  `sales_order_id` int(8) NOT NULL AUTO_INCREMENT,
+  `user_id` int(8) NOT NULL,
+  `total_amount` int(11) NOT NULL,
+  `sales_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`sales_order_id`),
+  KEY `sales_order_userFK` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sales_order_detail`
+--
+
+DROP TABLE IF EXISTS `sales_order_detail`;
+CREATE TABLE IF NOT EXISTS `sales_order_detail` (
+  `sales_order_detail_id` int(8) NOT NULL AUTO_INCREMENT,
+  `sale_order_id` int(8) NOT NULL,
+  `product_id` int(8) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `sales_price_per_unit` int(11) NOT NULL,
+  PRIMARY KEY (`sales_order_detail_id`),
+  KEY `sales_order_details_productFK` (`product_id`),
+  KEY `sales_order_details_salesOrderFK` (`sale_order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scrap_product`
+--
+
+DROP TABLE IF EXISTS `scrap_product`;
+CREATE TABLE IF NOT EXISTS `scrap_product` (
+  `scrap_product_id` int(8) NOT NULL AUTO_INCREMENT,
+  `product_id` int(8) NOT NULL,
+  `stockroom_id` int(8) NOT NULL,
+  `scrap_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`scrap_product_id`),
+  KEY `scrap_product_productFK` (`product_id`),
+  KEY `scrap_product_stockroomFK` (`stockroom_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stockroom`
+--
+
+DROP TABLE IF EXISTS `stockroom`;
+CREATE TABLE IF NOT EXISTS `stockroom` (
+  `stockroom_id` int(8) NOT NULL AUTO_INCREMENT,
+  `aisle_number` int(11) NOT NULL,
+  `cabinet_level` int(11) NOT NULL,
+  `product_quantity` int(11) NOT NULL,
+  `category_id` int(8) NOT NULL,
+  `user_id` int(8) NOT NULL,
+  PRIMARY KEY (`stockroom_id`),
+  KEY `stockroom_userFK` (`user_id`),
+  KEY `stockroom_categoryFK` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stock_transfer`
+--
+
+DROP TABLE IF EXISTS `stock_transfer`;
+CREATE TABLE IF NOT EXISTS `stock_transfer` (
+  `stock_transfer_id` int(8) NOT NULL AUTO_INCREMENT,
+  `product_id` int(8) NOT NULL,
+  `from_stockroom_id` int(8) NOT NULL,
+  `to_stockroom_id` int(8) NOT NULL,
+  `transfer_quantity` int(11) NOT NULL,
+  `transfer_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`stock_transfer_id`),
+  KEY `stock_transfer_productFK` (`product_id`),
+  KEY `stock_transfer_from_stockroomFK` (`from_stockroom_id`),
+  KEY `stock_transfer_to_stockroomFK` (`to_stockroom_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `supplier`
+--
+
+DROP TABLE IF EXISTS `supplier`;
+CREATE TABLE IF NOT EXISTS `supplier` (
+  `supplier_id` int(8) NOT NULL AUTO_INCREMENT,
+  `company_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `contact_person` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mobile_number` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`supplier_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -147,10 +256,54 @@ INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `image_url`, `mobile_n
 --
 
 --
--- Constraints for table `products`
+-- Constraints for table `inventory`
 --
-ALTER TABLE `products`
-  ADD CONSTRAINT `categoryFK` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `inventory`
+  ADD CONSTRAINT `inventory_productFK` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `inventory_stockTransferFK` FOREIGN KEY (`stock_transfer_id`) REFERENCES `stock_transfer` (`stock_transfer_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `inventory_stockroomFK` FOREIGN KEY (`stockroom_id`) REFERENCES `stockroom` (`stockroom_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `product`
+--
+ALTER TABLE `product`
+  ADD CONSTRAINT `product_categoryFK` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `product_supplierFK` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `sales_order`
+--
+ALTER TABLE `sales_order`
+  ADD CONSTRAINT `sales_order_userFK` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `sales_order_detail`
+--
+ALTER TABLE `sales_order_detail`
+  ADD CONSTRAINT `sales_order_details_productFK` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `sales_order_details_salesOrderFK` FOREIGN KEY (`sale_order_id`) REFERENCES `sales_order` (`sales_order_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `scrap_product`
+--
+ALTER TABLE `scrap_product`
+  ADD CONSTRAINT `scrap_product_productFK` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `scrap_product_stockroomFK` FOREIGN KEY (`stockroom_id`) REFERENCES `stockroom` (`stockroom_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `stockroom`
+--
+ALTER TABLE `stockroom`
+  ADD CONSTRAINT `stockroom_categoryFK` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `stockroom_userFK` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `stock_transfer`
+--
+ALTER TABLE `stock_transfer`
+  ADD CONSTRAINT `stock_transfer_from_stockroomFK` FOREIGN KEY (`from_stockroom_id`) REFERENCES `stockroom` (`stockroom_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `stock_transfer_productFK` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `stock_transfer_to_stockroomFK` FOREIGN KEY (`to_stockroom_id`) REFERENCES `stockroom` (`stockroom_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
