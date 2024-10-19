@@ -7,10 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
-class User extends Authenticatable
+class Inventory extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -21,22 +19,22 @@ class User extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'user';
+    protected $table = 'inventory';
     // Primary Key can be change here('id')
-    public $primaryKey = 'user_id';
+    public $primaryKey = 'inventory_id';
     protected $fillable = [
-        'user_id',
-        'first_name', 
-        'last_name', 
-        'image_url', 
-        'mobile_number',
-        'email',
-        'username',
-        'password',
-        'role',
-        'email_verified_at',
-        'updated_at'
+        'inventory_id',
+        'purchase_price_per_unit', 
+        'sale_price_per_unit', 
+        'unit_of_measure', 
+        'in_stock',
+        'reorder_level',
+        'updated_at',
+        'product_id',
     ];
 
-    public $timestamps = true;
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 }

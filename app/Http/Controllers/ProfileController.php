@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Contact_Details;
-use App\Models\Credentials;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -69,24 +67,24 @@ class ProfileController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-{
-    // Get the authenticated user
-    $userAuth = Auth::user();
-    
-    // Find the user by the provided ID
-    $user = User::with(['contact', 'credential'])->find($id);
-    
-    // Check if the user is logged in
-    if (!Auth::check()) {
-        return redirect('/login')->with('error', 'Unauthorized Page');
-    }
+    {
+        // Get the authenticated user
+        $userAuth = Auth::user();
+        
+        // Find the user by the provided ID
+        $user = User::find($id);
+        
+        // Check if the user is logged in
+        if (!Auth::check()) {
+            return redirect('/login')->with('error', 'Unauthorized Page');
+        }
 
-    // Pass user data to the view
-    return view('profile.update_profile', [
-        'user' => $user,
-        'userAuth' => $userAuth,
-    ]);
-}
+        // Pass user data to the view
+        return view('profile.update_profile', [
+            'user' => $user,
+            'userAuth' => $userAuth,
+        ]);
+    }
 
 
     /**
@@ -97,77 +95,73 @@ class ProfileController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-{   
-    // Validate user credentials
-    $request->validate([
-        'confirm_username' => 'required|string',
-        'confirm_password' => 'required|string',
-    ]);
-
-    // Get the authenticated user
-    $user = auth()->user();
-
-    // Check if the user credentials are correct
-    if ($user->credential->username !== $request->confirm_username || 
-        !Hash::check($request->confirm_password, $user->credential->password)) {
-        return redirect()->back()->with('error', 'Invalid credential in the Confirm Update field.');
-    }
-
-    // Validate the incoming request data
-    $validatedData = $request->validate([
-        'image_url' => ['image'],
-        'first_name' => ['required', 'string', 'max:255'],
-        'last_name' => ['required', 'string', 'max:255'],
-        'mobile_number' => ['required', 'digits:11', 'unique:contact_details,mobile_number,'.auth()->user()->contact->contact_id.',contact_id'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:contact_details,email,'.auth()->user()->contact->contact_id.',contact_id'],
-        'username' => ['required', 'string', 'max:255', 'unique:credentials,username,'.auth()->user()->credential->credential_id.',credential_id'],
-        'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
-    ]);
-
-    // Handle file upload (if a new image is uploaded)
-    if ($request->hasFile('image_url')) {
-        $fileNameWithExt = $request->file('image_url')->getClientOriginalName();
-        $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
-        $extension = $request->file('image_url')->getClientOriginalExtension();
-        $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
-        $request->file('image_url')->storeAs('public/userImage', $fileNameToStore);
-    } else {
-        // Keep the existing image
-        $existingUser = User::find($id);
-        $fileNameToStore = $existingUser->image_url;
-    }
-
-    // Update the data using a transaction for data integrity
-    DB::transaction(function () use ($validatedData, $fileNameToStore, $id) {
-        // Update contact details
-        Contact_Details::where('contact_id', auth()->user()->contact->contact_id)->update([
-            'mobile_number' => $validatedData['mobile_number'],
-            'email' => $validatedData['email'],
+    {   
+        // Validate user credentials
+        $request->validate([
+            'confirm_username' => 'required|string',
+            'confirm_password' => 'required|string',
         ]);
 
-        // Update credentials (including new password if provided)
-        $updateCredentials = [
-            'username' => $validatedData['username'],
-        ];
+        // Get the authenticated user
+        $user = auth()->user();
 
-        if (!empty($validatedData['new_password'])) {
-            // Hash the new password before saving it
-            $updateCredentials['password'] = Hash::make($validatedData['new_password']);
+        // Check if the user credentials are correct
+        if ($user->username !== $request->confirm_username || 
+            !Hash::check($request->confirm_password, $user->password)) {
+            return redirect()->back()->with('error', 'Invalid credential in the Confirm Update field.');
         }
 
-        Credentials::where('credential_id', auth()->user()->credential->credential_id)->update($updateCredentials);
-
-        // Update user
-        User::where('user_id', $id)->update([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'image_url' => $fileNameToStore,
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'image_url' => ['image'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'mobile_number' => ['required', 'digits:11', 'unique:user,mobile_number,' . $id . ',user_id'], //',user_id' is for primary key
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:user,email,' . $id . ',user_id'],
+            'username' => ['required', 'string', 'max:255', 'unique:user,username,' . $id . ',user_id'],
+            'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
-    });
+        
 
-    // Redirect back to profile with success message
-    return redirect()->route('show_profile')->with('success', 'User updated successfully.');
-}
+        // Handle file upload (if a new image is uploaded)
+        if ($request->hasFile('image_url')) {
+            $fileNameWithExt = $request->file('image_url')->getClientOriginalName();
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('image_url')->getClientOriginalExtension();
+            $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
+            $request->file('image_url')->storeAs('public/userImage', $fileNameToStore);
+        } else {
+            // Keep the existing image
+            $existingUser = User::find($id);
+            $fileNameToStore = $existingUser->image_url;
+        }
+
+        // Update the data using a transaction for data integrity
+        DB::transaction(function () use ($validatedData, $fileNameToStore, $id) {
+
+             // Start the update array with common fields
+            $updateData = [
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
+                'image_url' => $fileNameToStore,
+                'mobile_number' => $validatedData['mobile_number'],
+                'email' => $validatedData['email'],
+                'username' => $validatedData['username'],
+            ];
+
+            // If there is a new password, hash it and add it to the update array
+            if (!empty($validatedData['new_password'])) {
+                $updateData['password'] = Hash::make($validatedData['new_password']);
+            }
+
+            // Now perform the update
+            User::where('user_id', $id)->update($updateData);
+        });
+
+        // Redirect back to profile with success message
+        return redirect()->route('show_profile')->with('success', 'User updated successfully.');
+    }
+
 
 
 

@@ -27,7 +27,7 @@
 @section('content')
 <body>
     <div class="content"> <!-- Add the content class to prevent overlap -->
-        @if(Auth::user()->credential->role == "Administrator")
+        @if(Auth::user()->role == "Administrator")
         <div class="container">
             <!-- Alert Messages -->
             @include('common.alert')
@@ -45,7 +45,7 @@
         </div>
         @endif
 
-        @if(Auth::user()->credential->role == "Inventory Manager")
+        @if(Auth::user()->role == "Inventory Manager")
         <div class="container">
             <!-- Alert Messages -->
             @include('common.alert')
@@ -63,7 +63,7 @@
         </div>
         @endif
 
-        @if(Auth::user()->credential->role == "Auditor")
+        @if(Auth::user()->role == "Auditor")
         <div class="container">
             <!-- Alert Messages -->
             @include('common.alert')

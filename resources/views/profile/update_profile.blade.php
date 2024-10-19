@@ -86,14 +86,14 @@
                                 <span class="input-group-text">
                                     <i class="fa-solid fa-envelope fa-lg"></i><label class="ms-2">Email Address</label>
                                 </span>
-                                <input id="email" type="email" class="form-control" name="email" value="{{ $user->contact->email ?? '' }}">
+                                <input id="email" type="email" class="form-control" name="email" value="{{ $user->email ?? '' }}">
                             </div>
 
                             <div class="col-md-6">
                                 <span class="input-group-text">
                                     <i class="fa-solid fa-sim-card fa-lg"></i><label class="ms-2">Mobile Number</label>
                                 </span>
-                                <input id="mobile_number" type="number" class="form-control" name="mobile_number" value="{{ $user->contact->mobile_number ?? '' }}">
+                                <input id="mobile_number" type="number" class="form-control" name="mobile_number" value="{{ $user->mobile_number ?? '' }}">
                             </div>
                         </div>
 
@@ -103,7 +103,7 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
                                 </span>
-                                <input id="username" type="text" class="form-control" name="username" value="{{ $user->credential->username ?? '' }}">
+                                <input id="username" type="text" class="form-control" name="username" value="{{ $user->username ?? '' }}">
                             </div>
                         </div>
 

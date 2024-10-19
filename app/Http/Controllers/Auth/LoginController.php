@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Credentials; // Credentials Model
-use App\Models\Contact_Details; // Credentials Model
 use App\Models\User; // User Model
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -27,17 +25,15 @@ class LoginController extends Controller
         'password' => 'required|string',
     ]);
 
-    // Fetch the credential based on the username from the credentials table
-    $credential = Credentials::where('username', $credentials['username'])->first();
+    // Fetch the credential based on the username
+    $credential = User::where('username', $credentials['username'])->first();
     
     if ($credential && Hash::check($credentials['password'], $credential->password)) {
         // Fetch the user based on the credential_id
-        $user = User::where('credential_id', $credential->credential_id)->first();
+        $user = User::where('user_id', $credential->user_id)->first();
         $userFKey = DB::table('user')
-                    ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
-                    ->join('contact_details', 'user.contact_id', '=', 'contact_details.contact_id')
-                    ->select('user.*', 'credentials.*', 'contact_details.*')
-                    ->where('credentials.credential_id', '=',  $credential->credential_id)
+                    ->select('user.*')
+                    ->where('user_id', '=',  $credential->user_id)
                     ->first();
 
                     if ($userFKey) { // Check if the userFKey is not null before accessing its properties

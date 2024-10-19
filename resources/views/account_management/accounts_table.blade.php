@@ -4,7 +4,7 @@
 @include('common.navbar')
 
 @section('content')
-@if(Auth::user()->credential->role == "Administrator") <!-- Check if user is an administrator -->
+@if(Auth::user()->role == "Administrator") <!-- Check if user is an administrator -->
     <div class="container-fluid">
         <div class="row">
             <!-- Main Content -->
@@ -36,8 +36,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if(count($userJoined) > 0) <!-- Check if userJoined is not null and not empty -->
-                            @foreach($userJoined as $data)
+                        @if(count($userSQL) > 0) <!-- Check if userSQL is not null and not empty -->
+                            @foreach($userSQL as $data)
                                 <tr>
                                     <td>{{ $data->first_name }}</td>
                                     <td>{{ $data->last_name }}</td>
@@ -62,7 +62,7 @@
                                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form action="{{ url('delete/'.$data->user_id) }}" method="POST">
+                                                    <form action="{{ route('account_management.destroy', $data->user_id) }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
 
@@ -89,7 +89,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="6" class="text-center">No Inventory Managers found.</td>
+                                <td colspan="6" class="text-center">No user found.</td>
                             </tr>
                         @endif
                     </tbody>
@@ -101,10 +101,12 @@
 @endsection
 
 <!-- JavaScript to clear the input fields when the modal is closed -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function(){
         // Loop through each delete modal
-        @foreach($userJoined as $data)
+        @foreach($userSQL as $data)
         $('#deleteModal{{ $data->user_id }}').on('hidden.bs.modal', function () {
             // Clear input fields
             $('#admin_username_{{ $data->user_id }}').val('');

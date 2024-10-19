@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Categories extends Authenticatable
+class Supplier extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,15 +19,22 @@ class Categories extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'categories';
+    protected $table = 'supplier';
     // Primary Key can be change here('id')
-    public $primaryKey = 'category_id';
+    public $primaryKey = 'supplier_id';
     protected $fillable = [
-        'category_name', 
+        'supplier_id',
+        'company_name', 
+        'contact_person', 
+        'mobile_number', 
+        'email',
+        'address',
     ];
 
-    public $timestamps = false; // false = to enable customization on timestamp at DB, true = automatic timestamp
-    public function product(){ // Contact_Details is a foreignkey of User
-        return $this->hasOne(Products::class, 'category_id');
+    public $timestamps = false;
+
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'supplier_id');
     }
 }

@@ -7,10 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
-class User extends Authenticatable
+class Stockroom extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -21,22 +19,27 @@ class User extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'user';
+    protected $table = 'stockroom';
     // Primary Key can be change here('id')
-    public $primaryKey = 'user_id';
+    public $primaryKey = 'stockroom_id';
     protected $fillable = [
+        'stockroom_id',
+        'aisle_number', 
+        'cabinet_level',
+        'product_quantity',
+        'category_id',
         'user_id',
-        'first_name', 
-        'last_name', 
-        'image_url', 
-        'mobile_number',
-        'email',
-        'username',
-        'password',
-        'role',
-        'email_verified_at',
-        'updated_at'
     ];
 
-    public $timestamps = true;
+    public $timestamps = false;
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
