@@ -35,6 +35,6 @@ class Supplier extends Authenticatable
 
     public function product()
     {
-        return $this->hasOne(Product::class, 'supplier_id');
+        return $this->hasMany(Product::class, 'supplier_id');
     }
 }

@@ -47,4 +47,8 @@ class StockTransfer extends Authenticatable
     {
         return $this->hasOne(Product::class, 'product_id');
     }
+
+    public function invetory(){ // Contact_Details is a foreignkey of User
+        return $this->hasOne(Inventory::class, 'stock_transfer_id');
+    }
 }

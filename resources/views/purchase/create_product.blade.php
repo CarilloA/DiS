@@ -43,7 +43,7 @@
                 <div class="card-body">
                     <!-- Alert Messages -->
                     @include('common.alert')
-                    <form method="POST" action="{{ url('inventory') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ url('purchase') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row mb-3">
@@ -125,10 +125,9 @@
 
                             <div class="col-md-4">
                                 <label class="input-group-text" for="sale_price_per_unit">
-                                    <i class="fa-solid fa-tag"></i> Sale Price Per Unit
+                                    <i class="fa-solid fa-pen-to-square"></i> Sale Price Per Unit
                                 </label>
                                 <input id="sale_price_per_unit" type="text" class="form-control @error('sale_price_per_unit') is-invalid @enderror" name="sale_price_per_unit" value="{{ old('sale_price_per_unit') }}" required>
-                                <small class="form-text text-info mt-2">Note: Please enter a whole number like 5999.</small>
                                 @error('sale_price_per_unit')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>

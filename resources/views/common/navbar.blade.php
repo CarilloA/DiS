@@ -133,10 +133,10 @@
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-user-shield"></i> ACCOUNT MANAGEMENT</a>
         </li>
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
+            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-truck-ramp-box"></i> SUPPLIER</a>
+            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -171,14 +171,22 @@
     </div>
     <ul class="list-unstyled components">
         <li>
+            <a href="{{ url('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
+        </li>
+        <li>
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
         <li>
-            <a href="{{ route('products_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
+            <a href="{{ route('purchase_table') }}"><i class="fa-solid fa-money-bill"></i> PURCHASE</a>
         </li>
-        
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
+            <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
+        </li>
+        <li>
+            <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
+        </li>
+        <li>
+            <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -216,7 +224,7 @@
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-list-check"></i> AUDIT INVENTORY</a>
+            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-warehouse"></i>INVENTORY</a>
         </li>
         <li>
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>

@@ -55,6 +55,17 @@
                         <div class="text card-header text-center text-light fw-bold" style="background-color: rgb(154, 243, 144)">
                             {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
                         </div>
+                        <!-- Check and display low stock messages -->
+                        @if(!empty($lowStockMessages))
+                        <div class="alert alert-warning">
+                            <strong>Low Stock Alerts:</strong>
+                            <ul>
+                                @foreach($lowStockMessages as $message)
+                                    <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                         <hr style="margin-top: -5px;">
                         <h1 class="text-center">Welcome Inventory Manager, dashboard here</h1>
                     </div>

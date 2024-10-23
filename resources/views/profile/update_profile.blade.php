@@ -69,14 +69,14 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">First Name</label>
                                 </span>
-                                <input id="first_name" type="text" class="form-control" name="first_name" value="{{ $user->first_name }}">
+                                <input id="first_name" type="text" class="form-control" name="first_name" pattern="^[A-Z]{1}[a-z]*$"  value="{{ $user->first_name }}">
                             </div>
 
                             <div class="col-md-6">
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">Last Name</label>
                                 </span>
-                                <input id="last_name" type="text" class="form-control" name="last_name" value="{{ $user->last_name }}">
+                                <input id="last_name" type="text" class="form-control" name="last_name" pattern="^[A-Z]{1}[a-z]*$" value="{{ $user->last_name }}">
                             </div>
                         </div>
 
@@ -93,7 +93,7 @@
                                 <span class="input-group-text">
                                     <i class="fa-solid fa-sim-card fa-lg"></i><label class="ms-2">Mobile Number</label>
                                 </span>
-                                <input id="mobile_number" type="number" class="form-control" name="mobile_number" value="{{ $user->mobile_number ?? '' }}">
+                                <input id="mobile_number" type="number" class="form-control" name="mobile_number" pattern="^09\d{9}$" value="{{ $user->mobile_number ?? '' }}">
                             </div>
                         </div>
 
@@ -103,7 +103,7 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
                                 </span>
-                                <input id="username" type="text" class="form-control" name="username" value="{{ $user->username ?? '' }}">
+                                <input id="username" type="text" class="form-control" name="username" pattern="^[A-Za-z0-9]*" value="{{ $user->username ?? '' }}">
                             </div>
                         </div>
 
@@ -112,7 +112,7 @@
                                 <span class="input-group-text">
                                     <i class="fa fa-key fa-lg"></i><label class="ms-2">New Password</label>
                                 </span>
-                                <input id="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$">
+                                <input id="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$">
                                 <small class="form-text text-danger mt-2" style="color: red">
                                     Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
                                 </small>
@@ -141,12 +141,12 @@
                                 </span>
 
                                     <div class="form-group">
-                                        <label for="username">Username</label>
+                                        <label for="username">Confirm Username</label>
                                         <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" required>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="password">Password</label>
+                                        <label for="password">Confirm Password</label>
                                         <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" required>
                                     </div>
                             </div>

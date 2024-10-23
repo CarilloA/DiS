@@ -31,10 +31,21 @@ class Inventory extends Authenticatable
         'reorder_level',
         'updated_at',
         'product_id',
+        'stockroom_id',
+        'stock_transfer_id',
     ];
 
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+    public function stockroom()
+    {
+        return $this->belongsTo(Stockroom::class, 'stockroom_id');
+    }
+    public function stock_transfer()
+    {
+        return $this->belongsTo(StockTransfer::class, 'stock_transfer_id');
+    }
+
 }

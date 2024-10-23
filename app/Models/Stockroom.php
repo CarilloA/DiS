@@ -42,4 +42,15 @@ class Stockroom extends Authenticatable
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function invetory(){ // Contact_Details is a foreignkey of User
+        return $this->hasOne(Inventory::class, 'stockroom_id');
+    }
+
+    public function updateQuantity($amount)
+    {
+        $this->product_quantity += $amount;
+        $this->save();
+    }
+
 }
