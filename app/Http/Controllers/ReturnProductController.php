@@ -1,11 +1,8 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Sales;
-use App\Models\Product;
-use App\Models\Inventory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -13,120 +10,139 @@ class ReturnProductController extends Controller
 {
     public function index()
     {
-        // Check if the user is logged in
+        // Ensure user is authenticated
         if (!Auth::check()) {
-            // If the user is not logged in, redirect to login
             return redirect('/login')->withErrors('You must be logged in.');
         }
 
-        // Get Inventory Manager details
+        // Fetch Inventory Manager details
         $userSQL = DB::table('user')
             ->select('user.*')
             ->where('role', '=', 'Inventory Manager')
             ->get();
 
-        // Join tables to get sales
+        // Join 'return_product', 'user', and 'sales' tables
         $returnProductJoined = DB::table('return_product')
             ->join('user', 'return_product.user_id', '=', 'user.user_id')
-            ->join('product', 'product.return_product_id', '=', 'return_product.return_product_id')
-            ->select('return_product.*', 'user.*', 'product.*')
+            ->join('sales', 'sales.return_product_id', '=', 'return_product.return_product_id')
+            ->join('product', 'sales.product_id', '=', 'product.product_id')
+            ->select('return_product.*', 'user.*', 'sales.*', 'product.*')
             ->get();
 
-        $inventory = DB::table('inventory')
-            ->join('product', 'inventory.product_id', '=', 'product.product_id') // join with product to filter by specific product_id
-            ->select('inventory.*') // select necessary fields
-            ->whereIn('product.product_id', $returnProductJoined->pluck('product_id')) // fetch only products in sales
-            ->get();    
-
-        // Decode the description for each inventory item
+        // Decode the description array for each return product item
         foreach ($returnProductJoined as $item) {
             $item->descriptionArray = json_decode($item->description, true);
         }
 
-        // Pass the inventory managers and user role to the view
+        // Pass necessary data to the view
         return view('return_product.return_product_table', [
             'userSQL' => $userSQL,
             'returnProductJoined' => $returnProductJoined,
-            'inventory' => $inventory
         ]);
     }
 
-    public function showReturnForm($id)
+    public function showReturnForm()
     {
-        return view('sales/return_product');
+        return view('return_product.create_return_product');
     }
 
     private function generateId($table)
     {
-        // Generate a random 8-digit number
         do {
             $id = random_int(10000000, 99999999);
-        } while (DB::table($table)->where("{$table}_id", $id)->exists()); // Ensure the ID is unique
+        } while (DB::table($table)->where("{$table}_id", $id)->exists()); // Ensure unique ID
 
         return $id;
     }
 
     public function processReturn(Request $request)
 {
+    // Validate the input
     $validatedData = $request->validate([
         'return_quantity' => 'required|integer|min:1',
+        'total_return_amount' => 'required',
         'return_reason' => 'required|string|max:255',
     ]);
 
-    // Get the user ID (assuming the user is logged in)
-    $userId = Auth::id();
+    $userId = Auth::id(); // Get the logged-in user's ID
 
-    // Start a transaction to ensure consistency between sales and inventory updates
+    // Start a transaction to maintain database integrity
     DB::transaction(function () use ($userId, $validatedData, $request) {
-        // Generate a new ID for the return product
+        // Generate a unique ID for the return product
         $newReturnProductId = $this->generateId('return_product');
 
-        // Insert the return record
+        // Create the new return record into the 'return_product' table
         DB::table('return_product')->insert([
-            'return_product_id' => $newReturnProductId, // Use the generated ID here
+            'return_product_id' => $newReturnProductId,
             'user_id' => $userId,
             'return_quantity' => $validatedData['return_quantity'],
+            'total_return_amount' => $validatedData['total_return_amount'],
             'return_reason' => $validatedData['return_reason'],
             'return_date' => now(), // Current timestamp
         ]);
 
-        // Update the product with the new return_product_id
-        DB::table('product')
-            ->where('product_id', $request->product_id)
-            ->update([
-                'return_product_id' => $newReturnProductId, // Use the same generated ID here
-            ]);
+        // Fetch the sales record based on the provided sales_id
+        $sales = DB::table('sales')
+            ->where('sales_id', $request->sales_id)
+            ->first();
+
+        // Check if the sales record exists
+        if ($sales) {
+            // Ensure the sales quantity does not go below zero after the return
+            $newQuantity = $sales->quantity - $validatedData['return_quantity'];
+            $newTotalAmount = $sales->total_amount - $validatedData['total_return_amount'];
+
+            if ($newQuantity < 0) {
+                // Abort the transaction and return an error if the new quantity is negative
+                throw new \Exception('Returned quantity exceeds the available sales quantity.');
+            }
+
+            // Update the sales record with the new quantity and link the return_product_id
+            DB::table('sales')
+                ->where('sales_id', $sales->sales_id)
+                ->update([
+                    'quantity' => $newQuantity, // Decrement sale quantity
+                    'total_amount' => $newTotalAmount, // Decrement sale total amount
+                    'return_product_id' => $newReturnProductId, // Link the return product
+                ]);
+        } else {
+            // Abort the transaction and throw an error if the sales record is not found
+            throw new \Exception('Sales record not found.');
+        }
     });
 
-    return redirect()->route('sales_table')->with('success', 'Product returned successfully');
+    // Redirect back to the return product table with a success message
+    return redirect()->route('return_product_table')->with('success', 'Product returned successfully.');
 }
+
+
 
 
     public function showRefundExchangeForm()
     {
         // Get stored session data
-        $quantity = session('quantity');
-        $product = Product::where('product_name', session('product_name'))->first();
-        $inventory = Inventory::where('product_id', $product->product_id)->first();
+        // $quantity = session('quantity');
+        // $product = Product::where('product_name', session('product_name'))->first();
+        // $inventory = Inventory::where('product_id', $product->product_id)->first();
 
-        $totalRefundAmount = $inventory->sale_price_per_unit * $quantity;
+        // $totalRefundAmount = $inventory->sale_price_per_unit * $quantity;
 
-        return view('refund-exchange', [
-            'product_name' => $product->product_name,
-            'total_refund' => $totalRefundAmount
-        ]);
+        // return view('refund-exchange', [
+        //     'product_name' => $product->product_name,
+        //     'total_refund' => $totalRefundAmount
+        // ]);
     }
 
     public function processRefundOrExchange(Request $request)
     {
-        if ($request->input('action') === 'refund') {
-            // Process refund logic
-            return redirect()->back()->with('success', 'Product refunded successfully.');
-        } elseif ($request->input('action') === 'exchange') {
-            // Logic to exchange the product
-            return redirect()->back()->with('success', 'Product exchanged successfully.');
-        }
+        // if ($request->input('action') === 'refund') {
+        //     // Process refund logic
+        //     return redirect()->back()->with('success', 'Product refunded successfully.');
+        // } elseif ($request->input('action') === 'exchange') {
+        //     // Logic to exchange the product
+        //     return redirect()->back()->with('success', 'Product exchanged successfully.');
+        // }
 
-        return back()->withErrors(['Invalid action']);
+        // return back()->withErrors(['Invalid action']);
     }
 }

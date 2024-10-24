@@ -29,6 +29,7 @@ class Sales extends Authenticatable
         'sales_date', 
         'user_id',
         'product_id',
+        'return_product_id',
     ];
 
     public function user()
@@ -39,5 +40,9 @@ class Sales extends Authenticatable
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function return_product() {
+        return $this->hasMany(ReturnProduct::class, 'return_product_id');
     }
 }

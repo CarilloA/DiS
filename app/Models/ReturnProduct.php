@@ -25,6 +25,7 @@ class ReturnProduct extends Authenticatable
     protected $fillable = [
         'return_product_id',
         'return_quantity', 
+        'total_return_amount',
         'return_reason',
         'return_date',
         'user_id',

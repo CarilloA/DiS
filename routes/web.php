@@ -87,7 +87,7 @@ Route::post('fetch-product', [SalesController::class, 'fetchProduct'])->name('fe
 Route::get('search', [SalesController::class, 'search'])->name('sales.search');
 
 use App\Http\Controllers\ReturnProductController;
-Route::get('return_product', [ReturnProductController::class, 'index'])->name('return_product.index');
+Route::get('return_product', [ReturnProductController::class, 'index'])->name('return_product_table');
 Route::get('return_product/{id}', [ReturnProductController::class, 'showReturnForm'])->name('return_product.show');
 Route::post('return_product/{id}', [ReturnProductController::class, 'processReturn'])->name('return_product.process');
 

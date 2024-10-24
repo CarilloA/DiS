@@ -35,8 +35,10 @@ class SalesController extends Controller
         $salesJoined = DB::table('sales')
             ->join('user', 'sales.user_id', '=', 'user.user_id')
             ->join('product', 'sales.product_id', '=', 'product.product_id')
+            ->join('inventory', 'inventory.product_id', '=', 'product.product_id')
             ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->select('sales.*', 'user.*', 'product.*', 'category.*')
+            ->select('sales.*', 'user.*', 'product.*', 'category.*', 'inventory.*')
+            ->where('sales.quantity', '!=', 0)
             ->get();
 
         $inventory = DB::table('inventory')

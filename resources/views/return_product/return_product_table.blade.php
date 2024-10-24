@@ -4,13 +4,14 @@
 @include('common.navbar')
 
 @section('content')
-@if(Auth::user()->role == 'Administrator' || Auth::user()->role == 'Inventory Manager') 
+@if(Auth::user()->role === 'Administrator' || Auth::user()->role === 'Inventory Manager')
     <div class="container-fluid">
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            
             <!-- Alert Messages -->
             @include('common.alert')
 
-            <!-- Date Range Picker -->
+            <!-- Date Range Picker Form -->
             <form method="POST" action="{{ url('report') }}" enctype="multipart/form-data" class="mb-3">
                 @csrf
                 <div class="input-group">
@@ -30,24 +31,26 @@
                         <th>Ref. No.</th>
                         <th>Seller</th>
                         <th>Product Name</th>
-                        <th>Return Quantity</th>
-                        <th>Return Reason</th>
-                        <th>Return Timestamp</th>
+                        <th>Returned Quantity</th>
+                        <th>Total Returned Amount</th>
+                        <th>Returned Reason</th>
+                        <th>Returned Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($returnProductJoined as $data)
                         <tr>
-                            <td>{{ $data->product_id }}</td>
+                            <td>{{ $data->sales_id }}</td>
                             <td>{{ $data->first_name }} {{ $data->last_name }}</td>
                             <td>{{ $data->product_name }}</td>
                             <td>{{ $data->return_quantity }}</td>
+                            <td>{{ $data->total_return_amount }}</td>
                             <td>{{ $data->return_reason }}</td>
                             <td>{{ $data->return_date }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center">No returned product found.</td>
+                            <td colspan="6" class="text-center">No returned products found.</td>
                         </tr>
                     @endforelse
                 </tbody>

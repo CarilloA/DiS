@@ -28,7 +28,6 @@ class Product extends Authenticatable
         'description',
         'category_id',
         'supplier_id',
-        'return_product_id',
     ];
 
     public $timestamps = false;
@@ -50,8 +49,5 @@ class Product extends Authenticatable
 
     public function sales() {
         return $this->hasMany(Sales::class, 'product_id');
-    }
-    public function return_product() {
-        return $this->hasMany(ReturnProduct::class, 'return_product_id');
     }
 }

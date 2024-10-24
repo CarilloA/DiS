@@ -12,7 +12,7 @@
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
                 <h1 class="h2">SALES</h1>
                 <a class="btn btn-primary" href="{{ route('sales.create') }}">+ Sale Product</a>
-                <a class="btn btn-primary" href="{{ route('return_product.index') }}">Returned Products View</a>
+                <a class="btn btn-primary" href="{{ route('return_product_table') }}">Returned Products View</a>
             </div>
 
             <!-- Search Bar -->
@@ -53,6 +53,7 @@
                         <th>Product Name</th>
                         <th>Category</th>
                         <th>Quantity</th>
+                        <th>Sale Price</th>
                         <th>Total Amount</th>
                         <th>Sales Timestamp</th>
                         <th>Description</th>
@@ -67,6 +68,7 @@
                             <td>{{ $data->product_name }}</td>
                             <td>{{ $data->category_name }}</td>
                             <td>{{ $data->quantity }}</td>
+                            <td>{{ $data->sale_price_per_unit }}</td>
                             <td>{{ $data->total_amount }}</td>
                             <td>{{ $data->sales_date }}</td>
                             <td>
@@ -99,11 +101,12 @@
                                     <form id="returnForm{{ $data->sales_id }}" action="{{ route('return_product.process', $data->sales_id) }}" method="POST">
 
                                         @csrf
-                                        <input type="hidden" name="product_id" value="{{ $data->product_id }}">
+                                        {{-- <input type="hidden" name="product_id" value="{{ $data->product_id }}"> --}}
                                         <input type="hidden" name="sales_id" value="{{ $data->sales_id }}">
 
                                         <div id="product-info" class="mb-3">
                                             <p><strong>Product Details:</strong></p>
+                                            <p><strong>Ref. No.:</strong> <span id="product_name">{{ $data->sales_id }}</span></p>
                                             <p><strong>Product Name:</strong> <span id="product_name">{{ $data->product_name }}</span></p>
                                             <p><strong>Purchase Quantity:</strong> <span id="quantity">{{ $data->quantity }}</span></p>
                                             @php
@@ -113,16 +116,20 @@
 
                                             <p id="price-info">
                                                 <strong>Sale Price per Unit: ₱</strong>
-                                                <span id="sales_price">
-                                                    {{ $currentInventory->sale_price_per_unit ?? 'N/A' }}  <!-- Default to 'N/A' if not set -->
+                                                <span id="sale_price_per_unit" data-price="{{ $currentInventory->sale_price_per_unit ?? '0' }}">
+                                                    {{ $currentInventory->sale_price_per_unit ?? 'N/A' }}
                                                 </span>
                                             </p>
-                                            <p id="total-info"><strong>Total Amount: </strong><span id="total_amount">{{ $data->total_amount }}</span></p>
+                                            <p id="total-info"><strong>Total Purchase Amount: </strong><span id="total_amount">{{ $data->total_amount }}</span></p>
                                         </div>
                                         <div class="modal-body">
                                             <div class="form-group">
                                                 <label for="return_quantity">Quantity to be Returned</label>
-                                                <input type="number" class="form-control" name="return_quantity" value="{{ old('return_quantity') }}" required>
+                                                <input type="number" class="form-control return-quantity" id="return_quantity_{{ $data->sales_id }}" name="return_quantity" required>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="total_amount">Total Amount to be Returned</label>
+                                                <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_id }}" name="total_return_amount" readonly>
                                             </div>
                                             <div class="form-group">
                                                 <label for="return_reason">Reason</label>
@@ -185,6 +192,27 @@
             confirmButtonText: 'Close'
         });
     }
+
+    // Ensure the document is fully loaded before running the script
+$(document).ready(function() {
+    // Automatically calculate the total return amount when the return quantity is inputted
+    $('.return-quantity').each(function() {
+        $(this).on('input', function() {
+            const saleId = $(this).attr('id').split('_')[2]; // Extract the sales_id from the input's ID
+            const returnQuantity = parseFloat($(this).val()) || 0; // Ensure the quantity is a number
+            const pricePerUnitElement = $(`#returnModal${saleId} #sale_price_per_unit`);
+            const pricePerUnit = parseFloat(pricePerUnitElement.data('price')) || 0; // Ensure price per unit is a number
+
+            // Calculate the total amount to be returned
+            const totalReturnAmount = returnQuantity * pricePerUnit;
+
+            // Update the total return amount field
+            $(`#total_return_amount_${saleId}`).val(totalReturnAmount.toFixed(2));
+        });
+    });
+});
+
+
 
     $(document).ready(function() {
         // Handle form submission for search
