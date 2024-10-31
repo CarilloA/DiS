@@ -54,11 +54,11 @@ class InventoryController extends Controller
             $item->descriptionArray = json_decode($item->description, true); // Decode the JSON description into an array
         }
 
-        // Pass the inventory managers and user role to the view
-        return view('inventory.inventory_table', [
-            'userSQL' => $userSQL,
-            'inventoryJoined' => $inventoryJoined,
-        ]);
+            // Pass the inventory managers and user role to the view
+            return view('inventory.inventory_table', [
+                'userSQL' => $userSQL,
+                'inventoryJoined' => $inventoryJoined,
+            ]);
     }
 
     /**

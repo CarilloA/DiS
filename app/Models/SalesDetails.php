@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Inventory extends Authenticatable
+class Sales extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,36 +19,32 @@ class Inventory extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'inventory';
+    protected $table = 'sales_details';
     // Primary Key can be change here('id')
-    public $primaryKey = 'inventory_id';
+    public $primaryKey = 'sales_details_id';
     protected $fillable = [
+        'sales_details_id',
+        'sales_quantity',
+        'sales_id', 
         'inventory_id',
-        'purchase_price_per_unit', 
-        'sale_price_per_unit', 
-        'unit_of_measure', 
-        'in_stock',
-        'reorder_level',
-        'updated_at',
         'product_id',
-        'stockroom_id',
-        'stock_transfer_id',
+        'return_product_id',
     ];
 
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
-    public function stockroom()
-    {
-        return $this->belongsTo(Stockroom::class, 'stockroom_id');
-    }
-    public function stock_transfer()
-    {
-        return $this->belongsTo(StockTransfer::class, 'stock_transfer_id');
-    }
-    public function audits() {
-        return $this->hasMany(InventoryAudit::class, 'audit_id');
+
+    public function return_product() {
+        return $this->hasMany(ReturnProduct::class, 'return_product_id');
     }
 
+    public function sales() {
+        return $this->belongsTo(Sales::class, 'sales_id');
+    }
+
+    public function inventory() {
+        return $this->belongsTo(Inventory::class, 'inventory_id');
+    }
 }

@@ -80,15 +80,15 @@
                                     <div class="modal-body">
                                         <div class="form-group">
                                             <label for="purchase_price_per_unit">Purchase Price Per Unit</label>
-                                            <input type="text" class="form-control" name="purchase_price_per_unit" value="{{ old('purchase_price_per_unit') }}" required>
+                                            <input type="text" class="form-control" name="purchase_price_per_unit" value="{{ old('purchase_price_per_unit') }}" pattern="^\d{1,6}(\.\d{1,2})?$" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="unit_of_measure">Unit of Measure</label>
-                                            <input type="text" class="form-control" name="unit_of_measure" value="{{ old('unit_of_measure') }}" required>
+                                            <input type="text" class="form-control" name="unit_of_measure" value="{{ old('unit_of_measure') }}" pattern="^[a-zA-Z\s]{1,15}$" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="quantity">Quantity</label>
-                                            <input type="text" class="form-control" name="quantity" value="{{ old('quantity') }}" required>
+                                            <input type="text" class="form-control" name="quantity" value="{{ old('quantity') }}" pattern="^\d{1,6}$" required>
                                         </div>
                                         <div class="form-group">
                                            <input type="hidden" name="update_supplier" value="0">  <!-- Hidden input to default to false -->
@@ -99,15 +99,15 @@
                                         <div id="supplier_details_section{{ $data->supplier_id }}" style="display: none;">
                                             <div class="form-group">
                                                 <label for="company_name">Company Name</label>
-                                                <input type="text" class="form-control" name="company_name" value="{{ old('company_name') }}">
+                                                <input type="text" class="form-control" name="company_name" value="{{ old('company_name') }}" pattern="^[a-zA-Z0-9\s\-]{1,30}$">
                                             </div>
                                             <div class="form-group">
                                                 <label for="contact_person">Contact Person</label>
-                                                <input type="text" class="form-control" name="contact_person" value="{{ old('contact_person') }}">
+                                                <input type="text" class="form-control" name="contact_person" value="{{ old('contact_person') }}" pattern="^[a-zA-Z\s]{1,30}$">
                                             </div>
                                             <div class="form-group">
                                                 <label for="mobile_number">Mobile Number</label>
-                                                <input type="number" class="form-control" name="mobile_number" value="{{ old('mobile_number') }}">
+                                                <input type="number" class="form-control" name="mobile_number" value="{{ old('mobile_number') }}" pattern="^09\d{9}$">
                                             </div>
                                             <div class="form-group">
                                                 <label for="email">Email</label>
@@ -115,7 +115,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="address">Address</label>
-                                                <input type="text" class="form-control" name="address" value="{{ old('address') }}">
+                                                <input type="text" class="form-control" name="address" value="{{ old('address') }}" pattern="^[a-zA-Z0-9\s.,\-]{1,100}$">
                                             </div>
                                         </div>
                                     </div>

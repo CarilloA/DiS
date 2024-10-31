@@ -233,10 +233,13 @@
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-warehouse"></i>INVENTORY</a>
+            <a href="{{ route('audit_inventory_table') }}"><i class="fa-solid fa-warehouse"></i>INVENTORY</a>
         </li>
         <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
+            <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-file"></i> LOGS</a>
+        </li>
+        <li>
+            <a href="{{ route('inventory.audit') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

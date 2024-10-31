@@ -61,106 +61,136 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($salesJoined as $data)
-                        <tr>
-                            <td>{{ $data->sales_id }}</td>
-                            <td>{{ $data->first_name }} {{ $data->last_name }}</td>
-                            <td>{{ $data->product_name }}</td>
-                            <td>{{ $data->category_name }}</td>
-                            <td>{{ $data->quantity }}</td>
-                            <td>{{ $data->sale_price_per_unit }}</td>
-                            <td>{{ $data->total_amount }}</td>
-                            <td>{{ $data->sales_date }}</td>
-                            <td>
-                                <button type="button" class="btn" onclick="showDescriptionDetail({!! json_encode($data->descriptionArray) !!})">
-                                    <u><strong>more info.</strong></u>
-                                </button>
-                            </td>
-                            <td>
-                                @if ($data->sales_date > $deadline)
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal{{ $data->sales_id }}">
-                                        Return
-                                    </button>
-                                @else
-                                    <button type="button" class="btn btn-secondary" disabled>
-                                        Return
-                                    </button>
-                                @endif
-                            </td>
-                        </tr>
-                        <!-- Return Modal for Each Product -->
-                        <div class="modal fade" id="returnModal{{ $data->sales_id }}" tabindex="-1" role="dialog" aria-labelledby="returnModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="returnModalLabel">Return Product</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
+                    @php
+                        $currentSalesId = null; // Variable to track current sales ID
+                    @endphp
+
+                    @forelse($salesGrouped as $sales)
+                        @foreach($sales as $index => $data)
+                            <tr>
+                                @if($index === 0) <!-- Display this only for the first product -->
+                                    <td rowspan="{{ count($sales) }}">{{ $data->sales_id }}</td> <!-- Merge cells for sales_id -->
+                                    <td rowspan="{{ count($sales) }}">{{ $data->first_name }} {{ $data->last_name }}</td> <!-- Merge cells for seller -->
+                                    <td>{{ $data->product_name }}</td>
+                                    <td>{{ $data->category_name }}</td>
+                                    <td>{{ $data->sales_quantity }}</td>
+                                    <td>{{ $data->sale_price_per_unit }}</td>
+                                    <td rowspan="{{ count($sales) }}">{{ $data->total_amount }}</td>
+                                    <td>{{ $data->sales_date }}</td>
+                                    <td>
+                                        <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
+                                            <u><strong>more info.</strong></u>
                                         </button>
-                                    </div>
-                                    <form id="returnForm{{ $data->sales_id }}" action="{{ route('return_product.process', $data->sales_id) }}" method="POST">
-
-                                        @csrf
-                                        {{-- <input type="hidden" name="product_id" value="{{ $data->product_id }}"> --}}
-                                        <input type="hidden" name="sales_id" value="{{ $data->sales_id }}">
-
-                                        <div id="product-info" class="mb-3">
-                                            <p><strong>Product Details:</strong></p>
-                                            <p><strong>Ref. No.:</strong> <span id="product_name">{{ $data->sales_id }}</span></p>
-                                            <p><strong>Product Name:</strong> <span id="product_name">{{ $data->product_name }}</span></p>
-                                            <p><strong>Purchase Quantity:</strong> <span id="quantity">{{ $data->quantity }}</span></p>
-                                            @php
-                                                // Find the relevant inventory record for this product
-                                                $currentInventory = $inventory->where('product_id', $data->product_id)->first();
-                                            @endphp
-
-                                            <p id="price-info">
-                                                <strong>Sale Price per Unit: ₱</strong>
-                                                <span id="sale_price_per_unit" data-price="{{ $currentInventory->sale_price_per_unit ?? '0' }}">
-                                                    {{ $currentInventory->sale_price_per_unit ?? 'N/A' }}
-                                                </span>
-                                            </p>
-                                            <p id="total-info"><strong>Total Purchase Amount: </strong><span id="total_amount">{{ $data->total_amount }}</span></p>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="form-group">
-                                                <label for="return_quantity">Quantity to be Returned</label>
-                                                <input type="number" class="form-control return-quantity" id="return_quantity_{{ $data->sales_id }}" name="return_quantity" required>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="total_amount">Total Amount to be Returned</label>
-                                                <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_id }}" name="total_return_amount" readonly>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="return_reason">Reason</label>
-                                                <input type="text" class="form-control" name="return_reason" value="{{ old('return_reason') }}" required>
-                                            </div>
-                                        </div>
-
-                                        <!-- Modal Validation Error Alert Message-->
-                                        @if ($errors->any() && old('sales_id') == $data->sales_id)
-                                        <div class="alert alert-danger">
-                                            <ul>
-                                                @foreach ($errors->all() as $error)
-                                                    <li>{{ $error }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                        <script>
-                                            $(document).ready(function() {
-                                                $('#returnModal{{ $data->sales_id }}').modal('show');
-                                            });
-                                        </script>
+                                    </td>
+                                    <td>
+                                        @if ($data->sales_date > $deadline)
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal{{ $data->sales_details_id }}">
+                                                Return
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-secondary" disabled>
+                                                Return
+                                            </button>
                                         @endif
-
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Confirm Return Product</button>
+                                    </td>
+                                @else
+                                <td>{{ $data->product_name }}</td>
+                                <td>{{ $data->category_name }}</td>
+                                <td>{{ $data->sales_quantity }}</td>
+                                <td>{{ $data->sale_price_per_unit }}</td>
+                                <td>{{ $data->sales_date }}</td>
+                                <td>
+                                    <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
+                                        <u><strong>more info.</strong></u>
+                                    </button>
+                                </td>
+                                <td>
+                                    @if ($data->sales_date > $deadline)
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal{{ $data->sales_details_id }}">
+                                            Return
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-secondary" disabled>
+                                            Return
+                                        </button>
+                                    @endif
+                                </td>
+                                @endif
+                            </tr>
+                        @endforeach
+                        <!-- Return Modal for Each Product -->
+                        @foreach ($salesGrouped as $sales)
+                            @foreach($sales as $data)
+                            <div class="modal fade" id="returnModal{{ $data->sales_details_id }}" tabindex="-1" role="dialog" aria-labelledby="returnModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="returnModalLabel">Return Product</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
-                                    </form>
+                                        <form id="returnForm{{ $data->sales_details_id }}" action="{{ route('return_product.process', $data->sales_details_id) }}" method="POST">
+
+                                            @csrf
+                                            <input type="hidden" name="sales_id" value="{{ $data->sales_id }}">
+                                            <input type="hidden" name="sales_details_id" value="{{ $data->sales_details_id }}">
+
+                                            <div id="product-info" class="mb-3">
+                                                <p><strong>Sale Details:</strong></p>
+                                                <p><strong>Ref. No.:</strong> <span id="product_name">{{ $data->sales_id }}</span></p>
+                                                <p><strong>Product Name:</strong> <span id="product_name">{{ $data->product_name }}</span></p>
+                                                <p><strong>Purchase Quantity:</strong> <span id="quantity">{{ $data->sales_quantity }}</span></p>
+
+                                                <p id="price-info">
+                                                    <strong>Sale Price per Unit: ₱</strong>
+                                                    <span id="sale_price_per_unit" data-price="{{ $data->sale_price_per_unit ?? '0' }}">
+                                                        {{ $data->sale_price_per_unit ?? 'N/A' }}
+                                                    </span>
+                                                </p>
+                                                <p id="total-info"><strong>Total Purchase Amount: ₱</strong><span id="total_amount">{{ $data->total_amount }}</span></p>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label for="return_quantity">Quantity to be Returned</label>
+                                                    <input type="number" class="form-control return-quantity" id="return_quantity_{{ $data->sales_details_id }}" name="return_quantity" pattern="^\d{1,6}$" required>
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label for="total_return_amount_{{ $data->sales_details_id }}">Total Amount to be Returned</label>
+                                                    <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_details_id }}" name="total_return_amount" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="return_reason">Reason</label>
+                                                    <input type="text" class="form-control" name="return_reason" value="{{ old('return_reason') }}" pattern="^[a-zA-Z0-9\s\.,\-]{1,30}$" required>
+                                                </div>
+                                            </div>
+
+                                            <!-- Modal Validation Error Alert Message-->
+                                            @if ($errors->any() && old('sales_id') == $data->sales_details_id)
+                                            <div class="alert alert-danger">
+                                                <ul>
+                                                    @foreach ($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                            <script>
+                                                $(document).ready(function() {
+                                                    $('#returnModal{{ $data->sales_details_id }}').modal('show');
+                                                });
+                                            </script>
+                                            @endif
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Confirm Return Product</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
+                    @endforeach
                     @empty
                         <tr>
                             <td colspan="9" class="text-center">No sales found.</td>
@@ -177,12 +207,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-    function showDescriptionDetail(descriptionArray) {
-        const { color = 'N/A', size = 'N/A', description = 'N/A' } = descriptionArray;
+    function showDescriptionDetail(color, size, description) {
         const descriptionDetails = `
-            <strong>Color:</strong> ${color}<br>
-            <strong>Size:</strong> ${size}<br>
-            <strong>Description:</strong> ${description}<br>
+            <strong>Company Name:</strong> ${color}<br>
+            <strong>Contact Person:</strong> ${size}<br>
+            <strong>Mobile Number:</strong> ${description}<br>
         `;
 
         Swal.fire({
@@ -206,12 +235,16 @@ $(document).ready(function() {
             // Calculate the total amount to be returned
             const totalReturnAmount = returnQuantity * pricePerUnit;
 
+            // Debugging logs
+            console.log("Sale ID:", saleId);
+            console.log("Return Quantity:", returnQuantity);
+            console.log("Price Per Unit:", pricePerUnit);
+
             // Update the total return amount field
             $(`#total_return_amount_${saleId}`).val(totalReturnAmount.toFixed(2));
         });
     });
 });
-
 
 
     $(document).ready(function() {
@@ -245,12 +278,12 @@ $(document).ready(function() {
                                     <td>${sale.total_amount}</td>
                                     <td>${sale.sales_date}</td>
                                     <td>
-                                        <button type="button" class="btn" onclick="showDescriptionDetail(${JSON.stringify(sale.descriptionArray)})">
+                                        <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
                                             <u><strong>more info.</strong></u>
                                         </button>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal${sale.sales_id}">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal{{ $data->sales_details_id }}">
                                             Return
                                         </button>
                                     </td>

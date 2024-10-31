@@ -142,12 +142,12 @@
 
                                     <div class="form-group">
                                         <label for="username">Confirm Username</label>
-                                        <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" required>
+                                        <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" pattern="^[A-Za-z0-9]*" required>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="password">Confirm Password</label>
-                                        <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" required>
+                                        <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                                     </div>
                             </div>
                         </div>

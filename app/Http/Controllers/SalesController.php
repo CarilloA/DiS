@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Sales;
-use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,24 +29,26 @@ class SalesController extends Controller
             ->get();
 
         // Join tables to get sales
-        $salesJoined = DB::table('sales')
+        $salesJoined = DB::table('sales_details')
+            ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
             ->join('user', 'sales.user_id', '=', 'user.user_id')
-            ->join('product', 'sales.product_id', '=', 'product.product_id')
-            ->join('inventory', 'inventory.product_id', '=', 'product.product_id')
+            ->join('product', 'sales_details.product_id', '=', 'product.product_id')
+            ->join('inventory', 'sales_details.inventory_id', '=', 'inventory.inventory_id')
             ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->select('sales.*', 'user.*', 'product.*', 'category.*', 'inventory.*')
-            ->where('sales.quantity', '!=', 0)
+            ->select('sales.*', 'sales_details.*', 'user.*', 'product.*', 'category.*', 'inventory.*')
+            ->where('sales_details.sales_quantity', '!=', 0)
             ->get();
 
-        $inventory = DB::table('inventory')
-            ->join('product', 'inventory.product_id', '=', 'product.product_id') // join with product to filter by specific product_id
-            ->select('inventory.*') // select necessary fields
-            ->whereIn('product.product_id', $salesJoined->pluck('product_id')) // fetch only products in sales
-            ->get();    
+            $salesGrouped = $salesJoined->groupBy('sales_id');
 
-        // Decode the description for each inventory item
-        foreach ($salesJoined as $item) {
-            $item->descriptionArray = json_decode($item->description, true);
+        // Decode the description for each sales item
+        foreach ($salesGrouped as $salesItems) { // $salesItems is a collection of items for each sales_id
+            foreach ($salesItems as $item) { // Loop through each item within the salesItems collection
+                $item->descriptionArray = json_decode($item->description, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    Log::error('JSON decode error: ' . json_last_error_msg());
+                }
+            }
         }
 
         $deadline = now()->subDays(7);
@@ -59,7 +58,7 @@ class SalesController extends Controller
             'userSQL' => $userSQL,
             'salesJoined' => $salesJoined,
             'deadline' => $deadline,
-            'inventory' => $inventory
+            'salesGrouped' => $salesGrouped
         ]);
     }
 
@@ -121,68 +120,95 @@ class SalesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        // Validate input
-        $validatedData = $request->validate([
-            'product_id' => 'required|integer|exists:product,product_id',
-            'quantity' => 'required|integer|min:1',
-            'total_amount' => 'required|numeric'
+{
+    // Validate the array input for multiple products
+    $validatedData = $request->validate([
+        'product_id' => 'required|array',
+        'product_id.*' => 'required|integer|exists:product,product_id',
+        'quantity' => 'required|array',
+        'quantity.*' => 'required|integer|min:1',
+        'grand_total_amount' => 'required|numeric',
+    ]);
+
+    // Get the user ID (assuming the user is logged in)
+    $userId = Auth::id();
+
+    // Start a transaction to ensure consistency between sales and inventory updates
+    DB::transaction(function () use ($userId, $validatedData) {
+        // Insert a single sale record with current timestamp
+        $salesId = $this->generateId('sales');
+        DB::table('sales')->insert([
+            'sales_id' => $salesId,
+            'user_id' => $userId,
+            'total_amount' => $validatedData['grand_total_amount'], // Total amount for all products
+            'sales_date' => now(),
         ]);
 
-        // Get the user ID (assuming the user is logged in)
-        $userId = Auth::id();
+        // Prepare an array for bulk insert into sales_details
+        $salesDetails = [];
 
-        // Retrieve the product and inventory data
-        $product = DB::table('inventory')
-            ->join('product', 'inventory.product_id', '=', 'product.product_id')
-            ->where('product.product_id', $request->product_id)
-            ->first();
+        // Loop through each product in the request data
+        foreach ($validatedData['product_id'] as $index => $productId) {
+            $quantity = $validatedData['quantity'][$index];
 
-        // Ensure the product exists and has enough stock
-        if (!$product || $product->in_stock < $request->quantity) {
-            return redirect()->back()->with('error', 'Not enough stock available.');
+            // Retrieve inventory data for the product
+            $inventory = DB::table('inventory')
+                ->join('product', 'inventory.product_id', '=', 'product.product_id')
+                ->where('product.product_id', $productId)
+                ->first();
+
+            // Ensure there is enough stock for each product
+            if (!$inventory || $inventory->in_stock < $quantity) {
+                throw new \Exception("Not enough stock available for product ID: {$productId}");
+            }
+
+            // Generate a unique sales_details_id for this product
+            $salesDetailsId = $this->generateId('sales_details');
+
+            // Prepare data for sales_details
+            $salesDetails[] = [
+                'sales_details_id' => $salesDetailsId, // Use the unique ID generated for this entry
+                'sales_id' => $salesId,
+                'product_id' => $productId,
+                'inventory_id' => $inventory->inventory_id,
+                'sales_quantity' => $quantity,
+            ];
+
+            // Update inventory for each product
+            DB::table('inventory')
+                ->where('product_id', $productId)
+                ->update([
+                    'in_stock' => DB::raw("in_stock - {$quantity}"),
+                ]);
         }
 
-        // Start a transaction to ensure consistency between sales and inventory updates
-        DB::transaction(function () use ($userId, $validatedData, $request) {
-            // Insert the sale record
-            DB::table('sales')->insert([
-                'sales_id' => $this->generateId('sales'), // Generate custom ID for sales
-                'user_id' => $userId,
-                'product_id' => $validatedData['product_id'],
-                'quantity' => $validatedData['quantity'],
-                'total_amount' => $validatedData['total_amount'],
-                'sales_date' => now(), // Current timestamp
-            ]);
+        // Bulk insert into sales_details
+        DB::table('sales_details')->insert($salesDetails);
+    });
 
-            // Update the inventory: subtract from in_stock and add to out_stock
-            DB::table('inventory')
-                ->where('product_id', $request->product_id)
-                ->update([
-                    'in_stock' => DB::raw('in_stock - ' . $validatedData['quantity']),
-                ]);
-        });
+    return redirect()->route('sales_table')->with('success', 'Sale completed successfully');
+}
 
-        return redirect()->route('sales_table')->with('success', 'Sale completed successfully');
-    }
-
-    public function search(Request $request)
+public function search(Request $request)
 {
     if ($request->ajax()) {
         // Get the search input from the request
         $search = $request->get('query');
+        //Log::info('Search Query:', ['query' => $search]);
 
         // Query the sales table with necessary joins
-        $salesQuery = DB::table('sales')
+        $salesQuery = DB::table('sales_details')
+            ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
             ->join('user', 'sales.user_id', '=', 'user.user_id')
-            ->join('product', 'sales.product_id', '=', 'product.product_id')
+            ->join('product', 'sales_details.product_id', '=', 'product.product_id')
             ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->select('sales.*', 'user.first_name', 'user.last_name', 'product.product_name', 'product.description', 'category.category_name');
+            ->select('sales_details.*', 'sales.*', 'user.*', 'product.*', 'category.*');
 
         // Apply search filter if search query is present
         if (!empty($search)) {
             $salesQuery->where(function($query) use ($search) {
-                $query->where('sales.sales_id', 'LIKE', "%{$search}%")
+                $query->where('sales_details.sales_details_id', 'LIKE', "%{$search}%")
+                      ->orWhere('sales.sales_id', 'LIKE', "%{$search}%")
                       ->orWhere('user.first_name', 'LIKE', "%{$search}%")
                       ->orWhere('user.last_name', 'LIKE', "%{$search}%")
                       ->orWhere('product.product_name', 'LIKE', "%{$search}%")
@@ -192,6 +218,9 @@ class SalesController extends Controller
 
         // Execute the query and get the results
         $sales = $salesQuery->get();
+
+        // Log the sales query results
+        //Log::info('Sales Query Result:', ['result' => $sales]);
 
         // Decode the description JSON for each product
         foreach ($sales as $sale) {
@@ -204,6 +233,7 @@ class SalesController extends Controller
 
     return view('sales_table');
 }
+
 
 
 

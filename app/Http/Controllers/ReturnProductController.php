@@ -24,9 +24,10 @@ class ReturnProductController extends Controller
         // Join 'return_product', 'user', and 'sales' tables
         $returnProductJoined = DB::table('return_product')
             ->join('user', 'return_product.user_id', '=', 'user.user_id')
-            ->join('sales', 'sales.return_product_id', '=', 'return_product.return_product_id')
-            ->join('product', 'sales.product_id', '=', 'product.product_id')
-            ->select('return_product.*', 'user.*', 'sales.*', 'product.*')
+            ->join('sales_details', 'sales_details.return_product_id', '=', 'return_product.return_product_id')
+            // ->join('sales', 'sales.return_product_id', '=', 'return_product.return_product_id')
+            ->join('product', 'sales_details.product_id', '=', 'product.product_id')
+            ->select('return_product.*', 'user.*', 'sales_details.*', 'product.*')
             ->get();
 
         // Decode the description array for each return product item
@@ -82,15 +83,20 @@ class ReturnProductController extends Controller
         ]);
 
         // Fetch the sales record based on the provided sales_id
-        $sales = DB::table('sales')
-            ->where('sales_id', $request->sales_id)
+        // $sales = DB::table('sales')
+        //     ->where('sales_id', $request->sales_id)
+        //     ->first();
+
+         $salesJoin = DB::table('sales_details')
+            ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
+            ->where('sales_details_id', $request->sales_details_id)
             ->first();
 
         // Check if the sales record exists
-        if ($sales) {
+        if ($salesJoin) {
             // Ensure the sales quantity does not go below zero after the return
-            $newQuantity = $sales->quantity - $validatedData['return_quantity'];
-            $newTotalAmount = $sales->total_amount - $validatedData['total_return_amount'];
+            $newQuantity = $salesJoin->sales_quantity - $validatedData['return_quantity'];
+            $newTotalAmount = $salesJoin->total_amount - $validatedData['total_return_amount'];
 
             if ($newQuantity < 0) {
                 // Abort the transaction and return an error if the new quantity is negative
@@ -98,10 +104,11 @@ class ReturnProductController extends Controller
             }
 
             // Update the sales record with the new quantity and link the return_product_id
-            DB::table('sales')
-                ->where('sales_id', $sales->sales_id)
+            DB::table('sales_details')
+                ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
+                ->where('sales_details_id', $salesJoin->sales_details_id)
                 ->update([
-                    'quantity' => $newQuantity, // Decrement sale quantity
+                    'sales_quantity' => $newQuantity, // Decrement sale quantity
                     'total_amount' => $newTotalAmount, // Decrement sale total amount
                     'return_product_id' => $newReturnProductId, // Link the return product
                 ]);
@@ -114,35 +121,4 @@ class ReturnProductController extends Controller
     // Redirect back to the return product table with a success message
     return redirect()->route('return_product_table')->with('success', 'Product returned successfully.');
 }
-
-
-
-
-    public function showRefundExchangeForm()
-    {
-        // Get stored session data
-        // $quantity = session('quantity');
-        // $product = Product::where('product_name', session('product_name'))->first();
-        // $inventory = Inventory::where('product_id', $product->product_id)->first();
-
-        // $totalRefundAmount = $inventory->sale_price_per_unit * $quantity;
-
-        // return view('refund-exchange', [
-        //     'product_name' => $product->product_name,
-        //     'total_refund' => $totalRefundAmount
-        // ]);
-    }
-
-    public function processRefundOrExchange(Request $request)
-    {
-        // if ($request->input('action') === 'refund') {
-        //     // Process refund logic
-        //     return redirect()->back()->with('success', 'Product refunded successfully.');
-        // } elseif ($request->input('action') === 'exchange') {
-        //     // Logic to exchange the product
-        //     return redirect()->back()->with('success', 'Product exchanged successfully.');
-        // }
-
-        // return back()->withErrors(['Invalid action']);
-    }
 }

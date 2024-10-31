@@ -67,6 +67,7 @@ Route::get('create', [InventoryController::class, 'create'])->name('create_produ
 Route::get('edit_product/{id}', [InventoryController::class, 'edit'])->name('edit_product');
 Route::put('update_product/{id}', [InventoryController::class, 'update'])->name('update_product');
 Route::delete('delete/{id}', [InventoryController::class, 'destroy'])->name('delete_product');
+Route::get('audit', [InventoryController::class, 'auditInventory'])->name('inventory.audit');
 
 use App\Http\Controllers\StockTransferController;
 Route::get('/stock_transfers', [StockTransferController::class, 'index'])->name('stock_transfers');
@@ -91,8 +92,12 @@ Route::get('return_product', [ReturnProductController::class, 'index'])->name('r
 Route::get('return_product/{id}', [ReturnProductController::class, 'showReturnForm'])->name('return_product.show');
 Route::post('return_product/{id}', [ReturnProductController::class, 'processReturn'])->name('return_product.process');
 
-Route::get('refund_exchange', [ReturnProductController::class, 'showRefundExchangeForm']);
-Route::post('refund_exchange', [ReturnProductController::class, 'processRefundOrExchange']);
+use App\Http\Controllers\InventoryAuditController;
+Route::resource('inventory_audit', InventoryAuditController::class);
+Route::get('audit_inventory_table', [InventoryAuditController::class, 'index'])->name('audit_inventory_table');
+Route::post('update/{inventory_id}', [InventoryAuditController::class, 'update'])->name('inventory.audit.update');
+Route::get('logs', [InventoryAuditController::class, 'logs'])->name('inventory.audit.logs');
+
 
 
 
