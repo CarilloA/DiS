@@ -46,7 +46,8 @@
                     <form method="POST" action="{{ url('purchase') }}" enctype="multipart/form-data">
                         @csrf
 
-                        <div class="row mb-3">
+                        <!-- Product Details -->
+                        <div class="row mb-2">
                             <div class="col-md-6">
                                 <label class="input-group-text" for="product_name">
                                     <i class="fa-solid fa-box-open"></i> Product Name
@@ -151,7 +152,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="input-group-text" for="in_stock">
-                                    <i class="fa-solid fa-warehouse"></i> Quantity in Stock
+                                    <i class="fa-solid fa-warehouse"></i> Purchased Quantity
                                 </label>
                                 <input id="in_stock" type="text" class="form-control @error('in_stock') is-invalid @enderror" name="in_stock" value="{{ old('in_stock') }}" pattern="^\d{1,6}$" required>
                                 @error('in_stock')
@@ -174,6 +175,56 @@
                             </div>
                         </div>
 
+                         <!-- Stockroom Details -->
+                         <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="input-group-text" for="aisle_number">
+                                    <i class="fa-solid fa-warehouse"></i> Aisle Number
+                                </label>
+                                <select name="aisle_number" id="aisle_number" class="form-control @error('aisle_number') is-invalid @enderror" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                                @error('aisle_number')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="input-group-text" for="cabinet_level">
+                                    <i class="fa-solid fa-warehouse"></i> Cabinet Level
+                                </label>
+                                <select name="cabinet_level" id="cabinet_level" class="form-control @error('cabinet_level') is-invalid @enderror" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                                @error('cabinet_level')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                                <div class="col-md-4">
+                                    <label class="input-group-text" for="product_quantity">
+                                        <i class="fa-solid fa-boxes"></i> Product Quantity Stored
+                                    </label>
+                                    <input id="product_quantity" type="number" class="form-control @error('product_quantity') is-invalid @enderror" name="product_quantity" value="{{ old('product_quantity') }}" min="1" required>
+                                    @error('product_quantity')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                        </div>
+
+                        <!-- Supplier Details -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="input-group-text" for="company_name">
@@ -226,8 +277,6 @@
                             </div>
                         </div>
 
-                        
-
                         <div class="row mb-3">
                             <div class="col-md-12">
                                 <label class="input-group-text" for="address">
@@ -241,6 +290,8 @@
                                 @enderror
                             </div>
                         </div>
+
+
 
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">

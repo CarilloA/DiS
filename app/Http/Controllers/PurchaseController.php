@@ -5,6 +5,8 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\Supplier;
+use App\Models\Stockroom;
+use App\Models\StockTransfer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -36,10 +38,12 @@ class PurchaseController extends Controller
         $productJoined = DB::table('inventory')
         // ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
         ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
         ->join('category', 'product.category_id', '=', 'category.category_id')
         ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*')
-        // ->where('credentials.role', '!=', 'Administrator') // Only select Inventory Managers
+        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+        ->orderBy('updated_at', 'desc')
         ->get();
 
         // Decode the description for each inventory item
@@ -105,6 +109,9 @@ class PurchaseController extends Controller
             'mobile_number' => ['numeric'],
             'email' => ['string', 'max:30'],
             'address' => ['required', 'string', 'max:50'],
+            'aisle_number' => ['numeric'],
+            'cabinet_level' => ['numeric'],
+            'product_quantity' => ['numeric'],
         ]);
 
         // Use a transaction to ensure data integrity
@@ -136,6 +143,25 @@ class PurchaseController extends Controller
                 ]),
                 'category_id' => $category->category_id, // Use the generated category_id
                 'supplier_id' => $supplier->supplier_id, // Use the generated supplier_id
+            ]);
+
+            // Create the Stockroom
+            $stockroom = Stockroom::create([
+                'stockroom_id' => $this->generateId('stockroom'), // Generate custom ID for product
+                'aisle_number' => $validatedData['aisle_number'],
+                'cabinet_level' => $validatedData['cabinet_level'],
+                'product_quantity' => $validatedData['product_quantity'],
+                'category_id' => $category->category_id, // Use the generated category_id
+            ]);
+
+            // Create the StockTransfer
+            StockTransfer::create([
+                'stock_transfer_id' => $this->generateId('stock_transfer'), // Generate custom ID for product
+                'transfer_quantity' => $validatedData['product_quantity'],
+                'transfer_date' => now(),
+                'product_id' => $product->product_id, // Use the generated category_id
+                'user_id' => Auth::user()->user_id, // Use the logged in user_id
+                'to_stockroom_id' => $stockroom->stockroom_id, // Use the generated stockroom_id
             ]);
 
             // Create the Inventory
@@ -192,6 +218,49 @@ class PurchaseController extends Controller
             // Update supplier information if requested
             Supplier::where('supplier_id', $validatedData['supplier_id'])->update($suppliervalidatedData);
         }
+    });
+
+    // Return success response
+    return redirect()->route('purchase_table')->with('success', 'Restock successful.');
+}
+
+public function restockStoreProduct(Request $request) 
+{
+    // Validate incoming request data
+    $validatedData = $request->validate([
+        'product_id' => ['required', 'exists:product,product_id'],
+        'stockroom_id' => ['required', 'exists:stockroom,stockroom_id'],
+        'transfer_quantity' => ['required', 'numeric', 'min:1'],
+        'product_quantity' => ['required', 'numeric', 'min:1'],
+    ]);
+
+    // Use DB transaction to ensure data integrity
+    DB::transaction(function () use ($validatedData, $request) {
+
+        // Get the user ID (assuming the user is logged in)
+        $userId = Auth::id();
+
+        // Insert into stock_transfer
+        DB::table('stock_transfer')->insert([
+            'stock_transfer_id' => $this->generateId('stock_transfer'),
+            'transfer_quantity' => $validatedData['transfer_quantity'],
+            'transfer_date' => now(),
+            'product_id' => $validatedData['product_id'],
+            'user_id' => $userId,
+            'from_stockroom_id' => $validatedData['stockroom_id'],
+        ]);
+
+        // Update Stockroom
+        $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
+
+        $productQuantity = $validatedData['product_quantity'] - $validatedData['transfer_quantity'];
+
+        // Update inventory details
+        $stockroom->update([
+            'product_quantity' => $productQuantity,
+        ]);
+
+        
     });
 
     // Return success response

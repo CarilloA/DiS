@@ -36,7 +36,8 @@
                         <th>Reorder Level</th>
                         <th>Date & Time</th>
                         <th>Description</th>
-                        <th>Supplier ID</th>
+                        <th>Supplier Details</th>
+                        <th>Location</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +58,13 @@
                             </td>
                             <td>
                                 <button type="button" class="btn" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
-                                    <u><strong>{{ $data->supplier_id }}</strong></u>
+                                    <u><strong>more info.</strong></u>
+                                </button>
+                            </td>
+                            <?php $storeStock = $data->in_stock - $data->product_quantity; ?>
+                            <td>
+                                <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
+                                    <u><strong>more info.</strong></u>
                                 </button>
                             </td>
                         </tr>
@@ -102,6 +109,24 @@
         Swal.fire({
             title: 'Supplier Details',
             html: supplierDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+
+    function showStockroomDetail(storeStock, aisleNumber, cabinetLevel, productQuantity, categoryName) {
+        const stockroomDetails = `
+            <strong>Store Stock:</strong> ${storeStock}<br><br>
+            <strong>Stockroom Details</strong><br>
+            <strong>Aisle Number:</strong> ${aisleNumber}<br>
+            <strong>Cabinet Level:</strong> ${cabinetLevel}<br>
+            <strong>Stored Product Quantity:</strong> ${productQuantity}<br>
+            <strong>Category Name:</strong> ${categoryName}<br>
+        `;
+
+        Swal.fire({
+            title: 'Location Details',
+            html: stockroomDetails,
             icon: 'info',
             confirmButtonText: 'Close'
         });

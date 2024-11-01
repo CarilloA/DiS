@@ -47,10 +47,7 @@ use App\Http\Controllers\AccountManagementController;
 Route::resource('account_management', AccountManagementController::class);
 Route::get('confirm-email/{id}', [AccountManagementController::class, 'confirmEmail'])->name('confirm.email');
 Route::get('accounts_table', [AccountManagementController::class, 'index'])->name('accounts_table');
-// Route::get('show/{id}', [AccountManagementController::class, 'show'])->name('show_account');
 Route::get('create', [AccountManagementController::class, 'create'])->name('create_account');
-// Route::get('edit/{id}', [AccountManagementController::class, 'edit'])->name('edit_account');
-// Route::put('update/{id}', [AccountManagementController::class, 'update'])->name('update_account');
 Route::delete('delete/{id}', [AccountManagementController::class, 'destroy'])->name('delete_account');
 
 use App\Http\Controllers\ProfileController;
@@ -62,23 +59,19 @@ Route::put('update_profile/{id}', [ProfileController::class, 'update'])->name('u
 use App\Http\Controllers\InventoryController;
 Route::resource('inventory', InventoryController::class);
 Route::get('inventory_table', [InventoryController::class, 'index'])->name('inventory_table');
-Route::get('show/{id}', [InventoryController::class, 'show'])->name('show_product');
-Route::get('create', [InventoryController::class, 'create'])->name('create_product');
-Route::get('edit_product/{id}', [InventoryController::class, 'edit'])->name('edit_product');
-Route::put('update_product/{id}', [InventoryController::class, 'update'])->name('update_product');
+// Route::get('show/{id}', [InventoryController::class, 'show'])->name('show_product');
+// Route::get('create', [InventoryController::class, 'create'])->name('create_product');
+// Route::get('edit_product/{id}', [InventoryController::class, 'edit'])->name('edit_product');
+// Route::put('update_product/{id}', [InventoryController::class, 'update'])->name('update_product');
 Route::delete('delete/{id}', [InventoryController::class, 'destroy'])->name('delete_product');
-Route::get('audit', [InventoryController::class, 'auditInventory'])->name('inventory.audit');
-
-use App\Http\Controllers\StockTransferController;
-Route::get('/stock_transfers', [StockTransferController::class, 'index'])->name('stock_transfers');
-Route::get('/stock_transfer/create', [StockTransferController::class, 'create'])->name('create_transfer');
-Route::post('/stock_transfer/store', [StockTransferController::class, 'store'])->name('stock_transfer.store');
 
 use App\Http\Controllers\PurchaseController;
 Route::resource('purchase', PurchaseController::class);
 Route::get('purchase_table', [PurchaseController::class, 'index'])->name('purchase_table');
 Route::get('create', [PurchaseController::class, 'create'])->name('create_product');
 Route::post('restock', [PurchaseController::class, 'restock'])->name('restock_product');
+Route::post('restock_store_product', [PurchaseController::class, 'restockStoreProduct'])->name('restock_store_product');
+
 
 use App\Http\Controllers\SalesController;
 Route::resource('sales', SalesController::class);

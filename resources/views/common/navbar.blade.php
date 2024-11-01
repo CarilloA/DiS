@@ -49,7 +49,14 @@
         transition: all 0.3s;
     }
 
-    #sidebar .components li a:active,
+    /* Active link styling */
+    #sidebar .components li.active a {
+        background-color: #3a8f66; /* Soft green for active link */
+        color: #fff;
+        border-radius: 5px;
+        font-weight: bold; /* Optional: make it bold for emphasis */
+    }
+
     #sidebar .components li a:hover {
         background-color: #3a8f66; /* Soft green on hover/active */
         color: #fff;
@@ -138,13 +145,13 @@
         </div>
     </div>
     <ul class="list-unstyled components">
-        <li class="active">
+        <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-user-shield"></i> ACCOUNT</a>
         </li>
-        <li>
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
+        <li class="{{ Request::routeIs('inventory_table') ? 'active' : '' }}">
+            <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
@@ -179,22 +186,22 @@
         </div>
     </div>
     <ul class="list-unstyled components">
-        <li>
+        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
             <a href="{{ url('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
-        <li>
-            <a href="{{ route('purchase_table') }}"><i class="fa-solid fa-money-bill"></i> PURCHASE</a>
+        <li class="{{ Request::routeIs('purchase_table') ? 'active' : '' }}">
+            <a href="{{ route('purchase_table') }}"><i class="fa-solid fa-money-bill"></i> PRODUCTS</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('inventory_table') ? 'active' : '' }}">
             <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('sales_table') ? 'active' : '' }}">
             <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
@@ -229,16 +236,16 @@
         </div>
     </div>
     <ul class="list-unstyled components">
-        <li class="active">
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('audit_inventory_table') ? 'active' : '' }}">
             <a href="{{ route('audit_inventory_table') }}"><i class="fa-solid fa-warehouse"></i>INVENTORY</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('inventory.audit.logs') ? 'active' : '' }}">
             <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-file"></i> LOGS</a>
         </li>
-        <li>
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('inventory.audit') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>

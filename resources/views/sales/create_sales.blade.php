@@ -36,6 +36,8 @@
                                     <p><strong>Category:</strong> <span class="product_category"></span></p>
                                     <p><strong>Seller:</strong> <span class="product_seller"></span></p>
                                     <p><strong>In Stock:</strong> <span class="product_stock"></span></p>
+                                    <p><strong>Store Stock:</strong> <span class="store_stock"></span></p>
+                                    <p><strong>Stockroom Stock:</strong> <span class="stockroom_stock"></span></p>
                                     <p class="price-info" style="display: none;"><strong>Price per Unit: ₱</strong><span class="sales_price"></span></p>
                                     <p class="unit-info" style="display: none;"><strong>Unit: </strong><span class="unit"></span></p>
                                 </div>
@@ -89,6 +91,8 @@
             <p><strong>Category:</strong> <span class="product_category"></span></p>
             <p><strong>Seller:</strong> <span class="product_seller"></span></p>
             <p><strong>In Stock:</strong> <span class="product_stock"></span></p>
+            <p><strong>Store Stock:</strong> <span class="store_stock"></span></p>
+            <p><strong>Stockroom Stock:</strong> <span class="stockroom_stock"></span></p>
             <p class="price-info" style="display: none;"><strong>Price per Unit: ₱</strong><span class="sales_price"></span></p>
             <p class="unit-info" style="display: none;"><strong>Unit: </strong><span class="unit"></span></p>
         </div>
@@ -147,6 +151,10 @@
                 productInfoDiv.querySelector('.product_category').innerText = data.product.category_name || 'N/A';
                 productInfoDiv.querySelector('.product_seller').innerText = data.seller || 'N/A';
                 productInfoDiv.querySelector('.product_stock').innerText = data.product.in_stock || 'Out of Stock';
+
+                let storeStock = data.product.in_stock - data.product.product_quantity;
+                productInfoDiv.querySelector('.store_stock').innerText = storeStock > 0 ? storeStock : 'Out of Stock';
+                productInfoDiv.querySelector('.stockroom_stock').innerText = data.product.product_quantity || 'Out of Stock';
 
                 const priceInfo = productInfoDiv.querySelector('.price-info');
                 const unitInfo = productInfoDiv.querySelector('.unit-info');

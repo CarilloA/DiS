@@ -167,18 +167,18 @@
 
                                             <!-- Modal Validation Error Alert Message-->
                                             @if ($errors->any() && old('sales_id') == $data->sales_details_id)
-                                            <div class="alert alert-danger">
-                                                <ul>
-                                                    @foreach ($errors->all() as $error)
-                                                        <li>{{ $error }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                            <script>
-                                                $(document).ready(function() {
-                                                    $('#returnModal{{ $data->sales_details_id }}').modal('show');
-                                                });
-                                            </script>
+                                                <div class="alert alert-danger">
+                                                    <ul>
+                                                        @foreach ($errors->all() as $error)
+                                                            <li>{{ $error }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                                <script>
+                                                    $(document).ready(function() {
+                                                        $('#returnModal{{ $data->sales_details_id }}').modal('show');
+                                                    });
+                                                </script>
                                             @endif
 
                                             <div class="modal-footer">
@@ -283,7 +283,7 @@ $(document).ready(function() {
                                         </button>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal{{ $data->sales_details_id }}">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal${ sale.sales_details_id }">
                                             Return
                                         </button>
                                     </td>

@@ -47,6 +47,11 @@ class Product extends Authenticatable
         return $this->hasOne(Inventory::class, 'product_id');
     }
 
+    public function stock_transfer()
+    {
+        return $this->hasMany(StockTransfer::class, 'product_id');
+    }
+
     public function sales() {
         return $this->hasMany(Sales::class, 'product_id');
     }

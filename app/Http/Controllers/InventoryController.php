@@ -43,10 +43,12 @@ class InventoryController extends Controller
         $inventoryJoined = DB::table('inventory')
         // ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
         ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
         ->join('category', 'product.category_id', '=', 'category.category_id')
         ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*')
-        // ->where('credentials.role', '!=', 'Administrator') // Only select Inventory Managers
+        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+        ->orderBy('updated_at', 'desc')
         ->get();
 
         // Decode the description for each inventory item

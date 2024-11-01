@@ -28,7 +28,6 @@ class Stockroom extends Authenticatable
         'cabinet_level',
         'product_quantity',
         'category_id',
-        'user_id',
     ];
 
     public $timestamps = false;
@@ -36,15 +35,6 @@ class Stockroom extends Authenticatable
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function invetory(){ // Contact_Details is a foreignkey of User
-        return $this->hasOne(Inventory::class, 'stockroom_id');
     }
 
     public function updateQuantity($amount)

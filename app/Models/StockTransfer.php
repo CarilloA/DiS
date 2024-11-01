@@ -29,6 +29,7 @@ class StockTransfer extends Authenticatable
         'from_stockroom_id',
         'to_stockroom_id',
         'product_id',
+        'user_id',
     ];
 
     public $timestamps = false;
@@ -45,10 +46,11 @@ class StockTransfer extends Authenticatable
 
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
-    public function invetory(){ // Contact_Details is a foreignkey of User
-        return $this->hasOne(Inventory::class, 'stock_transfer_id');
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -24,8 +24,11 @@ class InventoryAudit extends Authenticatable
     public $primaryKey = 'audit_id';
     protected $fillable = [
         'audit_id',
-        'previous_quantity',
-        'new_quantity',
+        'previous_quantity_on_hand',
+        'new_quantity_on_hand',
+        'new_store_quantity',
+        'new_stockroom_quantity',
+        'variance',
         'reason',
         'audit_date',
         'inventory_id',

@@ -9,7 +9,7 @@
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             @include('common.alert')
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
-                <h1 class="h2">PURCHASE PRODUCTS</h1>
+                <h1 class="h2">PRODUCTS TABLE</h1>
                 <a class="btn btn-primary" href="{{ route('purchase.create') }}">+ Add Product</a>
             </div>
 
@@ -19,14 +19,15 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Category</th>
-                        <th>Purchase Price</th>
-                        <th>Unit of Measure</th>
-                        <th>Purchase Quantity</th>
+                        <th>Purchased Price</th>
+                        <th>UoM</th>
+                        <th>In Stock</th>
                         <th>Reorder Level</th>
                         <th>Date & Time</th>
                         <th>Description</th>
-                        <th>Supplier ID</th>
-                        <th>Action</th>
+                        <th>Supplier Details</th>
+                        <th>Location</th>
+                        <th colspan="2">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,10 +48,27 @@
                         </td>
                         <td>
                             <button type="button" class="btn" onclick="showSupplierDetail('{{ $data->supplier_id }}', '{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
-                                <u><strong>{{ $data->supplier_id }}</strong></u>
+                                <u><strong>more info.</strong></u>
                             </button>
                         </td>
+                        <?php
+                            $storeStock = $data->in_stock - $data->product_quantity;
+                        ?>
                         <td>
+                            <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
+                                <u><strong>more info.</strong></u>
+                            </button>
+                        </td>
+                        <td colspan="2">
+                            @if ($storeStock === 0)
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#storeRestockModal{{ $data->product_id }}">
+                                    Store Restock
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-secondary" disabled>
+                                    Store Restock
+                                </button>
+                            @endif
                             @if ($data->in_stock <= $data->reorder_level)
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#restockModal{{ $data->product_id }}">
                                     Restock
@@ -62,6 +80,60 @@
                             @endif
                         </td>
                     </tr>
+
+                    <!-- Store Restock Modal for Each Product -->
+                    <div class="modal fade" id="storeRestockModal{{ $data->product_id }}" tabindex="-1" role="dialog" aria-labelledby="storeRestockModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="storeRestockModalLabel">Restock Product in Store</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form id="storeRestockForm{{ $data->product_id }}" action="{{ route('restock_store_product') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $data->product_id }}">
+                                    <input type="hidden" name="stockroom_id" value="{{ $data->stockroom_id }}">
+                                    <input type="hidden" name="product_quantity" value="{{ $data->product_quantity }}">
+                                    
+                                    <div class="modal-body">
+                                        <strong>Stockroom Details</strong><br>
+                                        <strong>Aisle Number:</strong> {{ $data->aisle_number }}<br>
+                                        <strong>Cabinet Level:</strong> {{ $data->cabinet_level }}<br>
+                                        <strong>Stored Product Quantity:</strong> {{ $data->product_quantity }}<br>
+                                        <strong>Category Name:</strong> {{ $data->category_name }}<br>
+                                        <div class="form-group mt-3">
+                                            <label for="transfer_quantity">Transfer Quantity</label>
+                                            <input type="number" class="form-control" name="transfer_quantity" value="{{ old('transfer_quantity') }}" min="1" required>
+                                        </div>
+                                    </div>
+                                    <!-- Modal Validation Error Alert Message-->
+                                    @if ($errors->any() && old('product_id') == $data->product_id)
+                                        <div class="alert alert-danger">
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                        {{-- for opening the modal --}}
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#storeRestockModal{{ $data->product_id }}').modal('show');
+                                            });
+                                        </script>
+                                    @endif
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Restock</button>
+                                    </div>
+                                </form>
+                                
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Restock Modal for Each Product -->
                     <div class="modal fade" id="restockModal{{ $data->product_id }}" tabindex="-1" role="dialog" aria-labelledby="restockModalLabel" aria-hidden="true">
@@ -121,34 +193,34 @@
                                     </div>
                                     <!-- Modal Validation Error Alert Message-->
                                     @if ($errors->any() && old('product_id') == $data->product_id)
-                                    <div class="alert alert-danger">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
+                                        <div class="alert alert-danger">
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
                 
-                                    <script>
-                                        $(document).ready(function() {
-                                            $('#restockModal{{ $data->product_id }}').modal('show');
-                                            
-                                            // Check if the checkbox is checked and show/hide the supplier details section accordingly
-                                            if ($('#update_supplier_checkbox{{ $data->supplier_id }}').is(':checked')) {
-                                                $('#supplier_details_section{{ $data->supplier_id }}').show();
-                                            }
-                                            
-                                            $('[id^="update_supplier_checkbox"]').change(function() {
-                                                const supplierId = $(this).attr('id').match(/\d+/)[0]; // Get supplier ID from checkbox ID
-                                                const supplierDetailsSection = `#supplier_details_section${supplierId}`;
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#restockModal{{ $data->product_id }}').modal('show');
+                                                
+                                                // Check if the checkbox is checked and show/hide the supplier details section accordingly
+                                                if ($('#update_supplier_checkbox{{ $data->supplier_id }}').is(':checked')) {
+                                                    $('#supplier_details_section{{ $data->supplier_id }}').show();
+                                                }
+                                                
+                                                $('[id^="update_supplier_checkbox"]').change(function() {
+                                                    const supplierId = $(this).attr('id').match(/\d+/)[0]; // Get supplier ID from checkbox ID
+                                                    const supplierDetailsSection = `#supplier_details_section${supplierId}`;
 
-                                                // Toggle supplier details section visibility based on checkbox state
-                                                $(supplierDetailsSection).toggle(this.checked);
-                                                $(supplierDetailsSection + ' input').prop('required', this.checked);
+                                                    // Toggle supplier details section visibility based on checkbox state
+                                                    $(supplierDetailsSection).toggle(this.checked);
+                                                    $(supplierDetailsSection + ' input').prop('required', this.checked);
+                                                });
                                             });
-                                        });
-                                    </script>
-                                @endif
+                                        </script>
+                                    @endif
 
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -200,6 +272,24 @@
         Swal.fire({
             title: 'Supplier Details',
             html: supplierDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+
+    function showStockroomDetail(storeStock, aisleNumber, cabinetLevel, productQuantity, categoryName) {
+        const stockroomDetails = `
+            <strong>Store Stock:</strong> ${storeStock}<br><br>
+            <strong>Stockroom Details</strong><br>
+            <strong>Aisle Number:</strong> ${aisleNumber}<br>
+            <strong>Cabinet Level:</strong> ${cabinetLevel}<br>
+            <strong>Stored Product Quantity:</strong> ${productQuantity}<br>
+            <strong>Category Name:</strong> ${categoryName}<br>
+        `;
+
+        Swal.fire({
+            title: 'Stockroom Details',
+            html: stockroomDetails,
             icon: 'info',
             confirmButtonText: 'Close'
         });

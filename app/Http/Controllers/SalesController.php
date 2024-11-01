@@ -37,6 +37,7 @@ class SalesController extends Controller
             ->join('category', 'product.category_id', '=', 'category.category_id')
             ->select('sales.*', 'sales_details.*', 'user.*', 'product.*', 'category.*', 'inventory.*')
             ->where('sales_details.sales_quantity', '!=', 0)
+            ->orderBy('sales_date', 'desc')
             ->get();
 
             $salesGrouped = $salesJoined->groupBy('sales_id');
@@ -93,8 +94,10 @@ class SalesController extends Controller
         $product_id = $request->input('product_id');
         $product = DB::table('inventory')
             ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
             ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->select('inventory.*', 'product.*', 'category.category_name')
+            ->select('inventory.*', 'product.*', 'category.category_name', 'stockroom.*', 'stock_transfer.*')
             ->where('product.product_id', $product_id)
             ->first();
 
@@ -140,26 +143,51 @@ class SalesController extends Controller
         DB::table('sales')->insert([
             'sales_id' => $salesId,
             'user_id' => $userId,
-            'total_amount' => $validatedData['grand_total_amount'], // Total amount for all products
+            'total_amount' => $validatedData['grand_total_amount'],
             'sales_date' => now(),
         ]);
 
-        // Prepare an array for bulk insert into sales_details
         $salesDetails = [];
 
-        // Loop through each product in the request data
         foreach ($validatedData['product_id'] as $index => $productId) {
             $quantity = $validatedData['quantity'][$index];
 
             // Retrieve inventory data for the product
             $inventory = DB::table('inventory')
                 ->join('product', 'inventory.product_id', '=', 'product.product_id')
-                ->where('product.product_id', $productId)
+                ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+                ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+                ->select('inventory.*', 'product.*', 'stockroom.*', 'stock_transfer.*')
+                ->where('inventory.product_id', $productId)
                 ->first();
 
-            // Ensure there is enough stock for each product
             if (!$inventory || $inventory->in_stock < $quantity) {
                 throw new \Exception("Not enough stock available for product ID: {$productId}");
+            }
+
+            $storeStock = $inventory->in_stock - $inventory->product_quantity;
+
+            // Check if additional stock transfer is needed
+            if ($storeStock < $quantity) {
+                $transferQuantity = $quantity - abs($storeStock); //abs() will make negative number absolute
+
+                // Insert into stock_transfer
+                DB::table('stock_transfer')->insert([
+                    'stock_transfer_id' => $this->generateId('stock_transfer'),
+                    'transfer_quantity' => $transferQuantity,
+                    'transfer_date' => now(),
+                    'product_id' => $productId,
+                    'user_id' => $userId,
+                    'from_stockroom_id' => $inventory->stockroom_id,
+                ]);
+
+                // Update stockroom product quantity
+                DB::table('stockroom')
+                    ->where('stockroom_id', $inventory->stockroom_id)
+                    ->decrement('product_quantity', $transferQuantity);
+
+                // Adjust store stock back to zero after transfer
+                $storeStock = 0;
             }
 
             // Generate a unique sales_details_id for this product
@@ -167,7 +195,7 @@ class SalesController extends Controller
 
             // Prepare data for sales_details
             $salesDetails[] = [
-                'sales_details_id' => $salesDetailsId, // Use the unique ID generated for this entry
+                'sales_details_id' => $salesDetailsId,
                 'sales_id' => $salesId,
                 'product_id' => $productId,
                 'inventory_id' => $inventory->inventory_id,
@@ -177,9 +205,7 @@ class SalesController extends Controller
             // Update inventory for each product
             DB::table('inventory')
                 ->where('product_id', $productId)
-                ->update([
-                    'in_stock' => DB::raw("in_stock - {$quantity}"),
-                ]);
+                ->decrement('in_stock', $quantity);
         }
 
         // Bulk insert into sales_details
@@ -188,6 +214,7 @@ class SalesController extends Controller
 
     return redirect()->route('sales_table')->with('success', 'Sale completed successfully');
 }
+
 
 public function search(Request $request)
 {

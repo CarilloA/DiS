@@ -31,8 +31,6 @@ class Inventory extends Authenticatable
         'reorder_level',
         'updated_at',
         'product_id',
-        'stockroom_id',
-        'stock_transfer_id',
     ];
 
     public function product()

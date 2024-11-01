@@ -7,6 +7,7 @@ use App\Models\InventoryAudit;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class InventoryAuditController extends Controller
 {
@@ -19,19 +20,15 @@ class InventoryAuditController extends Controller
 
         $user = Auth::user();
 
-        // SQL `user` to get Inventory Manager details
-        $userSQL = DB::table('user')
-        ->select('user.*')
-        ->where('role', '=', 'Inventory Manager')
-        ->get();
-
         $inventoryJoined = DB::table('inventory')
         // ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
         ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
         ->join('category', 'product.category_id', '=', 'category.category_id')
         ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*')
-        // ->where('credentials.role', '!=', 'Administrator') // Only select Inventory Managers
+        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+        ->orderBy('updated_at', 'desc')
         ->get();
 
         // Decode the description for each inventory item
@@ -43,6 +40,7 @@ class InventoryAuditController extends Controller
             // Pass the inventory managers and user role to the view
             return view('inventory_audit.audit_inventory_table', [
                 'inventoryJoined' => $inventoryJoined,
+                'user' => $user,
             ]);
         }
     }
@@ -58,27 +56,52 @@ class InventoryAuditController extends Controller
     }
 
     public function update(Request $request, $inventory_id) {
+        // Validate the incoming audit data
         $request->validate([
-            'new_quantity' => 'required|integer',
-            'reason' => 'required|string|max:150',
+            'new_store_quantity' => 'required|integer|min:0',
+            'new_stockroom_quantity' => 'required|integer|min:0',
+            'new_quantity_on_hand' => 'required|integer|min:0',
+            'variance' => 'required|integer',
+            'reason' => 'required|string|max:30',
+            'confirm_username' => 'required|string',
+            'confirm_password' => 'required|string',
         ]);
-    
-        $inventory = Inventory::findOrFail($inventory_id);
-        $inventory->in_stock = $request->new_quantity;
-        $inventory->save();
-    
-        // Log the change in InventoryAudit
-        InventoryAudit::create([
+
+        // Verify username and password for audit
+        $user = Auth::user();
+        if (!Hash::check($request->confirm_password, $user->password) || $user->username !== $request->confirm_username) {
+            return back()->withErrors(['confirm_password' => 'Invalid username or password'])->withInput(); //can be use for modal errors
+        }
+
+        // Update inventory record with new audit data
+        DB::table('inventory')
+            ->where('inventory_id', $inventory_id)
+            ->update([
+                'in_stock' => $request->new_quantity_on_hand,
+                'updated_at' => now(),
+            ]);
+
+        DB::table('stockroom')
+            ->where('stockroom_id', $request->stockroom_id)
+            ->update([
+                'product_quantity' => $request->new_stockroom_quantity,
+            ]);
+
+        // Save audit details in an audit log if needed
+        DB::table('inventory_audit')->insert([
             'audit_id' => $this->generateId('inventory_audit', 'audit_id'),
             'inventory_id' => $inventory_id,
-            'user_id' => auth()->id(), // Assuming auditor is logged in
-            'previous_quantity' => $request->previous_quantity,
-            'new_quantity' => $request->new_quantity,
+            'previous_quantity_on_hand' => $request->previous_quantity_on_hand,
+            'new_quantity_on_hand' => $request->new_quantity_on_hand,
+            'new_stockroom_quantity' => $request->new_stockroom_quantity,
+            'new_store_quantity' => $request->new_store_quantity,
+            'variance' => $request->variance,
             'reason' => $request->reason,
-            'audit_date' => now()
+            'user_id' => Auth::user()->user_id,
+            'audit_date' => now(),
         ]);
-    
-        return redirect()->route('audit_inventory_table')->with('success', 'Inventory updated and audit log created.');
+
+    return redirect()->route('audit_inventory_table')->with('success', 'Inventory audited successfully.');
     }
 
     public function logs() {
