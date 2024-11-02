@@ -262,7 +262,8 @@ public function confirmEmail($id)
         // Check if the admin credentials are correct
         if ($admin->username !== $request->admin_username || 
             !Hash::check($request->admin_password, $admin->password)) {
-            return redirect()->route('accounts_table')->with('error', 'Invalid admin credentials.');
+            // return redirect()->route('accounts_table')->with('error', 'Invalid admin credentials.');
+            return back()->withErrors(['confirm_password' => 'Invalid username or password'])->withInput(); //can be use for modal errors
         }
 
         // Find the user to be deleted

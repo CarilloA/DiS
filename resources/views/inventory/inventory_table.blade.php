@@ -9,10 +9,6 @@
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <!-- Alert Messages -->
             @include('common.alert')
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
-                <h1 class="h2">INVENTORY</h1>
-                <a class="btn btn-primary" href="{{ route('inventory.create') }}">+ Add Product</a>
-            </div>
 
             <!-- Date Range Picker -->
             <form method="POST" action="{{ url('report') }}" enctype="multipart/form-data" class="mb-3">
@@ -40,8 +36,8 @@
                         <th>Reorder Level</th>
                         <th>Date & Time</th>
                         <th>Description</th>
-                        <th>Supplier</th>
-                        <th colspan="2" class="text-center">Action</th>
+                        <th>Supplier Details</th>
+                        <th>Location</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,45 +58,16 @@
                             </td>
                             <td>
                                 <button type="button" class="btn" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
-                                    <u><strong>{{ $data->contact_person }}</strong></u>
+                                    <u><strong>more info.</strong></u>
                                 </button>
                             </td>
+                            <?php $storeStock = $data->in_stock - $data->product_quantity; ?>
                             <td>
-                                <a href="{{ url('edit_product/'.$data->product_id) }}" class="btn">
-                                    <i class="fa-solid fa-pen-to-square" style="color: blue;"></i>
-                                </a>
-                                <button type="button" class="btn" data-toggle="modal" data-target="#deleteModal{{ $data->product_id }}">
-                                    <i class="fa-solid fa-trash" style="color: red;"></i>
+                                <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
+                                    <u><strong>more info.</strong></u>
                                 </button>
                             </td>
                         </tr>
-
-                        <!-- Delete Modal -->
-                        <div id="deleteModal{{ $data->product_id }}" class="modal fade" role="dialog">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">Confirm Deletion</h4>
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ url('delete/'.$data->product_id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <div class="form-group">
-                                                <label for="username">Username</label>
-                                                <input type="text" class="form-control" name="username" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="password">Password</label>
-                                                <input type="password" class="form-control" name="password" required>
-                                            </div>
-                                            <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     @empty
                         <tr>
                             <td colspan="11" class="text-center">No inventory found.</td>
@@ -142,6 +109,24 @@
         Swal.fire({
             title: 'Supplier Details',
             html: supplierDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+
+    function showStockroomDetail(storeStock, aisleNumber, cabinetLevel, productQuantity, categoryName) {
+        const stockroomDetails = `
+            <strong>Store Stock:</strong> ${storeStock}<br><br>
+            <strong>Stockroom Details</strong><br>
+            <strong>Aisle Number:</strong> ${aisleNumber}<br>
+            <strong>Cabinet Level:</strong> ${cabinetLevel}<br>
+            <strong>Stored Product Quantity:</strong> ${productQuantity}<br>
+            <strong>Category Name:</strong> ${categoryName}<br>
+        `;
+
+        Swal.fire({
+            title: 'Location Details',
+            html: stockroomDetails,
             icon: 'info',
             confirmButtonText: 'Close'
         });

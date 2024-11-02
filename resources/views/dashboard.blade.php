@@ -37,56 +37,67 @@
 </style>
 
 @section('content')
-<div class="content"> <!-- Add the content class to prevent overlap -->
-    @if(Auth::user()->role == "Administrator")
-    <div class="container">
-        <!-- Alert Messages -->
-        @include('common.alert')
-        <div class="row justify-content-center">
-            <div class="col">
-                <div class="card">
-                    <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
-                        {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
+    <div class="content"> <!-- Add the content class to prevent overlap -->
+        @if(Auth::user()->role == "Administrator")
+            <div class="container">
+                <!-- Alert Messages -->
+                @include('common.alert')
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="card">
+                            <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
+                                {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
+                            </div>
+                            <h1 class="text-center">Admin Dashboard</h1>
+                        </div>
                     </div>
-                    <h1 class="text-center">Admin Dashboard</h1>
                 </div>
             </div>
-        </div>
-    </div>
-    @endif
+        @endif
 
-    @if(Auth::user()->role == "Inventory Manager")
-    <div class="container">
-        <!-- Alert Messages -->
-        @include('common.alert')
-        <div class="row justify-content-center">
-            <div class="col">
-                <div class="card">
-                    <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
-                        {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
+        @if(Auth::user()->role == "Inventory Manager")
+            <div class="container">
+                <!-- Alert Messages -->
+                @include('common.alert')
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="card">
+                            <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
+                                {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
+                            </div>
+                            <!-- Check and display low stock messages -->
+                            @if(!empty($lowStockMessages))
+                                <div class="alert alert-warning">
+                                    <strong>Low Stock Alerts:</strong>
+                                    <ul>
+                                        @foreach($lowStockMessages as $message)
+                                            <li>{{ $message }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                            <h1 class="text-center">Welcome Inventory Manager, dashboard here</h1>
+                        </div>
                     </div>
-                    <h1 class="text-center">Welcome Inventory Manager, dashboard here</h1>
                 </div>
             </div>
-        </div>
-    </div>
-    @endif
+        @endif
 
-    @if(Auth::user()->role == "Auditor")
-    <div class="container">
-        <!-- Alert Messages -->
-        @include('common.alert')
-        <div class="row justify-content-center">
-            <div class="col">
-                <div class="card">
-                    <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
-                        {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
+        @if(Auth::user()->role == "Auditor")
+            <div class="container">
+                <!-- Alert Messages -->
+                @include('common.alert')
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="card">
+                            <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
+                                {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
+                            </div>
+                            <h1 class="text-center">Welcome Auditor, dashboard here</h1>
+                        </div>
                     </div>
-                    <h1 class="text-center">Welcome Auditor, dashboard here</h1>
                 </div>
             </div>
-        </div>
+        @endif --}}
     </div>
-    @endif
-</div>
 @endsection

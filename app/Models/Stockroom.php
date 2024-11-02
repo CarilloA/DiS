@@ -28,7 +28,6 @@ class Stockroom extends Authenticatable
         'cabinet_level',
         'product_quantity',
         'category_id',
-        'user_id',
     ];
 
     public $timestamps = false;
@@ -38,8 +37,10 @@ class Stockroom extends Authenticatable
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function user()
+    public function updateQuantity($amount)
     {
-        return $this->belongsTo(User::class, 'user_id');
+        $this->product_quantity += $amount;
+        $this->save();
     }
+
 }

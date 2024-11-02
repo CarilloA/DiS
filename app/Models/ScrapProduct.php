@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Product extends Authenticatable
+class ScrapProduct extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,15 +19,16 @@ class Product extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'product';
+    protected $table = 'scrapproduct';
     // Primary Key can be change here('id')
-    public $primaryKey = 'product_id';
+    public $primaryKey = 'scrap_product_id';
     protected $fillable = [
+        'scrap_product_id',
+        'scrap_quanity', 
+        'scrap_reason',
+        'scrap_date',
         'product_id',
-        'product_name', 
-        'description',
-        'category_id',
-        'supplier_id',
+        'stockroom_id',
     ];
 
     public $timestamps = false;
@@ -37,22 +38,19 @@ class Product extends Authenticatable
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function supplier()
+    public function user()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function inventory()
-    {
-        return $this->hasOne(Inventory::class, 'product_id');
+    public function invetory(){ // Contact_Details is a foreignkey of User
+        return $this->hasOne(Inventory::class, 'stockroom_id');
     }
 
-    public function stock_transfer()
+    public function updateQuantity($amount)
     {
-        return $this->hasMany(StockTransfer::class, 'product_id');
+        $this->product_quantity += $amount;
+        $this->save();
     }
 
-    public function sales() {
-        return $this->hasMany(Sales::class, 'product_id');
-    }
 }

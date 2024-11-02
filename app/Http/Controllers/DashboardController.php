@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventory;
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -27,32 +29,46 @@ class DashboardController extends Controller
      */
 
      public function index()
-{ 
-    // Check if the user is logged in and is an Administrator
-    if (Auth::check()) {
-        // Fetch the logged-in user's ID
-        $user = auth()->user();
-        $user_id = $user->user_id;
+    { 
+        // Check if the user is logged in and is an Administrator
+        if (Auth::check()) {
+            // Fetch the logged-in user's ID
+            $user = auth()->user();
+            $user_id = $user->user_id;
 
-        // Join `user`, `credentials`, and `contact_details` using the foreign keys
-        $userSQL = DB::table('user')
-            ->select('user.*')
-            ->where('user_id', '=', $user_id) // Correctly filter using `user_id`
-            ->first(); // Get only one user (since it's based on logged-in user)
+            // Fetch products and their inventory details
+            $inventoryJoined = Inventory::with('product')->get();
 
-        // Check if the user is an Administrator (role is in `credentials` table)
-        if ($userSQL && $userSQL->role === "Administrator" || $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
-            // Pass the inventory managers and user role to the view
-            return view('dashboard', [
-                'userSQL' => $userSQL,
-            ]);
-        } else {
-            return redirect('/login')->withErrors('Unauthorized access.');
+            // Prepare an array to hold low stock messages
+            $lowStockMessages = [];
+
+            foreach ($inventoryJoined as $data) {
+                if ($data->in_stock <= $data->reorder_level) {
+                    $lowStockMessages[] = "Product ID {$data->product_id} ({$data->product->product_name}) is low on stock. Please restock.";
+                }
+            }
+
+
+            // Join `user`, `credentials`, and `contact_details` using the foreign keys
+            $userSQL = DB::table('user')
+                ->select('user.*')
+                ->where('user_id', '=', $user_id) // Correctly filter using `user_id`
+                ->first(); // Get only one user (since it's based on logged-in user)
+
+            // Check if the user is an Administrator (role is in `credentials` table)
+            if ($userSQL && $userSQL->role === "Administrator" || $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
+                // Pass the inventory managers and user role to the view
+                return view('dashboard', [
+                    'userSQL' => $userSQL,
+                    'lowStockMessages' => $lowStockMessages
+                ]);
+            } else {
+                return redirect('/login')->withErrors('Unauthorized access.');
+            }
         }
-    }
 
-    return redirect('/login')->withErrors('You must be logged in.');
-}
+        return redirect('/login')->withErrors('You must be logged in.');
+    }
 
 
 public function destroy(int $id)

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Supplier extends Authenticatable
+class InventoryAudit extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,22 +19,30 @@ class Supplier extends Authenticatable
      */
 
      // If you want to change table name change 'reservation'
-    protected $table = 'supplier';
+    protected $table = 'inventory_audit';
     // Primary Key can be change here('id')
-    public $primaryKey = 'supplier_id';
+    public $primaryKey = 'audit_id';
     protected $fillable = [
-        'supplier_id',
-        'company_name', 
-        'contact_person', 
-        'mobile_number', 
-        'email',
-        'address',
+        'audit_id',
+        'previous_quantity_on_hand',
+        'new_quantity_on_hand',
+        'new_store_quantity',
+        'new_stockroom_quantity',
+        'variance',
+        'reason',
+        'audit_date',
+        'inventory_id',
+        'user_id',
     ];
 
     public $timestamps = false;
 
-    public function product()
-    {
-        return $this->hasMany(Product::class, 'supplier_id');
+    public function inventory() {
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
+    
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }
