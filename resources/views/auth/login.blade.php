@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-@push('styles')
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg'); 
