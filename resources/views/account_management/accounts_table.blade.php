@@ -53,7 +53,7 @@
                                     </td>
 
                                     <!-- Modal -->
-                                    <div id="deleteModal{{ $data->user_id }}" class="modal fade" role="dialog">
+                                    <div id="deleteModal{{ $data->user_id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <!-- Modal content-->
                                             <div class="modal-content">
@@ -65,6 +65,9 @@
                                                     <form action="{{ route('account_management.destroy', $data->user_id) }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
+
+                                                        {{-- to identofy which modal to open to display error alert --}}
+                                                        <input type="hidden" name="user_id" value="{{ $data->user_id }}">
 
                                                         <!-- Admin Username Input -->
                                                         <div class="form-group">
@@ -78,7 +81,26 @@
                                                             <input type="password" class="form-control" id="admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                         </div>
 
-                                                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                                        <!-- Modal Validation Error Alert Message-->
+                                                        @if ($errors->any() && old('user_id') == $data->user_id)
+                                                            <div class="alert alert-danger">
+                                                                <ul>
+                                                                    @foreach ($errors->all() as $error)
+                                                                        <li>{{ $error }}</li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <script>
+                                                                $(document).ready(function() {
+                                                                    $('#deleteModal{{ $data->user_id }}').modal('show');
+                                                                });
+                                                            </script>
+                                                        @endif
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>
