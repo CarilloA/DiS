@@ -4,13 +4,19 @@
 @section('content')
 <style>
     body {
+        background-image: url('/storage/images/bg-photo.jpeg');
+        background-size: cover; /* Cover the entire viewport */
+        background-position: center; /* Center the background image */
+        background-repeat: no-repeat; /* Prevent the image from repeating */
         background-color: #1a1a1a; /* Dark background */
         color: #f8f9fa; /* Light text color */
     }
     .card {
-        background-color: #d3d6d3; /* Card background */
+        background-color: #f8f9fa; /* Card background */
         border: none; /* Remove border */
         border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+
     }
     .input-group-text {
         background-color: #74e39a; /* input group background */
@@ -34,7 +40,7 @@
         background-color: #0f5132; /* Green on hover */
     }
     .form-control {
-        background-color: white; /* Darker input background */
+        background-color: #f8f9fa; /* Darker input background */
         color: black; /* White text */
         border: 1px solid #444; /* Subtle border */
     }
@@ -50,7 +56,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header text-center">{{ __('Register') }}</div>
+                <div class="card-header text-center" style="background-color:#3a8f66; color:#fff; font-weight: bold;">{{ __('Register') }}</div>
                 <div class="card-body">
                     <!-- Alert Messages -->
                     @include('common.alert')

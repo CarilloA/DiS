@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@push('styles') <!-- Start of the push section -->
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg'); 
@@ -35,6 +36,8 @@
         color: white;
         border: 2px solid white; 
         font-family: Arial, sans-serif;
+        border: none !important; /* Remove border */
+
     }
 
     .card {
@@ -141,7 +144,7 @@
         }
     }
 </style>
-@endpush
+@endpush <!-- End of the push section -->
 
 @section('content')
 <div class="container">

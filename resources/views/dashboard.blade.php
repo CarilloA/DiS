@@ -20,12 +20,22 @@
         z-index: 1; /* Ensure content is above background */
     }
 
-    /* Ensure that the card does not overflow horizontally */
+    /* Ensure that the card does not overflow horizontally 
     .card {
         max-width: 100%;
         overflow: hidden;
-        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
-        border-radius: 8px; /* Optional: rounded corners */
+        color: #fff !important;
+        background-color: #565656 !important; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+    }*/
+
+    .main-content {
+        padding: 20px; /* Add padding for inner spacing */
+        margin: 0 20px; /* Add left and right margin */
+        color: #fff !important;
+        background-color: #565656 !important; 
+        border-radius: 5px; /* Slightly rounded corners */
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     }
 
@@ -44,11 +54,11 @@
                 @include('common.alert')
                 <div class="row justify-content-center">
                     <div class="col">
-                        <div class="card">
-                            <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
+                        <div class="main-content">
+                            <!--<div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
                                 {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
-                            </div>
-                            <h1 class="text-center">Admin Dashboard</h1>
+                            </div>-->
+                            <h1 class="text-center mt-4 mb-4">Admin Dashboard</h1>
                         </div>
                     </div>
                 </div>
@@ -61,10 +71,10 @@
                 @include('common.alert')
                 <div class="row justify-content-center">
                     <div class="col">
-                        <div class="card">
-                            <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
+                        <div class="main-content">
+                            <!--<div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
                                 {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
-                            </div>
+                            </div>-->
                             <!-- Check and display low stock messages -->
                             @if(!empty($lowStockMessages))
                                 <div class="alert alert-warning">
@@ -76,7 +86,7 @@
                                     </ul>
                                 </div>
                             @endif
-                            <h1 class="text-center">Welcome Inventory Manager, dashboard here</h1>
+                            <h1 class="text-center">Inventory Manager Dashboard</h1>
                         </div>
                     </div>
                 </div>
@@ -89,7 +99,7 @@
                 @include('common.alert')
                 <div class="row justify-content-center">
                     <div class="col">
-                        <div class="card">
+                        <div class="main-content">
                             <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
                                 {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
                             </div>
