@@ -1,5 +1,23 @@
 @extends('layouts.app')
+<style>
+    body {
+        background-image: url('/storage/images/bg-photo.jpeg');
+        background-size: cover; /* Cover the entire viewport */
+        background-position: center; /* Center the background image */
+        background-repeat: no-repeat; /* Prevent the image from repeating */
+    }
 
+    .main-content {
+        padding: 20px; /* Add padding for inner spacing */
+        margin: 0 20px; /* Add left and right margin */
+        color: #fff !important;
+        background-color: rgba(86, 86, 86, 0.8) !important; /* Semi-transparent background */
+        border-radius: 5px; /* Slightly rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+    }
+
+
+</style>
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
@@ -7,7 +25,7 @@
             <div class="card">
                 <div class="card-header">{{ __('Reset Password') }}</div>
 
-                <div class="card-body">
+                <div class="main-content">
                     <form method="POST" action="{{ route('password.update') }}">
                         @csrf
 

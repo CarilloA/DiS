@@ -3,22 +3,71 @@
 
 @section('content')
 <style>
-    /* Styling */
-    .card { background-color: #34495e; border: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-    .card-header { background-color: #2c3e50; font-size: 1.5rem; padding: 15px; }
-    .form-label { font-weight: bold; color: #ecf0f1; }
-    .product-entry { background-color: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #ecf0f1; }
-    .product-info p { margin: 0; }
-    .btn-primary { background-color: #2980b9; border: none; }
-    .btn-secondary { background-color: #27ae60; border: none; }
-    .btn-primary:hover, .btn-secondary:hover { opacity: 0.8; }
+    body {
+        background-image: url('/storage/images/bg-photo.jpeg');
+        background-size: cover; /* Cover the entire viewport */
+        background-position: center; /* Center the background image */
+        background-repeat: no-repeat; /* Prevent the image from repeating */
+    }
+
+    .card {
+        background-color: #565656; /* Card background */
+        border: none; /* Remove border */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+    }
+
+    h1.h2 {
+        color: #fff; /* Change this to your desired color */
+    }
+
+    .table th, td {
+        background-color: #565656 !important; /* Set background color for all table headers */
+        color: #ffffff !important;
+    }
+
+    .table th, td {
+        background-color: #f8f9fa !important; /* Set background color for all table headers */
+    }
+    
+    .form-control {
+        background-color: #fff; /* White input background */
+        color: #000; /* Black text */
+        border: 1px solid #444; /* Subtle border */
+    }
+    .form-control:focus {
+        background-color: #fff; /* Focus background */
+        color: #000; /* Black text */
+        border-color: #3a8f66; /* Green border on focus */
+        box-shadow: none; /* Remove default shadow */
+    }
+
+    .form-control {
+        background-color: #212529; /* Change input background */
+        color: #fff; /* White text */
+        border: 1px solid #444; 
+        border-radius: 4px; /* Optional: Rounded corners */
+    }
+    .form-control:focus {
+        background-color: #212529; 
+        color: #fff; 
+        border-color: #3a8f66; 
+        box-shadow: none; 
+    }
+
+    .table th, td {
+        background-color: #565656 !important; /* Set background color for all table headers */
+        color: #ffffff !important;
+    }
+
+    
 </style>
 
-<div class="container mt-5">
+<div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header text-center text-white">{{ __('Create Sales') }}</div>
+                <div class="text card-header text-center" style="background-color: #3a8f66; color: #fff; font-weight: bold;">{{ __('Create Sales') }}</div>
                 <div class="card-body">
                     @include('common.alert')
 
@@ -26,7 +75,7 @@
                         @csrf
                         <div id="product-fields">
                             <div class="product-entry">
-                                <label for="product_id" class="form-label">{{ __('Product ID') }}</label>
+                                <label for="product_id" class="form-label" style="color: #fff;">{{ __('Product ID') }}</label>
                                 <input type="text" class="form-control product_id" name="product_id[]" pattern="^\d{8}$" required>
                                 <div class="product-info" style="display: none;">
                                     <p><strong>Product Name:</strong> <span class="product_name"></span></p>
@@ -43,11 +92,11 @@
                                 </div>
                                 <div class="row mt-3">
                                     <div class="col-6">
-                                        <label for="quantity" class="form-label">{{ __('Quantity') }}</label>
+                                        <label for="quantity" class="form-label" style="color: #fff;">{{ __('Quantity') }}</label>
                                         <input type="number" class="form-control quantity" name="quantity[]" pattern="^\d{1,6}$" required>
                                     </div>
                                     <div class="col-6">
-                                        <label for="total_amount" class="form-label">{{ __('Amount') }}</label>
+                                        <label for="total_amount" class="form-label" style="color: #fff;">{{ __('Amount') }}</label>
                                         <input type="text" class="form-control total_amount" name="total_amount[]" readonly>
                                     </div>
                                 </div>
@@ -55,11 +104,13 @@
                             </div>
                         </div>
                         
-                        <label for="grand_total_amount" class="form-label">{{ __('Total Amount') }}</label>
+                        <label for="grand_total_amount" class="form-label" style="color: #fff;">{{ __('Total Amount') }}</label>
                         <input type="text" class="form-control" id="grand_total_amount" name="grand_total_amount" readonly>
 
-                        <button type="button" id="add-another-product" class="btn btn-secondary mb-3">{{ __('Add Another Product') }}</button>
-                        <button type="submit" class="btn btn-primary" style="margin-left: 65%;">{{ __('Submit') }}</button>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button type="button" id="add-another-product" class="btn btn-secondary me-2">{{ __('Add Another Product') }}</button>
+                            <button type="submit" class="btn btn-success">{{ __('Submit') }}</button>
+                        </div>
                     </form>
                 </div>
             </div>
