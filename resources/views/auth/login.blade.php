@@ -40,6 +40,13 @@
 
     }
 
+    input:focus {
+        background-color: #2c2f32; /* Change to a slightly different color on focus */
+        color: white; /* Ensure text color is white */
+        outline: none; /* Remove the default focus outline */
+        border: 2px solid #1abc9c; /* Optional: Add border to highlight focus */
+    }
+
     .card {
         border: none; 
         min-height: 400px;

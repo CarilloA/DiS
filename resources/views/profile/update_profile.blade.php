@@ -4,53 +4,79 @@
 @section('content')
 <style>
     body {
-        background-color: #1a1a1a; /* Dark background */
-        color: #f8f9fa; /* Light text color */
+        background-image: url('/storage/images/bg-photo.jpeg');
+        background-size: cover; /* Cover the entire viewport */
+        background-position: center; /* Center the background image */
+        background-repeat: no-repeat; /* Prevent the image from repeating */
     }
     .card {
-        background-color: #d3d6d3; /* Card background */
+        
+        background-color: #565656; /* Card background */
         border: none; /* Remove border */
         border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     }
     .input-group-text {
-        background-color: #74e39a; /* input group background */
+        background-color: #3a8f66; /* input group background */
         border: none; /* Remove borders */
-        color: #0f5132; /* White text */
+        color: #fff; /* White text */
     }
     .btn-primary {
-        background-color: #74e39a; /* Green button */
-        color: black;
+        background-color: #3a8f66; /* Green button */
+        color: #fff; /* White text */
         border: none; /* Remove button borders */
     }
     .btn-primary:hover {
-        background-color: #0f5132; /* Darker green on hover */
+        background-color: #2f6b5a; /* Darker green on hover */
     }
     .btn-secondary {
-        background-color: #74e39a; /* Dark background for role selection */
-        color: #0f5132;
+        background-color: #3a8f66; /* Dark background for role selection */
+        color: #fff; /* White text */
         border: none;
     }
     .btn-secondary:hover {
-        background-color: #0f5132; /* Green on hover */
+        background-color: #2f6b5a; /* Darker green on hover */
     }
     .form-control {
-        background-color: white; /* Darker input background */
-        color: black; /* White text */
+        background-color: #fff; /* White input background */
+        color: #000; /* Black text */
         border: 1px solid #444; /* Subtle border */
     }
     .form-control:focus {
-        background-color: white; /* Focus background */
-        color: black;
-        border-color: #28a745; /* Green border on focus */
+        background-color: #fff; /* Focus background */
+        color: #000; /* Black text */
+        border-color: #3a8f66; /* Green border on focus */
         box-shadow: none; /* Remove default shadow */
+    }
+
+    .form-control {
+        background-color: #212529; /* Change input background */
+        color: #fff; /* White text */
+        border: 1px solid #444; 
+        border-radius: 4px; /* Optional: Rounded corners */
+    }
+    .form-control:focus {
+        background-color: #212529; 
+        color: #fff; 
+        border-color: #3a8f66; 
+        box-shadow: none; 
+    }
+
+    /* Placeholder styling */
+    .form-control::placeholder {
+        color: #bbb; /* Light grey for placeholder text */
+        opacity: 1; /* Ensures the opacity is fully opaque */
+    }
+    .text {
+        color: #fff;
     }
 </style>
 
-<div class="container mt-5">
+<div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header text-center">{{ __('Update User Account') }}</div>
+                <div class="text card-header text-center" style="background-color: #3a8f66">{{ __('Update User Account') }}</div>
                 <div class="card-body">
                     @include('common.alert')
                     <form method="POST" action="{{ url('update_profile/' . $user->user_id) }}" enctype="multipart/form-data">
@@ -59,7 +85,7 @@
 
                         <!-- Profile Picture -->
                         <div class="form-group mb-3">
-                            <label for="">{{ __('Choose Profile Picture') }}</label>
+                            <label class="text" for="">{{ __('Choose Profile Picture') }}</label>
                             <input type="file" name="image_url" class="form-control" accept="image/*">
                         </div>
 
@@ -114,7 +140,9 @@
                                 </span>
                                 <input id="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$">
                                 <small class="form-text text-danger mt-2" style="color: red">
-                                    Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                    <p class="text">
+                                        Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                    </p>
                                 </small>
                                 @error('new_password')
                                     <span class="invalid-feedback" role="alert">
@@ -141,12 +169,12 @@
                                 </span>
 
                                     <div class="form-group">
-                                        <label for="username">Confirm Username</label>
+                                        <label class="text" for="username">Confirm Username</label>
                                         <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" pattern="^[A-Za-z0-9]*" required>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="password">Confirm Password</label>
+                                        <label class="text" for="password">Confirm Password</label>
                                         <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                                     </div>
                             </div>

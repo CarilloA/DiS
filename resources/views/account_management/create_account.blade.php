@@ -9,52 +9,78 @@
         background-position: center; /* Center the background image */
         background-repeat: no-repeat; /* Prevent the image from repeating */
         background-color: #1a1a1a; /* Dark background */
-        color: #f8f9fa; /* Light text color */
+        color: #fff; /* Light text color */
     }
     .card {
-        background-color: #f8f9fa; /* Card background */
+        
+        background-color: #565656; /* Card background */
         border: none; /* Remove border */
         border-radius: 8px; /* Rounded corners */
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
-
     }
     .input-group-text {
-        background-color: #74e39a; /* input group background */
+        background-color: #3a8f66; /* input group background */
         border: none; /* Remove borders */
-        color: #0f5132; /* White text */
+        color: #fff; /* White text */
     }
     .btn-primary {
-        background-color: #74e39a; /* Green button */
-        color: black;
+        background-color: #3a8f66; /* Green button */
+        color: #fff; /* White text */
         border: none; /* Remove button borders */
     }
     .btn-primary:hover {
-        background-color: #0f5132; /* Darker green on hover */
+        background-color: #2f6b5a; /* Darker green on hover */
     }
     .btn-secondary {
-        background-color: #74e39a; /* Dark background for role selection */
-        color: #0f5132;
+        background-color: #3a8f66; /* Dark background for role selection */
+        color: #fff; /* White text */
         border: none;
     }
     .btn-secondary:hover {
-        background-color: #0f5132; /* Green on hover */
+        background-color: #2f6b5a; /* Darker green on hover */
     }
     .form-control {
-        background-color: #f8f9fa; /* Darker input background */
-        color: black; /* White text */
+        background-color: #fff; /* White input background */
+        color: #000; /* Black text */
         border: 1px solid #444; /* Subtle border */
     }
     .form-control:focus {
-        background-color: white; /* Focus background */
-        color: black;
-        border-color: #28a745; /* Green border on focus */
+        background-color: #fff; /* Focus background */
+        color: #000; /* Black text */
+        border-color: #3a8f66; /* Green border on focus */
         box-shadow: none; /* Remove default shadow */
     }
+
+    .form-control {
+        background-color: #212529; /* Change input background */
+        color: #fff; /* White text */
+        border: 1px solid #444; 
+        border-radius: 4px; /* Optional: Rounded corners */
+    }
+    .form-control:focus {
+        background-color: #212529; 
+        color: #fff; 
+        border-color: #3a8f66; 
+        box-shadow: none; 
+    }
+
+    /* Placeholder styling */
+    .form-control::placeholder {
+        color: #bbb; /* Light grey for placeholder text */
+        opacity: 1; /* Ensures the opacity is fully opaque */
+    }
+    .text {
+        color: #fff;
+    }
+    
 </style>
 
-<div class="container mt-5">
+<div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <div class="main-content">
+                
+            </div>
             <div class="card">
                 <div class="card-header text-center" style="background-color:#3a8f66; color:#fff; font-weight: bold;">{{ __('Register') }}</div>
                 <div class="card-body">
@@ -64,7 +90,7 @@
                         @csrf
 
                         <div class="form-group mb-3">
-                            <label for="">{{ __('Choose Profile Picture') }}</label>
+                            <label class="text" for="">{{ __('Choose Profile Picture') }}</label>
                             <input type="file" name="image_url" class="form-control"  accept="image/*" required>
                         </div> 
 
@@ -123,67 +149,71 @@
                                 @enderror
                             </div>
                         </div>
+                        <div class="below">
+                            <div class="row mb-3">
+                                <label class="text" for="role" class="col-md-4 col-form-label text-md-end">{{ __('Select User Role:') }}</label>
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-inline">
+                                        <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager" required>
+                                        <label for="inventory_manager" class="form-check-label btn btn-secondary">{{ __('Inventory Manager') }}</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor" required>
+                                        <label for="auditor" class="form-check-label btn btn-secondary">{{ __('Auditor') }}</label>
+                                    </div>
 
-                        <div class="row mb-3">
-                            <label for="role" class="col-md-4 col-form-label text-md-end">{{ __('Select User Role:') }}</label>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-inline">
-                                    <input id="inventory_manager" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Inventory Manager" required>
-                                    <label for="inventory_manager" class="form-check-label btn btn-secondary">{{ __('Inventory Manager') }}</label>
+                                    @error('role')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
-                                <div class="form-check form-check-inline">
-                                    <input id="auditor" type="radio" class="btn-check form-check-input @error('role') is-invalid @enderror" name="role" value="Auditor" required>
-                                    <label for="auditor" class="form-check-label btn btn-secondary">{{ __('Auditor') }}</label>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
+                                    </span>
+                                    <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Username must be unique" value="{{ old('username') }}" pattern="^[A-Za-z0-9]*" required>
+
+                                    @error('username')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
+                            </div>
 
-                                @error('role')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-key fa-lg"></i><label class="ms-2">Password</label>
                                     </span>
-                                @enderror
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
+                                    <small class="text form-text text-danger mt-2">
+                                        <p class="text">
+                                            Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                        </p>
+                                    </small>
+                                    @error('password')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <span class="input-group-text">
-                                    <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
-                                </span>
-                                <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Username must be unique" value="{{ old('username') }}" pattern="^[A-Za-z0-9]*" required>
-
-                                @error('username')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Password</label>
                                     </span>
-                                @enderror
-                            </div>
+                                    <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="Entered password should match." required>
+                                </div>
+                            </div>   
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <span class="input-group-text">
-                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">Password</label>
-                                </span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
-                                <small class="form-text text-danger mt-2" style="color: red">
-                                    Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
-                                </small>
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <span class="input-group-text">
-                                    <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Password</label>
-                                </span>
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="Entered password should match." required>
-                            </div>
-                        </div>
+                        
 
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">

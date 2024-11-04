@@ -142,18 +142,18 @@
                             <td>{{ $data->updated_at }}</td>
                             <td>
                                 <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
-                                    <u><strong>more info.</strong></u>
+                                    <strong style="color: white; text-decoration: none; font-weight: normal;" >more info.</strong>
                                 </button>
                             </td>
                             <td>
                                 <button type="button" class="btn" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
-                                    <u><strong>more info.</strong></u>
+                                    <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
                                 </button>
                             </td>
                             <?php $storeStock = $data->in_stock - $data->product_quantity; ?>
                             <td>
                                 <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
-                                    <u><strong>more info.</strong></u>
+                                    <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
                                 </button>
                             </td>
                         </tr>
