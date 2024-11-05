@@ -53,22 +53,22 @@
     }
 
     /*Date Picker*/
-    .input-group .form-control {
-        background-color: #212529; /* Grey background for input */
-        color: white; /* White text */
+    .form-control {
+        background-color: #212529 !important; /* Grey background for input */
+        color: white !important; /* White text */
         border-radius: 5px; /* Rounded corners */
-        border: none;
+        border: none !important;
     }
 
-    .input-group .form-control:focus {
+    .form-control:focus {
         background-color: #212529; /* Maintain grey background on focus */
-        color: white; /* White text */
+        color: white!important; /* White text */
         outline: none; /* Remove default outline */
     }
 
     .input-group .input-group-text {
         background-color: #198754; /* Background for 'to' text */
-        color: white; /* Text color */
+        color: white!important; /* Text color */
         border-radius: 5px; /* Rounded corners */
         border: none;
     }
@@ -84,7 +84,7 @@
     }
 
     .modal-content {
-        color: black !important; /* This will apply to all text in the modal */
+        color: #fff !important; /* This will apply to all text in the modal */
         margin: 20px 15px;
     }
 
@@ -226,7 +226,7 @@
                                 @foreach($sales as $data)
                                 <div class="modal fade" id="returnModal{{ $data->sales_details_id }}" tabindex="-1" role="dialog" aria-labelledby="returnModalLabel" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
+                                        <div class="modal-content" style="margin: 20px 15px; background-color:#565656;">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="returnModalLabel">Return Product</h5>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -239,7 +239,7 @@
                                                 <input type="hidden" name="sales_id" value="{{ $data->sales_id }}">
                                                 <input type="hidden" name="sales_details_id" value="{{ $data->sales_details_id }}">
 
-                                                <div id="product-info" class="mb-3">
+                                                <div id="product-info" class="mb-3" style="margin-left: 1em;">
                                                     <p><strong>Sale Details:</strong></p>
                                                     <p><strong>Ref. No.:</strong> <span id="product_name">{{ $data->sales_id }}</span></p>
                                                     <p><strong>Product Name:</strong> <span id="product_name">{{ $data->product_name }}</span></p>
@@ -256,7 +256,7 @@
                                                 <div class="modal-body">
                                                     <div class="form-group">
                                                         <label for="return_quantity">Quantity to be Returned</label>
-                                                        <input type="number" class="form-control return-quantity" id="return_quantity_{{ $data->sales_details_id }}" name="return_quantity" pattern="^\d{1,6}$" required>
+                                                        <input type="number" style="color:" class="form-control return-quantity" id="return_quantity_{{ $data->sales_details_id }}" name="return_quantity" pattern="^\d{1,6}$" required>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label for="total_return_amount_{{ $data->sales_details_id }}">Total Amount to be Returned</label>

@@ -145,13 +145,16 @@
         </div>
     </div>
     <ul class="list-unstyled components">
+        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
+        </li>
         <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-user-shield"></i> ACCOUNT</a>
         </li>
         <li class="{{ Request::routeIs('inventory_table') ? 'active' : '' }}">
             <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
-        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
+        <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
@@ -187,7 +190,7 @@
     </div>
     <ul class="list-unstyled components">
         <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
-            <a href="{{ url('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
+            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
         </li>
         <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
@@ -201,7 +204,7 @@
         <li class="{{ Request::routeIs('sales_table') ? 'active' : '' }}">
             <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
         </li>
-        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
+        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
@@ -236,6 +239,9 @@
         </div>
     </div>
     <ul class="list-unstyled components">
+        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
+        </li>
         <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
@@ -245,8 +251,8 @@
         <li class="{{ Request::routeIs('inventory.audit.logs') ? 'active' : '' }}">
             <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-file"></i> LOGS</a>
         </li>
-        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
-            <a href="{{ route('inventory.audit') }}"><i class="fa-solid fa-file"></i> REPORT</a>
+        <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
+            <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
         </li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

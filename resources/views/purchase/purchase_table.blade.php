@@ -66,7 +66,7 @@
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <div class="main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
-                    <h1 class="h2">PRODUCTS TABLE</h1>
+                    <h1 class="h2">Product Management</h1>
                     <a class="btn btn-success" href="{{ route('purchase.create') }}">+ Add Product</a>
                 </div>
 

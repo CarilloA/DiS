@@ -100,14 +100,14 @@
                 <div class="row justify-content-center">
                     <div class="col">
                         <div class="main-content">
-                            <div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
+                            <!--<div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
                                 {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
-                            </div>
-                            <h1 class="text-center">Welcome Auditor, dashboard here</h1>
+                            </div>-->
+                            <h1 class="text-center">Auditor Dashboard</h1>
                         </div>
                     </div>
                 </div>
             </div>
-        @endif --}}
+        @endif 
     </div>
 @endsection
