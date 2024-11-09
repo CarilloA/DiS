@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('content')
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg'); 
@@ -141,9 +141,7 @@
         }
     }
 </style>
-@endpush
 
-@section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">

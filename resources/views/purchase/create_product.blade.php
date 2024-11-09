@@ -228,7 +228,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="input-group-text" for="company_name">
-                                    <i class="fa-solid fa-industry"></i> Company
+                                    <i class="fa-solid fa-industry"></i> Company Name
                                 </label>
                                 <input id="company_name" type="text" class="form-control @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" pattern="^[a-zA-Z0-9\s\-]{1,30}$" required>
                                 @error('company_name')

@@ -160,7 +160,7 @@
                                                     <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_details_id }}" name="total_return_amount" readonly>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="return_reason">Reason</label>
+                                                    <label for="return_reason">Return Reason</label>
                                                     <input type="text" class="form-control" name="return_reason" value="{{ old('return_reason') }}" pattern="^[a-zA-Z0-9\s\.,\-]{1,30}$" required>
                                                 </div>
                                             </div>

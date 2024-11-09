@@ -86,7 +86,7 @@
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="storeRestockModalLabel">Restock Product in Store</h5>
+                                    <h5 class="modal-title" id="storeRestockModalLabel">Restock Product in the Store</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -153,6 +153,10 @@
                                         <div class="form-group">
                                             <label for="purchase_price_per_unit">Purchase Price Per Unit</label>
                                             <input type="text" class="form-control" name="purchase_price_per_unit" value="{{ old('purchase_price_per_unit') }}" pattern="^\d{1,6}(\.\d{1,2})?$" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sale_price_per_unit">Sales Price Per Unit</label>
+                                            <input type="text" class="form-control" name="sale_price_per_unit" value="{{ old('sale_price_per_unit') }}" pattern="^\d{1,6}(\.\d{1,2})?$" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="unit_of_measure">Unit of Measure</label>
