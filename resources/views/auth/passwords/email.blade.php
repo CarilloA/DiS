@@ -1,11 +1,43 @@
 @extends('layouts.app')
+<style>
+    body {
+        background-image: url('/storage/images/bg-photo.jpeg');
+        background-size: cover; /* Cover the entire viewport */
+        background-position: center; /* Center the background image */
+        background-repeat: no-repeat; /* Prevent the image from repeating */
+    }
 
+    .main-content {
+        padding: 20px; /* Add padding for inner spacing */
+        margin: 0 20px; /* Add left and right margin */
+        color: #fff !important;
+        background-color: #565656 !important; 
+        border-radius: 5px; /* Slightly rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+    }
+
+    .card {
+        
+        background-color: #565656 !important; 
+        color: #fff !important;
+        border: none; /* Remove border */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+    }
+
+    .form-control {
+        background-color: #212529 !important; /* input group background */
+        border: none !important; /* Remove borders */
+        color: #fff !important; /* White text */
+    }
+
+</style>
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
+                <div class="text card-header" style="background-color: #3a8f66">{{ __('Reset Password') }}</div>
 
                 <div class="card-body">
                     @if (session('status'))
@@ -33,7 +65,7 @@
 
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-success">
                                     {{ __('Send Password Reset Link') }}
                                 </button>
                             </div>

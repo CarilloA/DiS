@@ -40,8 +40,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index']);
 
 use App\Http\Controllers\DashboardController;
 Route::resource('dashboard', DashboardController::class);
-Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index']);
-Route::delete('/dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'destroy']);
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+// Route::delete('/dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'destroy']);
 
 use App\Http\Controllers\AccountManagementController;
 Route::resource('account_management', AccountManagementController::class);

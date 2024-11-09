@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('content')
+
+@push('styles') <!-- Start of the push section -->
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg'); 
@@ -35,6 +36,15 @@
         color: white;
         border: 2px solid white; 
         font-family: Arial, sans-serif;
+        border: none !important; /* Remove border */
+
+    }
+
+    input:focus {
+        background-color: #2c2f32; /* Change to a slightly different color on focus */
+        color: white; /* Ensure text color is white */
+        outline: none; /* Remove the default focus outline */
+        border: 2px solid #1abc9c; /* Optional: Add border to highlight focus */
     }
 
     .card {
@@ -141,6 +151,7 @@
         }
     }
 </style>
+@endpush <!-- End of the push section -->
 
 <div class="container">
     <div class="row justify-content-center">
