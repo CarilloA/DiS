@@ -41,7 +41,6 @@ class InventoryController extends Controller
         ->get();
 
         $inventoryJoined = DB::table('inventory')
-        // ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
         ->join('product', 'inventory.product_id', '=', 'product.product_id')
         ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
         ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
@@ -162,38 +161,7 @@ class InventoryController extends Controller
                 return redirect()->route('products_table')->with('error', 'Invalid user credentials.');
             }
     
-            // Find row to be deleted
-            $product = Product::find($id);
-            $inventory = Inventory::find($id);
-    
-            // Check if the product exists
-            if (!$product) {
-                return redirect()->route('products_table')->with('error', 'Product not found.');
-            }
-
-            if (!$inventory) {
-                return redirect()->route('products_table')->with('error', 'Inventory not found.');
-            }
-
-            // Delete Contents
-            if ($inventory->product) {
-                $inventory->product->delete();
-            }
-    
-            // Delete Contents
-            if ($product->category) {
-                $product->category->delete();
-            }
-
-            // Delete Contents
-            if ($product->supplier) {
-                $product->supplier->delete();
-            }
-    
-            // Finally, delete the inventory
-            $inventory->delete();
-    
-            return redirect()->route('products_table')->with('success', 'Product deleted successfully.');
+            //soft delete
         }
     
     }

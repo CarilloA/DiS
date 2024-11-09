@@ -75,20 +75,20 @@
                         @csrf
                         <div id="product-fields">
                             <div class="product-entry">
-                                <label for="product_id" class="form-label" style="color: #fff;">{{ __('Product ID') }}</label>
+                                <label for="product_id" class="form-label" style="color: #fff;">{{ __('Product No.') }}</label>
                                 <input type="text" class="form-control product_id" name="product_id[]" pattern="^\d{8}$" required>
                                 <div class="product-info" style="display: none;">
-                                    <p><strong>Product Name:</strong> <span class="product_name"></span></p>
-                                    <p><strong>Color:</strong> <span class="color"></span></p>
-                                    <p><strong>Size:</strong> <span class="size"></span></p>
-                                    <p><strong>Description:</strong> <span class="description"></span></p>
-                                    <p><strong>Category:</strong> <span class="product_category"></span></p>
-                                    <p><strong>Seller:</strong> <span class="product_seller"></span></p>
-                                    <p><strong>In Stock:</strong> <span class="product_stock"></span></p>
-                                    <p><strong>Store Stock:</strong> <span class="store_stock"></span></p>
-                                    <p><strong>Stockroom Stock:</strong> <span class="stockroom_stock"></span></p>
-                                    <p class="price-info" style="display: none;"><strong>Price per Unit: ₱</strong><span class="sales_price"></span></p>
-                                    <p class="unit-info" style="display: none;"><strong>Unit: </strong><span class="unit"></span></p>
+                                    <p style="color: #fff;"><strong>Product Name:</strong> <span class="product_name"></span></p>
+                                    <p style="color: #fff;"><strong>Color:</strong> <span class="color"></span></p>
+                                    <p style="color: #fff;"><strong>Size:</strong> <span class="size"></span></p>
+                                    <p style="color: #fff;"><strong>Description:</strong> <span class="description"></span></p>
+                                    <p style="color: #fff;"><strong>Category:</strong> <span class="product_category"></span></p>
+                                    <p style="color: #fff;"><strong>Seller:</strong> <span class="product_seller"></span></p>
+                                    <p style="color: #fff;"><strong>In Stock:</strong> <span class="product_stock"></span></p>
+                                    <p style="color: #fff;"><strong>Store Stock:</strong> <span class="store_stock"></span></p>
+                                    <p style="color: #fff;"><strong>Stockroom Stock:</strong> <span class="stockroom_stock"></span></p>
+                                    <p style="color: #fff;" class="price-info" style="display: none;"><strong>Price per Unit: ₱</strong><span class="sales_price"></span></p>
+                                    <p style="color: #fff;" class="unit-info" style="display: none;"><strong>Unit: </strong><span class="unit"></span></p>
                                 </div>
                                 <div class="row mt-3">
                                     <div class="col-6">
@@ -132,28 +132,35 @@
     const newProductEntry = document.createElement('div');
     newProductEntry.className = 'product-entry';
     newProductEntry.innerHTML = `
-        <label for="product_id" class="form-label">{{ __('Product ID') }}</label>
+        <div class="row">
+            <div class="col">
+                <label for="product_id" class="form-label" style="color: #fff;">{{ __('Product No.') }}</label>
+                <div style="align-items:left">
+                    <button type="button" id="cancel-button" class="btn btn-danger me-2">{{ __('Cancel') }}</button>
+                </div>
+            <div>
+        </div>
         <input type="text" class="form-control product_id" name="product_id[]" required>
         <div class="product-info" style="display: none;">
-            <p><strong>Product Name:</strong> <span class="product_name"></span></p>
-            <p><strong>Color:</strong> <span class="color"></span></p>
-            <p><strong>Size:</strong> <span class="size"></span></p>
-            <p><strong>Description:</strong> <span class="description"></span></p>
-            <p><strong>Category:</strong> <span class="product_category"></span></p>
-            <p><strong>Seller:</strong> <span class="product_seller"></span></p>
-            <p><strong>In Stock:</strong> <span class="product_stock"></span></p>
-            <p><strong>Store Stock:</strong> <span class="store_stock"></span></p>
-            <p><strong>Stockroom Stock:</strong> <span class="stockroom_stock"></span></p>
-            <p class="price-info" style="display: none;"><strong>Price per Unit: ₱</strong><span class="sales_price"></span></p>
-            <p class="unit-info" style="display: none;"><strong>Unit: </strong><span class="unit"></span></p>
+            <p style="color: #fff;"><strong>Product Name:</strong> <span class="product_name"></span></p>
+            <p style="color: #fff;"><strong>Color:</strong> <span class="color"></span></p>
+            <p style="color: #fff;"><strong>Size:</strong> <span class="size"></span></p>
+            <p style="color: #fff;"><strong>Description:</strong> <span class="description"></span></p>
+            <p style="color: #fff;"><strong>Category:</strong> <span class="product_category"></span></p>
+            <p style="color: #fff;"><strong>Seller:</strong> <span class="product_seller"></span></p>
+            <p style="color: #fff;"><strong>In Stock:</strong> <span class="product_stock"></span></p>
+            <p style="color: #fff;"><strong>Store Stock:</strong> <span class="store_stock"></span></p>
+            <p style="color: #fff;"><strong>Stockroom Stock:</strong> <span class="stockroom_stock"></span></p>
+            <p style="color: #fff;" class="price-info" style="display: none;"><strong>Price per Unit: ₱</strong><span class="sales_price"></span></p>
+            <p style="color: #fff;" class="unit-info" style="display: none;"><strong>Unit: </strong><span class="unit"></span></p>
         </div>
         <div class="row mt-3">
             <div class="col-6">
-                <label for="quantity" class="form-label">{{ __('Quantity') }}</label>
+                <label for="quantity" class="form-label" style="color: #fff;">{{ __('Quantity') }}</label>
                 <input type="number" class="form-control quantity" name="quantity[]" required>
             </div>
             <div class="col-6">
-                <label for="total_amount" class="form-label">{{ __('Amount') }}</label>
+                <label for="total_amount" class="form-label" style="color: #fff;">{{ __('Amount') }}</label>
                 <input type="text" class="form-control total_amount" name="total_amount[]" readonly>
             </div>
         </div>
@@ -165,20 +172,31 @@
 
     // Add an event listener for the new product ID input to validate its format
     const productIdInput = newProductEntry.querySelector('.product_id');
-    productIdInput.addEventListener('input', function() {
-        const value = this.value;
-        // Regular expression to check for 8 digits
-        const isValid = /^\d{8}$/.test(value);
+        productIdInput.addEventListener('input', function() {
+            const value = this.value;
+            // Regular expression to check for 8 digits
+            const isValid = /^\d{8}$/.test(value);
 
-        if (!isValid && value.length > 0) {
-            this.setCustomValidity("Product ID must be exactly 8 digits.");
-            this.reportValidity(); // Display validation message
-        } else {
-            this.setCustomValidity(""); // Reset error message
+            if (!isValid && value.length > 0) {
+                this.setCustomValidity("Product ID must be exactly 8 digits.");
+                this.reportValidity(); // Display validation message
+            } else {
+                this.setCustomValidity(""); // Reset error message
+            }
+        });
+    });
+
+    //For removing new product entry
+    document.getElementById('product-fields').addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'cancel-button') {
+            // Find the closest product entry and remove it
+            const productEntry = e.target.closest('.product-entry');
+            if (productEntry) {
+                productEntry.remove();
+                calculateGrandTotal(); // Recalculate grand total after removal
+            }
         }
     });
-});
-
 
     function fetchProductDetails(productId, inputField) {
         fetch('{{ route('fetch.product') }}', {

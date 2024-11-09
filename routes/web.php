@@ -91,6 +91,11 @@ Route::get('audit_inventory_table', [InventoryAuditController::class, 'index'])-
 Route::post('update/{inventory_id}', [InventoryAuditController::class, 'update'])->name('inventory.audit.update');
 Route::get('logs', [InventoryAuditController::class, 'logs'])->name('inventory.audit.logs');
 
+use App\Http\Controllers\ReportController;
+Route::post('inventory_report', [ReportController::class, 'generateReport'])->name('report.generate');
+Route::post('audit_inventory_report', [ReportController::class, 'generateAuditReport'])->name('audit.report.generate');
+
+
 
 
 

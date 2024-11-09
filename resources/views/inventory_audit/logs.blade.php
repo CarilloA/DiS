@@ -101,7 +101,38 @@
         margin-bottom: 1rem; /* Space below each form group */
     }
 
-    
+    .custom-date-picker {
+        appearance: none; /* Removes the default appearance */
+        -webkit-appearance: none; /* For Safari */
+        position: relative;
+        padding: 10px 40px 10px 10px; /* Adds padding to make room for the icon */
+        background-color: #000; /* Ensures the input's background matches */
+        color: #fff; /* White text color */
+        border: 1px solid #fff; /* White border */
+        border-radius: 5px;
+        width: 28em;
+        }
+
+    /* This makes the original calendar icon invisible while keeping it clickable */
+    .custom-date-picker::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        display: block;
+        position: absolute;
+        right: 10px;
+        width: 20px;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    /* Custom white icon overlay */
+    .custom-date-picker:before {
+        content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM7 12h5v5H7z"/></svg>');
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none; /* Makes the icon non-clickable but allows the input's functionality */
+    }
 </style>    
 
 @section('content')
@@ -109,13 +140,26 @@
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <div class="main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                    <h1 class="h2 mb-4">Audit Logs</h1>
+                    <h1 class="h2 mb-4">Logs</h1>
                 </div>
+                <!-- Generate Report -->
+                <form method="POST" action="{{ url('audit_inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form">
+                    @csrf
+                    <div class="input-group mb-3">
+                        <input type="date" class="custom-date-picker" name="start_date" class="form-control" placeholder="Start Date" max="{{ date('Y-m-d') }}"  required>
+                        <span class="input-group-text">TO</span>
+                        <input type="date" class="custom-date-picker" name="end_date" class="form-control" placeholder="End Date" max="{{ date('Y-m-d') }}"  required>
+                        <button type="submit" class="btn btn-success ms-2">
+                            <i class="fa-solid fa-print"></i> Generate Report
+                        </button>
+                    </div>
+                </form>
                     <table class="table table-responsive">
                     <thead>
                         <tr>
-                            <th>Product</th>
                             <th>Auditor</th>
+                            <th>Product No.</th>
+                            <th>Product Name</th>
                             <th>Previous QoH</th>
                             <th>New Store Stock</th>
                             <th>New Stockroom Stock</th>
@@ -129,8 +173,9 @@
                         @foreach ($auditLogs as $log)
                             <div>
                                 <tr>
+                                    <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
+                                    <td>{{ $log->inventory->product->product_id }}</td>
                                     <td>{{ $log->inventory->product->product_name }}</td>
-                                    <td>{{ $log->user->username }}</td>
                                     <td>{{ $log->previous_quantity_on_hand }}</td>
                                     <td>{{ $log->new_store_quantity }}</td>
                                     <td>{{ $log->new_stockroom_quantity }}</td>

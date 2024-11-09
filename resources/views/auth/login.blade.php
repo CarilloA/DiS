@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@push('styles') <!-- Start of the push section -->
+@section('content')
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg'); 
@@ -151,7 +151,6 @@
         }
     }
 </style>
-@endpush <!-- End of the push section -->
 
 <div class="container">
     <div class="row justify-content-center">

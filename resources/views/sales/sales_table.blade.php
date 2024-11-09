@@ -213,7 +213,7 @@
                                                 Return
                                             </button>
                                         @else
-                                            <button type="button" class="btn btn-secondary" disabled>
+                                            <button type="button" class="btn btn-warning" disabled>
                                                 Return
                                             </button>
                                         @endif
@@ -314,9 +314,9 @@
 <script>
     function showDescriptionDetail(color, size, description) {
         const descriptionDetails = `
-            <strong>Company Name:</strong> ${color}<br>
-            <strong>Contact Person:</strong> ${size}<br>
-            <strong>Mobile Number:</strong> ${description}<br>
+            <strong>Color:</strong> ${color}<br>
+            <strong>size:</strong> ${size}<br>
+            <strong>Description:</strong> ${description}<br>
         `;
 
         Swal.fire({
@@ -384,7 +384,7 @@ $(document).ready(function() {
                                     <td>${sale.sales_date}</td>
                                     <td>
                                         <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
-                                            <strong>more info.</strong>
+                                            <p style="color: white;">more info.</p>
                                         </button>
                                     </td>
                                     <td>

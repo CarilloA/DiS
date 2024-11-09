@@ -186,6 +186,7 @@ class PurchaseController extends Controller
     $validatedData = $request->validate([
         'product_id' => ['required', 'exists:product,product_id'],
         'purchase_price_per_unit' => ['required', 'numeric'],
+        'sale_price_per_unit' => ['required', 'numeric'],
         'unit_of_measure' => ['required', 'string', 'max:15'],
         'quantity' => ['required', 'numeric', 'min:1'],
         'update_supplier' => ['nullable', 'boolean'],
@@ -200,6 +201,7 @@ class PurchaseController extends Controller
         // Update inventory details
         $inventory->update([
             'purchase_price_per_unit' => $validatedData['purchase_price_per_unit'],
+            'sale_price_per_unit' => $validatedData['sale_price_per_unit'],
             'unit_of_measure' => $validatedData['unit_of_measure'],
             'in_stock' => $inventory->in_stock + $validatedData['quantity'], // Increment stock
         ]);

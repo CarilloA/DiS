@@ -21,7 +21,6 @@ class InventoryAuditController extends Controller
         $user = Auth::user();
 
         $inventoryJoined = DB::table('inventory')
-        // ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
         ->join('product', 'inventory.product_id', '=', 'product.product_id')
         ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
         ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
