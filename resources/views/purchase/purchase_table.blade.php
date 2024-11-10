@@ -214,9 +214,31 @@
                                                 <input type="text" class="form-control" name="sale_price_per_unit" value="{{ $data->sale_price_per_unit }}" pattern="^\d{1,6}(\.\d{1,2})?$" required>
                                             </div>
                                             <div class="form-group">
+                                                <labelfor="unit_of_measure"> Unit of Measure</label>
+                                                <div class="custom-select">
+                                                    <select name="unit_of_measure" id="unit_of_measure" class="form-select @error('unit_of_measure') is-invalid @enderror" required>
+                                                        <option value="pcs">piece</option> 
+                                                        <option value="pair">pair</option>
+                                                        <option value="set">set</option>
+                                                        <option value="box">box</option> 
+                                                        <option value="pack">pack</option>
+                                                        <option value="kit">kit</option>
+                                                        <option value="liter">liter</option>
+                                                        <option value="gallon">gallon</option>
+                                                        <option value="roll">roll</option>
+                                                        <option value="meter">meter</option>
+                                                    </select>
+                                                </div>
+                                                @error('unit_of_measure')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
+                                            {{-- <div class="form-group">
                                                 <label for="unit_of_measure">Unit of Measure</label>
                                                 <input type="text" class="form-control" name="unit_of_measure" value="{{ $data->unit_of_measure }}" pattern="^[a-zA-Z\s]{1,15}$" required>
-                                            </div>
+                                            </div> --}}
                                             <div class="form-group">
                                                 <label for="quantity">Quantity</label>
                                                 <input type="text" class="form-control" name="quantity" value="{{ $data->in_stock }}" pattern="^\d{1,6}$" required>

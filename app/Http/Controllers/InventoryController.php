@@ -143,26 +143,26 @@ class InventoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
-    {
-        {
-            // Validate login credentials
-            $request->validate([
-                'username' => 'required|string',
-                'password' => 'required|string',
-            ]);
+    // public function destroy(Request $request, $id)
+    // {
+    //     {
+    //         // Validate login credentials
+    //         $request->validate([
+    //             'username' => 'required|string',
+    //             'password' => 'required|string',
+    //         ]);
     
-            // Get the authenticated login user
-            $user = auth()->user();
+    //         // Get the authenticated login user
+    //         $user = auth()->user();
     
-            // Check if the user credentials are correct
-            if ($user->username !== $request->username || 
-                !Hash::check($request->password, $user->password)) {
-                return redirect()->route('products_table')->with('error', 'Invalid user credentials.');
-            }
+    //         // Check if the user credentials are correct
+    //         if ($user->username !== $request->username || 
+    //             !Hash::check($request->password, $user->password)) {
+    //             return redirect()->route('products_table')->with('error', 'Invalid user credentials.');
+    //         }
     
-            //soft delete
-        }
+    //         //soft delete
+    //     }
     
-    }
+    // }
 }

@@ -1,11 +1,17 @@
 @extends('layouts.app')
 
-<!-- Include the vertical navigation bar -->
-@include('common.navbar')
+<!-- Wrap navbar in a div with a specific class for print -->
+<div class="navbar-print-hide">
+    @include('common.navbar')
+</div>
 
 @section('content')
 <style>
     @media print {
+        .navbar-print-hide {
+            display: none; /* Hide the navbar during printing */
+        }
+        
         body {
             background-image: none; /* Remove background image in print */
             font-size: 10pt; /* Ensure font size is appropriate for the report */

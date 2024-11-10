@@ -159,6 +159,10 @@
                     </div>
                 </form>
 
+                <button type="button" class="btn btn-success" onclick="window.location.href='{{ route('step1') }}'">
+                    Start Audit
+                </button>
+
                 <!-- Table Section -->
                 <table class="table table-responsive">
                     <thead>
@@ -174,7 +178,6 @@
                             <th>Description</th>
                             <th>Supplier Details</th>
                             <th>Location</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -203,11 +206,6 @@
                                 <td>
                                     <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
                                         <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
-                                    </button>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#updateModal{{ $data->inventory_id }}">
-                                        Audit
                                     </button>
                                 </td>
                             </tr>

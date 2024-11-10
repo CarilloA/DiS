@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -28,11 +27,17 @@ class ReturnProduct extends Authenticatable
         'total_return_amount',
         'return_reason',
         'return_date',
+        'status',
+        'scrap_product_id',
         'user_id',
     ];
 
     public $timestamps = false; // false = to enable customization on timestamp at DB, true = automatic timestamp
-    public function user(){ // Contact_Details is a foreignkey of User
+    public function user(){ 
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function scrapProduct(){ 
+        return $this->belongsTo(ScrapProduct::class, 'scrap_product_id');
     }
 }

@@ -139,6 +139,8 @@
     <div class="container-fluid">
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <div class="main-content">
+                <!-- Alert Messages -->
+                @include('common.alert')
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                     <h1 class="h2 mb-4">Logs</h1>
                 </div>
@@ -160,12 +162,17 @@
                             <th>Auditor</th>
                             <th>Product No.</th>
                             <th>Product Name</th>
+                            <th>previous Store Stock</th>
+                            <th>Previous Stockroom Stock</th>
                             <th>Previous QoH</th>
                             <th>New Store Stock</th>
                             <th>New Stockroom Stock</th>
                             <th>New QoH</th>
-                            <th>Variance</th>
-                            <th>Reason</th>
+                            <th>Store Stock Discrepancy</th>
+                            <th>Stockroom Stock Discrepancy	</th>
+                            <th>in_stock_discrepancy</th>
+                            <th>Discrepancy Reason</th>
+                            <th>Resolve Steps</th>
                             <th>Audit Timestamp</th>
                         </tr>
                     </thead>
@@ -176,12 +183,21 @@
                                     <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
                                     <td>{{ $log->inventory->product->product_id }}</td>
                                     <td>{{ $log->inventory->product->product_name }}</td>
+                                    <td>{{ $log->previous_store_quantity }}</td>
+                                    <td>{{ $log->previous_stockroom_quantity }}</td>
                                     <td>{{ $log->previous_quantity_on_hand }}</td>
                                     <td>{{ $log->new_store_quantity }}</td>
                                     <td>{{ $log->new_stockroom_quantity }}</td>
                                     <td>{{ $log->new_quantity_on_hand }}</td>
-                                    <td>{{ $log->variance }}</td>
-                                    <td>{{ $log->reason }}</td>
+                                    <td>{{ $log->store_stock_discrepancy }}</td>
+                                    <td>{{ $log->stockroom_stock_discrepancy }}</td>
+                                    <td>{{ $log->in_stock_discrepancy }}</td>
+                                    <td>{{ $log->discrepancy_reason }}</td>
+                                    <td>
+                                        <button type="button" class="btn" onclick="showResolveSteps('{{ htmlspecialchars($log->resolve_steps) }}')">
+                                            <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
+                                        </button>
+                                    </td>
                                     <td>{{ $log->audit_date }}</td>
                                 </tr>
                             </div>
@@ -189,9 +205,20 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Alert Messages -->
-            @include('common.alert')
             
         </main>
     </div>
 @endsection
+
+<script>
+    function showResolveSteps(resolveSteps) {
+        const resolveStepsDetails = `${resolveSteps}`;
+
+        Swal.fire({
+            title: 'Steps taken to resolve discrepancies',
+            html: resolveStepsDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+</script>

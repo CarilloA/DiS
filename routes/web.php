@@ -90,10 +90,23 @@ Route::resource('inventory_audit', InventoryAuditController::class);
 Route::get('audit_inventory_table', [InventoryAuditController::class, 'index'])->name('audit_inventory_table');
 Route::post('update/{inventory_id}', [InventoryAuditController::class, 'update'])->name('inventory.audit.update');
 Route::get('logs', [InventoryAuditController::class, 'logs'])->name('inventory.audit.logs');
+Route::get('/step1', [InventoryAuditController::class, 'showStep1'])->name('step1');
+Route::post('/inventory-audit/step2', [InventoryAuditController::class, 'submitStep1AndGoToStep2'])->name('inventory.audit.step2');
+Route::get('/step2', [InventoryAuditController::class, 'showStep2'])->name('step2');
+Route::post('/inventory-audit/step3', [InventoryAuditController::class, 'submitStep2AndGoToStep3'])->name('inventory.audit.step3');
+Route::get('/step3', [InventoryAuditController::class, 'showStep3'])->name('step3');
+Route::post('/inventory-audit/step4', [InventoryAuditController::class, 'submitStep3AndGoToStep4'])->name('inventory.audit.step4');
+Route::get('/step4', [InventoryAuditController::class, 'showStep4'])->name('step4');
+Route::post('/submit/step4', [InventoryAuditController::class, 'submitStep4'])->name('submit.step4');
+
+
 
 use App\Http\Controllers\ReportController;
 Route::post('inventory_report', [ReportController::class, 'generateReport'])->name('report.generate');
 Route::post('audit_inventory_report', [ReportController::class, 'generateAuditReport'])->name('audit.report.generate');
+
+use App\Http\Controllers\ScrapController;
+Route::delete('dispose/{id}', [ScrapController::class, 'disposeProduct'])->name('dispose_product');
 
 
 

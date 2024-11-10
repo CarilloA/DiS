@@ -31,45 +31,20 @@
     }
 
     .table th, td {
-        background-color: #f8f9fa !important; /* Set background color for all table headers */
-    }
-    
-    /*Date Picker*/
-    .input-group .form-control {
-        background-color: #212529; /* Grey background for input */
-        color: white; /* White text */
-        border-radius: 5px; /* Rounded corners */
-        border: none;
-    }
-
-    .input-group .form-control:focus {
-        background-color: #212529; /* Maintain grey background on focus */
-        color: white; /* White text */
-        outline: none; /* Remove default outline */
-    }
-
-    .input-group .input-group-text {
-        background-color: #198754; /* Background for 'to' text */
-        color: white; /* Text color */
-        border-radius: 5px; /* Rounded corners */
-        border: none;
-    }
-
-    .table th, td {
         background-color: #565656 !important; /* Set background color for all table headers */
         color: #ffffff !important;
     }
 
     .custom-date-picker {
-    appearance: none; /* Removes the default appearance */
-    -webkit-appearance: none; /* For Safari */
-    position: relative;
-    padding: 10px 40px 10px 10px; /* Adds padding to make room for the icon */
-    background-color: #000; /* Ensures the input's background matches */
-    color: #fff; /* White text color */
-    border: 1px solid #fff; /* White border */
-    border-radius: 5px;
-    width: 28em;
+        appearance: none; /* Removes the default appearance */
+        -webkit-appearance: none; /* For Safari */
+        position: relative;
+        padding: 10px 40px 10px 10px; /* Adds padding to make room for the icon */
+        background-color: #000; /* Ensures the input's background matches */
+        color: #fff; /* White text color */
+        border: 1px solid #fff; /* White border */
+        border-radius: 5px;
+        width: 28em;
     }
 
     /* This makes the original calendar icon invisible while keeping it clickable */
@@ -146,106 +121,62 @@
                             <td>{{ $data->total_return_amount }}</td>
                             <td>{{ $data->return_reason }}</td>
                             <td>{{ $data->return_date }}</td>
-                                <td><button type="button" class="btn btn-warning" data-toggle="modal" data-target="#scrapProductModal{{ $data->return_product_id }}">
-                                    Scrap
+                                <td><button type="button" class="btn btn-warning" data-toggle="modal" data-target="#disposalProductModal{{ $data->return_product_id }}">
+                                    Dispose
                                 </button></td>
                         </tr>
-                        <!-- Store Restock Modal for Each Product -->
-                        <div class="modal fade" style="color: black" id="scrapProductModal{{ $data->return_product_id }}" tabindex="-1" role="dialog" aria-labelledby="storeRestockModalLabel" aria-hidden="true">
+                        <!-- Dispose Product Modal -->
+                        <div class="modal fade" style="color: black" id="disposalProductModal{{ $data->return_product_id }}" tabindex="-1" role="dialog" aria-labelledby="storeRestockModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="scrapProduct">Restock Product in Store</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+                                        <h4 class="modal-title">Confirm Product Disposal</h4>
+                                        <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
                                     </div>
-                                    <form id="scrapProductForm{{ $data->return_product_id }}" action="{{ url('delete/{id}') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="product_id" value="{{ $data->product_id }}">
-                                        {{-- <input type="hidden" name="stockroom_id" value="{{ $data->stockroom_id }}"> --}}
-                                        {{-- <input type="hidden" name="product_quantity" value="{{ $data->product_quantity }}"> --}}
-                                        
-                                        <div class="modal-body">
-                                            <!-- Stockroom Details -->
-                                            <div class="row mb-3">
-                                                <div class="col-md-4">
-                                                    <label class="input-group-text" for="aisle_number">
-                                                        <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Aisle Number
-                                                    </label>
-                                                    <select name="aisle_number" id="aisle_number" class="form-control @error('aisle_number') is-invalid @enderror" required>
-                                                        <option value="1">1</option>
-                                                        <option value="2">2</option>
-                                                        <option value="3">3</option>
-                                                        <option value="4">4</option>
-                                                    </select>
-                                                    @error('aisle_number')
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
-                                                        </span>
-                                                    @enderror
-                                                </div>
+                                    <div class="modal-body">
+                                        <form action="{{ route('dispose_product', $data->return_product_id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
 
-                                                <div class="col-md-4">
-                                                    <label class="input-group-text" for="cabinet_level">
-                                                        <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Cabinet Level
-                                                    </label>
-                                                    <select name="cabinet_level" id="cabinet_level" class="form-control @error('cabinet_level') is-invalid @enderror" required>
-                                                        <option value="1">1</option>
-                                                        <option value="2">2</option>
-                                                        <option value="3">3</option>
-                                                        <option value="4">4</option>
-                                                        <option value="5">5</option>
-                                                    </select>
-                                                    @error('cabinet_level')
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
-                                                        </span>
-                                                    @enderror
-                                                </div>
+                                            <input type="hidden" name="product_name" value="{{ $data->product_name }}">
+                                            <input type="hidden" name="return_quantity" value="{{ $data->return_quantity }}">
+                                            {{-- to identofy which modal to open to display error alert --}}
+                                            <input type="hidden" name="user_id" value="{{ $data->user_id }}">
 
-                                                <div class="col-md-4">
-                                                    <label class="input-group-text" for="cabinet_level">
-                                                        <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Status
-                                                    </label>
-                                                    <select name="cabinet_level" id="cabinet_level" class="form-control @error('cabinet_level') is-invalid @enderror" required>
-                                                        <option value="Damaged">Damaged</option>
-                                                        <option value="2">2</option>
-                                                        <option value="3">3</option>
-                                                        <option value="4">4</option>
-                                                        <option value="5">5</option>
-                                                    </select>
-                                                    @error('cabinet_level')
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
-                                                        </span>
-                                                    @enderror
-                                                </div>
+                                            <!-- Conpfirm Username Input -->
+                                            <div class="form-group">
+                                                <label for="confirm_username">Confirm Username</label>
+                                                <input type="text" class="form-control" id="confirm_username_{{ $data->user_id }}" name="confirm_username" required>
                                             </div>
-                                        </div>
-                                        <!-- Modal Validation Error Alert Message-->
-                                        @if ($errors->any() && old('return_product_id') == $data->return_product_id)
-                                            <div class="alert alert-danger">
-                                                <ul>
-                                                    @foreach ($errors->all() as $error)
-                                                        <li>{{ $error }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                            {{-- for opening the modal --}}
-                                            <script>
-                                                $(document).ready(function() {
-                                                    $('#scrapProductModal{{ $data->return_product_id }}').modal('show');
-                                                });
-                                            </script>
-                                        @endif
 
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Restock</button>
-                                        </div>
-                                    </form>
-                                    
+                                            <!-- Confirm Password Input -->
+                                            <div class="form-group">
+                                                <label for="confirm_password">Confirm Password</label>
+                                                <input type="password" class="form-control" id="confirm_password_{{ $data->user_id }}" name="confirm_password" required>
+                                            </div>
+
+                                            <!-- Modal Validation Error Alert Message-->
+                                            @if ($errors->any() && old('user_id') == $data->user_id)
+                                                <div class="alert alert-danger">
+                                                    <ul>
+                                                        @foreach ($errors->all() as $error)
+                                                            <li>{{ $error }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                                <script>
+                                                    $(document).ready(function() {
+                                                        $('#disposalProductModal{{ $data->user_id }}').modal('show');
+                                                    });
+                                                </script>
+                                            @endif
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>

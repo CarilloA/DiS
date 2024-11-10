@@ -72,6 +72,45 @@
     .text {
         color: #fff;
     }
+
+    /* Custom styling for the select dropdown */
+    .custom-select select {
+        background-color: #212529; /* Black background for select */
+        color: white; /* White text */
+        border: 1px solid #444; /* Subtle border */
+        appearance: none; /* Remove default arrow */
+        border-radius: 4px;
+        position: relative;
+    }
+
+    /* Add a custom arrow using a background image or pseudo-element */
+    .custom-select {
+        position: relative;
+    }
+
+    .custom-select::after {
+        content: '▼'; /* Custom arrow */
+        color: white; /* White arrow */
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    /* Style dropdown options */
+    .custom-select select option {
+        background-color: #333; /* Dark background for options */
+        color: white; /* White text */
+        padding: 8px;
+    }
+
+    /* On hover, options can change color */
+    .custom-select select option:hover {
+        background-color: #3a8f66; /* Slightly greenish background on hover */
+        color: white;
+    }
+
 </style>
 
 <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
@@ -179,13 +218,38 @@
                                 <label class="input-group-text" for="unit_of_measure">
                                     <i class="fa-solid fa-scale-balanced" style="margin-right: 5px;"></i> Unit of Measure
                                 </label>
-                                <input id="unit_of_measure" type="text" class="form-control @error('unit_of_measure') is-invalid @enderror" name="unit_of_measure" value="{{ old('unit_of_measure') }}" pattern="^[a-zA-Z\s]{1,15}$" required>
+                                <div class="custom-select">
+                                    <select name="unit_of_measure" id="unit_of_measure" class="form-control  @error('unit_of_measure') is-invalid @enderror" required>
+                                        <option value="pcs">piece</option> 
+                                        <option value="pair">pair</option>
+                                        <option value="set">set</option>
+                                        <option value="box">box</option> 
+                                        <option value="pack">pack</option>
+                                        <option value="kit">kit</option>
+                                        <option value="liter">liter</option>
+                                        <option value="gallon">gallon</option>
+                                        <option value="roll">roll</option>
+                                        <option value="meter">meter</option>
+                                    </select>
+                                </div>
                                 @error('unit_of_measure')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
                             </div>
+
+                            {{-- <div class="col-md-4">
+                                <label class="input-group-text" for="unit_of_measure">
+                                    <i class="fa-solid fa-scale-balanced" style="margin-right: 5px;"></i> Unit of Measure
+                                </label>
+                                <input id="unit_of_measure" type="text" class="form-control @error('unit_of_measure') is-invalid @enderror" name="unit_of_measure" value="{{ old('unit_of_measure') }}" pattern="^[a-zA-Z\s]{1,15}$" required>
+                                @error('unit_of_measure')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div> --}}
                         </div>
 
                         <div class="row mb-3">
@@ -220,12 +284,14 @@
                                 <label class="input-group-text" for="aisle_number">
                                     <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Aisle Number
                                 </label>
-                                <select name="aisle_number" id="aisle_number" class="form-control @error('aisle_number') is-invalid @enderror" required>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                </select>
+                                <div class="custom-select">
+                                    <select name="aisle_number" id="aisle_number" class="form-control @error('aisle_number') is-invalid @enderror" required>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                </div>
                                 @error('aisle_number')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -237,13 +303,15 @@
                                 <label class="input-group-text" for="cabinet_level">
                                     <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Cabinet Level
                                 </label>
-                                <select name="cabinet_level" id="cabinet_level" class="form-control @error('cabinet_level') is-invalid @enderror" required>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                </select>
+                                <div class="custom-select">
+                                    <select name="cabinet_level" id="cabinet_level" class="form-control @error('cabinet_level') is-invalid @enderror" required>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
                                 @error('cabinet_level')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>

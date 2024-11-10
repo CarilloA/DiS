@@ -1,11 +1,17 @@
 @extends('layouts.app')
 
-<!-- Include the vertical navigation bar -->
-@include('common.navbar')
+<!-- Wrap navbar in a div with a specific class for print -->
+<div class="navbar-print-hide">
+    @include('common.navbar')
+</div>
 
 @section('content')
 <style>
     @media print {
+        .navbar-print-hide {
+            display: none; /* Hide the navbar during printing */
+        }
+
         body {
             background-image: none; /* Remove background image in print */
             font-size: 10pt; /* Ensure font size is appropriate for the report */
@@ -109,27 +115,35 @@
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h1>Audit Inventory Report</h1>
             </div>
-            <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-primary ms-2 me-2 printButton" onclick="window.print();">
-                    <i class="fa-solid fa-print"></i> Print Report
-                </button>
-            </div>
             <table class="table table-bordered">
+                <div class="d-flex justify-content-start">
+                    <?php 
+                        $user = auth()->user();
+                    ?>
+                    <h5><strong>Reporter:</strong> {{ $user->first_name }} {{ $user->last_name }}</h5>
+                </div>
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                    <h5>Product Details</h5> 
+                    {{-- <h5>Audit Logs</h5>  --}}
                     <h5><strong>Report Period:</strong> {{ $startDate }} to {{ $endDate }}</h5>
+                    <button type="button" class="btn btn-primary ms-2 me-2 printButton" onclick="window.print();">
+                        <i class="fa-solid fa-print"></i> Print Report
+                    </button>
                 </div>
                 <thead>
                     <tr>
+                        <th>Audit No.</th>
                         <th>Auditor</th>
-                        <th>Product No.</th>
                         <th>Product Name</th>
+                        <th>previous Store Stock</th>
+                        <th>Previous Stockroom Stock</th>
                         <th>Previous QoH</th>
                         <th>New Store Stock</th>
                         <th>New Stockroom Stock</th>
                         <th>New QoH</th>
-                        <th>Variance</th>
-                        <th>Reason</th>
+                        <th>Store Stock Discrepancy</th>
+                        <th>Stockroom Stock Discrepancy	</th>
+                        <th>in_stock_discrepancy</th>
+                        <th>Discrepancy Reason</th>
                         <th>Audit Timestamp</th>
                     </tr>
                 </thead>
@@ -137,19 +151,87 @@
                     @foreach ($auditLogs as $log)
                     <div>
                         <tr>
+                            <td>{{ $log->audit_id }}</td>
                             <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
-                            <td>{{ $log->inventory->product->product_id }}</td>
                             <td>{{ $log->inventory->product->product_name }}</td>
+                            <td>{{ $log->previous_store_quantity }}</td>
+                            <td>{{ $log->previous_stockroom_quantity }}</td>
                             <td>{{ $log->previous_quantity_on_hand }}</td>
                             <td>{{ $log->new_store_quantity }}</td>
                             <td>{{ $log->new_stockroom_quantity }}</td>
                             <td>{{ $log->new_quantity_on_hand }}</td>
-                            <td>{{ $log->variance }}</td>
-                            <td>{{ $log->reason }}</td>
+                            <td>{{ $log->store_stock_discrepancy }}</td>
+                            <td>{{ $log->stockroom_stock_discrepancy }}</td>
+                            <td>{{ $log->in_stock_discrepancy }}</td>
+                            <td>{{ $log->discrepancy_reason }}</td>
                             <td>{{ $log->audit_date }}</td>
                         </tr>
                     </div>
                 @endforeach
+                </tbody>
+            </table>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th rowspan="3">Audit No.</th>
+                        <th colspan="3">Location</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="2">Store</th>
+                        <th colspan="2">Stockroom</th>
+                    </tr>
+                    <tr>
+                        <th>Aisle No.</th>
+                        <th>Cabinet Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($auditLogs as $log)
+                        <div>
+                            <tr>
+                                <td>{{ $log->audit_id }}</td>
+                                <!-- Check if there's a store stock discrepancy -->
+                                @if($log->store_stock_discrepancy != null)
+                                    <td>In-Store</td>
+                                    @else
+                                    <!-- If no store discrepancy, leave cells blank or mark as N/A -->
+                                    <td>N/A</td>
+                                @endif
+                                <!-- Check if there's a stockroom stock discrepancy and display location details if true -->
+                                @if($log->stockroom_stock_discrepancy != null)
+                                    @php
+                                        // Get the related inventory data for this log
+                                        $inventoryData = $inventoryJoined->firstWhere('inventory_id', $log->inventory_id);
+                                    @endphp
+
+                                    <td>{{ $inventoryData->aisle_number ?? 'N/A' }}</td>
+                                    <td>{{ $inventoryData->cabinet_level ?? 'N/A' }}</td>
+                                @else
+                                    <!-- If no stockroom discrepancy, leave cells blank or mark as N/A -->
+                                    <td>N/A</td>
+                                    <td>N/A</td>
+                                @endif
+                            </tr>
+                        </div>
+                    @endforeach
+                </tbody>
+            </table>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Audit No.</th>
+                        <th>Steps taken to resolve discrepancies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($auditLogs as $log)
+                        <div>
+                            <tr>
+                                <td style="word-wrap: break-word; max-width: 10em; white-space: normal;">{{ $log->audit_id }}</td>
+                                <td style="word-wrap: break-word; max-width: 50em; white-space: normal;">{{ $log->resolve_steps }}</td>
+                            </tr>
+                        </div>
+                    @endforeach
                 </tbody>
             </table>
         </div>

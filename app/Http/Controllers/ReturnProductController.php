@@ -80,6 +80,7 @@ class ReturnProductController extends Controller
             'total_return_amount' => $validatedData['total_return_amount'],
             'return_reason' => $validatedData['return_reason'],
             'return_date' => now(), // Current timestamp
+            'status' => 'Undisposed',
         ]);
 
         // Fetch the sales record based on the provided sales_id

@@ -3,6 +3,8 @@
 <!-- Include the vertical navigation bar -->
 @include('common.navbar')
 
+@section('content')
+
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg');
@@ -15,8 +17,8 @@
     .main-content {
         padding: 20px; /* Add padding for inner spacing */
         margin: 0 20px; /* Add left and right margin */
-        color: #fff !important;
-        background-color: #565656 !important; 
+        color: #fff;
+        background-color: #565656; 
         border-radius: 5px; /* Slightly rounded corners */
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     }
@@ -26,49 +28,27 @@
     }
 
     .table th, td {
-        background-color: #565656 !important; /* Set background color for all table headers */
-        color: #ffffff !important;
-    }
-
-    .table th, td {
-        background-color: #f8f9fa !important; /* Set background color for all table headers */
-    }
-    
-    /*Icon*/
-    .circle-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px; /* Set the width of the circle */
-        height: 30px; /* Set the height of the circle */
-        border-radius: 50%; /* Makes it a circle */
-        background-color: #dc3545; /* Light red background */
-        color: white; /* Icon color */
-        font-size: 1.5rem; /* Adjust icon size */
-        transition: background-color 0.3s; /* Smooth transition for background color */
-    }
-
-    .circle-icon:hover {
-        background-color: #c82333; /* Darker red on hover */
+        background-color: #565656; /* Set background color for all table headers */
+        color: #ffffff;
     }
 
     /*Date Picker*/
     .form-control {
-        background-color: #212529 !important; /* Grey background for input */
-        color: white !important; /* White text */
-        border-radius: 5px; /* Rounded corners */
-        border: none !important;
+        background-color: #212529; /* White input background */
+        color: #fff; /* Black text */
+        border: 1px solid #212529; /* Subtle border */
     }
 
     .form-control:focus {
-        background-color: #212529; /* Maintain grey background on focus */
-        color: white!important; /* White text */
-        outline: none; /* Remove default outline */
+        background-color: #212529;
+        color: #fff; /* Black text */
+        border-color: 1px solid #3a8f66; /* Green border on focus */
+        box-shadow: none; /* Remove default shadow */
     }
 
     .input-group .input-group-text {
         background-color: #198754; /* Background for 'to' text */
-        color: white!important; /* Text color */
+        color: white; /* Text color */
         border-radius: 5px; /* Rounded corners */
         border: none;
     }
@@ -84,7 +64,7 @@
     }
 
     .modal-content {
-        color: #fff !important; /* This will apply to all text in the modal */
+        color: #fff; /* This will apply to all text in the modal */
         margin: 20px 15px;
     }
 
@@ -101,9 +81,46 @@
         margin-bottom: 1rem; /* Space below each form group */
     }
 
+    /* Custom styling for the select dropdown */
+    .custom-select select {
+        background-color: #212529; /* Black background for select */
+        color: white; /* White text */
+        border: 1px solid #444; /* Subtle border */
+        appearance: none; /* Remove default arrow */
+        border-radius: 4px;
+        position: relative;
+    }
+
+    /* Add a custom arrow using a background image or pseudo-element */
+    .custom-select {
+        position: relative;
+    }
+
+    .custom-select::after {
+        content: '▼'; /* Custom arrow */
+        color: white; /* White arrow */
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    /* Style dropdown options */
+    .custom-select select option {
+        background-color: #333; /* Dark background for options */
+        color: white; /* White text */
+        padding: 8px;
+    }
+
+    /* On hover, options can change color */
+    .custom-select select option:hover {
+        background-color: #3a8f66; /* Slightly greenish background on hover */
+        color: white;
+    }
+
 </style>
 
-@section('content')
 @if(Auth::user()->role == 'Administrator' || Auth::user()->role == 'Inventory Manager') 
     <div class="container-fluid">
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
@@ -262,9 +279,9 @@
                                                         <label for="total_return_amount_{{ $data->sales_details_id }}">Total Amount to be Returned</label>
                                                         <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_details_id }}" name="total_return_amount" readonly>
                                                     </div>
-                                                    <div class="form-group">
+                                                    <div class="form-group mb-3">
                                                         <label for="return_reason">Reason</label>
-                                                        <input type="text" class="form-control" name="return_reason" value="{{ old('return_reason') }}" pattern="^[a-zA-Z0-9\s\.,\-]{1,30}$" required>
+                                                        <input type="text" class="form-control" name="return_reason" value="Damaged Product" readonly required>
                                                     </div>
                                                 </div>
 

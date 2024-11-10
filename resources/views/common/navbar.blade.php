@@ -154,9 +154,9 @@
         <li class="{{ Request::routeIs('inventory_table') ? 'active' : '' }}">
             <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
-        <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
+        {{-- <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
-        </li>
+        </li> --}}
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa-solid fa-sign-out-alt"></i> LOGOUT
@@ -204,9 +204,9 @@
         <li class="{{ Request::routeIs('sales_table') ? 'active' : '' }}">
             <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
         </li>
-        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
+        {{-- <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
-        </li>
+        </li> --}}
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa-solid fa-sign-out-alt"></i> LOGOUT
@@ -251,9 +251,9 @@
         <li class="{{ Request::routeIs('inventory.audit.logs') ? 'active' : '' }}">
             <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-file"></i> LOGS</a>
         </li>
-        <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
+        {{-- <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
-        </li>
+        </li> --}}
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa-solid fa-sign-out-alt"></i> LOGOUT

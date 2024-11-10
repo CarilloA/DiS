@@ -62,7 +62,21 @@ class ReportController extends Controller
         ->orderBy('audit_date', 'desc')
         ->get();
 
+        // Extract inventory IDs from the audit logs
+        $inventoryIds = $auditLogs->pluck('inventory_id')->unique();
+
+        // Query to get the inventory report data
+        $inventoryJoined = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->whereIn('inventory.inventory_id', $inventoryIds)
+            ->get();
+
         // Return the view with the report data
-        return view('report.audit_inventory_report', compact('auditLogs', 'startDate', 'endDate'));
+        return view('report.audit_inventory_report', compact('auditLogs', 'startDate', 'endDate', 'inventoryJoined'));
     }
 }
