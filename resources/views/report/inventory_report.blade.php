@@ -167,28 +167,28 @@
                 </tbody>
             </table>
 
-            <!-- Supplier Details Table -->
+            <!-- Stock Tranfer Details Table -->
             <table class="table table-bordered">
-                <h5>Supplier Details</h5>
+                <h5>Stockroom Transfer Details</h5>
                 <thead>
                     <tr>
                         <th>Product No.</th>
-                        <th>Company Name</th>
-                        <th>Contact Person</th>
-                        <th>Mobile Number</th>
-                        <th>Email</th>
-                        <th>Address</th>
+                        <th>Person In-charge</th>
+                        <th>From Stockroom</th>
+                        <th>To Stockroom</th>
+                        <th>Transfer Quantity</th>
+                        <th>Transfer Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($inventoryJoined as $data)
+                    @forelse($stockTransferJoined as $data)
                         <tr>
                             <td>{{ $data->product_id }}</td>
-                            <td>{{ $data->company_name }}</td>
-                            <td>{{ $data->contact_person }}</td>
-                            <td>{{ $data->mobile_number }}</td>
-                            <td>{{ $data->email }}</td>
-                            <td>{{ $data->address }}</td>
+                            <td>{{ $data->first_name }} {{ $data->last_name }}</td>
+                            <td>{{ $data->from_stockroom_id ? 'Yes' : 'No' }}</td>
+                            <td>{{ $data->to_stockroom_id ? 'Yes' : 'No' }}</td>
+                            <td>{{ $data->transfer_quantity }}</td>
+                            <td>{{ $data->transfer_date }}</td>
                         </tr>
                     @empty
                         <tr>

@@ -25,9 +25,11 @@ class ReturnProductController extends Controller
         $returnProductJoined = DB::table('return_product')
             ->join('user', 'return_product.user_id', '=', 'user.user_id')
             ->join('sales_details', 'sales_details.return_product_id', '=', 'return_product.return_product_id')
-            // ->join('sales', 'sales.return_product_id', '=', 'return_product.return_product_id')
             ->join('product', 'sales_details.product_id', '=', 'product.product_id')
-            ->select('return_product.*', 'user.*', 'sales_details.*', 'product.*')
+            ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
+            ->select('return_product.*', 'user.*', 'sales_details.*', 'sales.*', 'product.*')
+            ->where('return_product.scrap_product_id', '=', null)
+            ->orderBy('return_date', 'desc')
             ->get();
 
         // Decode the description array for each return product item
@@ -40,11 +42,6 @@ class ReturnProductController extends Controller
             'userSQL' => $userSQL,
             'returnProductJoined' => $returnProductJoined,
         ]);
-    }
-
-    public function showReturnForm()
-    {
-        return view('return_product.create_return_product');
     }
 
     private function generateId($table)
@@ -60,6 +57,7 @@ class ReturnProductController extends Controller
 {
     // Validate the input
     $validatedData = $request->validate([
+        'sales_details_id' => 'required',
         'return_quantity' => 'required|integer|min:1',
         'total_return_amount' => 'required',
         'return_reason' => 'required|string|max:255',
@@ -80,13 +78,7 @@ class ReturnProductController extends Controller
             'total_return_amount' => $validatedData['total_return_amount'],
             'return_reason' => $validatedData['return_reason'],
             'return_date' => now(), // Current timestamp
-            'status' => 'Undisposed',
         ]);
-
-        // Fetch the sales record based on the provided sales_id
-        // $sales = DB::table('sales')
-        //     ->where('sales_id', $request->sales_id)
-        //     ->first();
 
          $salesJoin = DB::table('sales_details')
             ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')

@@ -22,11 +22,29 @@
                     @csrf
                 
                     <label for="actions_taken" class="form-label">Describe Actions Taken to Resolve Discrepancies:</label>
-                    <textarea class="form-control" id="actions_taken" rows="5" name="actions_taken" placeholder="List all actions taken for each discrepancy here..." required></textarea>
-                
-                    <button type="submit" class="btn btn-primary">Next</button>
+                    <textarea class="form-control" id="actions_taken" rows="5" name="actions_taken" placeholder="List all actions taken for each discrepancy here..." maxlength="500" required></textarea>
+                    <small id="charCount" class="form-text text-muted">0 / 500 characters used</small>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Next</button>
+                    </div>
                 </form>
             </div>
         </main>
     </div>
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('actions_taken');
+        const charCount = document.getElementById('charCount');
+
+        if (textarea && charCount) {
+            textarea.addEventListener('input', function() {
+                const currentLength = textarea.value.length;
+                charCount.textContent = `${currentLength} / 500 characters used`;
+            });
+        }
+    });
+</script>
+

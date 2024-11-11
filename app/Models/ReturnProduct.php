@@ -27,7 +27,6 @@ class ReturnProduct extends Authenticatable
         'total_return_amount',
         'return_reason',
         'return_date',
-        'status',
         'scrap_product_id',
         'user_id',
     ];

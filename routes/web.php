@@ -99,14 +99,12 @@ Route::post('/inventory-audit/step4', [InventoryAuditController::class, 'submitS
 Route::get('/step4', [InventoryAuditController::class, 'showStep4'])->name('step4');
 Route::post('/submit/step4', [InventoryAuditController::class, 'submitStep4'])->name('submit.step4');
 
-
-
 use App\Http\Controllers\ReportController;
 Route::post('inventory_report', [ReportController::class, 'generateReport'])->name('report.generate');
 Route::post('audit_inventory_report', [ReportController::class, 'generateAuditReport'])->name('audit.report.generate');
 
 use App\Http\Controllers\ScrapController;
-Route::delete('dispose/{id}', [ScrapController::class, 'disposeProduct'])->name('dispose_product');
+Route::post('dispose', [ScrapController::class, 'disposeProduct'])->name('dispose_product');
 
 
 

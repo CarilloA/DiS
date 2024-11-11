@@ -203,7 +203,7 @@
                                             </button>
                                         </td>
                                         <td>
-                                            @if ($data->sales_date > $deadline)
+                                            @if ($data->return_product_id === null && $data->sales_date > $deadline)
                                                 <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#returnModal{{ $data->sales_details_id }}">
                                                     Return
                                                 </button>
@@ -225,7 +225,7 @@
                                         </button>
                                     </td>
                                     <td>
-                                        @if ($data->sales_date > $deadline)
+                                        @if ($data->return_product_id === null && $data->sales_date > $deadline)
                                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#returnModal{{ $data->sales_details_id }}">
                                                 Return
                                             </button>
@@ -276,7 +276,7 @@
                                                         <input type="number" style="color:" class="form-control return-quantity" id="return_quantity_{{ $data->sales_details_id }}" name="return_quantity" pattern="^\d{1,6}$" required>
                                                     </div>
                                                     <div class="form-group mb-3">
-                                                        <label for="total_return_amount_{{ $data->sales_details_id }}">Total Amount to be Returned</label>
+                                                        <label for="total_return_amount_{{ $data->sales_details_id }}">Total Amount to Refund</label>
                                                         <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_details_id }}" name="total_return_amount" readonly>
                                                     </div>
                                                     <div class="form-group mb-3">
@@ -369,60 +369,72 @@ $(document).ready(function() {
 });
 
 
-    $(document).ready(function() {
-        // Handle form submission for search
-        $('#searchForm').on('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            let query = $('#searchInput').val(); // Get search input
+$(document).ready(function() {
+    // Handle form submission for search
+    $('#searchForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        let query = $('#searchInput').val(); // Get search input
 
-            $.ajax({
-                url: "{{ route('sales.search') }}", // Adjust the route accordingly
-                method: "GET",
-                data: { query: query },
-                success: function(data) {
-                    let tableBody = $('#selectedSaleDetails');
-                    tableBody.empty(); // Clear the table
+        $.ajax({
+            url: "{{ route('sales.search') }}", // Adjust the route accordingly
+            method: "GET",
+            data: { query: query },
+            success: function(data) {
+                let tableBody = $('#selectedSaleDetails');
+                tableBody.empty(); // Clear the table
 
-                    if (data.length > 0) {
-                        // Show search results table and hide all sales table
-                        $('#searchResultsTable').show();
-                        $('#allSalesTable').hide();
+                if (data.length > 0) {
+                    // Show search results table and hide all sales table
+                    $('#searchResultsTable').show();
+                    $('#allSalesTable').hide();
 
-                        // Loop through results and append to the table
-                        $.each(data, function(index, sale) {
-                            tableBody.append(`
-                                <tr>
-                                    <td>${sale.sales_id}</td>
-                                    <td>${sale.first_name} ${sale.last_name}</td>
-                                    <td>${sale.product_name}</td>
-                                    <td>${sale.category_name}</td>
-                                    <td>${sale.quantity}</td>
-                                    <td>${sale.total_amount}</td>
-                                    <td>${sale.sales_date}</td>
-                                    <td>
-                                        <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
-                                            <p style="color: white;">more info.</p>
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal${ sale.sales_details_id }">
-                                            Return
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
-                        });
-                    } else {
-                        // Handle no results case
-                        tableBody.append('<tr><td colspan="9" class="text-center">No results found.</td></tr>');
-                        $('#searchResultsTable').hide();
-                        $('#allSalesTable').show(); // Show all sales table again if no results
-                    }
-                },
-                error: function() {
-                    console.log('Error occurred while fetching sales data.');
+                    // Loop through results and append to the table
+                    $.each(data, function(index, sale) {
+                        let returnButton = '';
+
+                        // Determine if Return button should be enabled or disabled
+                        if (sale.return_product_id === null && new Date(sale.sales_date) > new Date("{{ now()->subDays(7)->toDateString() }}")) {
+                            returnButton = `<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#returnModal${sale.sales_details_id}">
+                                                Return
+                                            </button>`;
+                        } else {
+                            returnButton = `<button type="button" class="btn btn-warning" disabled>
+                                                Return
+                                            </button>`;
+                        }
+
+                        tableBody.append(`
+                            <tr>
+                                <td>${sale.sales_id}</td>
+                                <td>${sale.first_name} ${sale.last_name}</td>
+                                <td>${sale.product_name}</td>
+                                <td>${sale.category_name}</td>
+                                <td>${sale.quantity}</td>
+                                <td>${sale.total_amount}</td>
+                                <td>${sale.sales_date}</td>
+                                <td>
+                                    <button type="button" class="btn" onclick="showDescriptionDetail('${sale.descriptionArray.color ?? 'N/A'}', '${sale.descriptionArray.size ?? 'N/A'}', '${sale.descriptionArray.description ?? 'N/A'}')">
+                                        <p style="color: white;">more info.</p>
+                                    </button>
+                                </td>
+                                <td>
+                                    ${returnButton}
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    // Handle no results case
+                    tableBody.append('<tr><td colspan="9" class="text-center">No results found.</td></tr>');
+                    $('#searchResultsTable').hide();
+                    $('#allSalesTable').show(); // Show all sales table again if no results
                 }
-            });
+            },
+            error: function() {
+                console.log('Error occurred while fetching sales data.');
+            }
         });
     });
+});
+
 </script>

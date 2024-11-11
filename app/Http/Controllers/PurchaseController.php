@@ -195,6 +195,7 @@ class PurchaseController extends Controller
 
     // Use DB transaction to ensure data integrity
     DB::transaction(function () use ($validatedData, $request) {
+        
         // Update Inventory
         $inventory = Inventory::where('product_id', $validatedData['product_id'])->firstOrFail();
 

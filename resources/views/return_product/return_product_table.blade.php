@@ -79,23 +79,11 @@
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h1 class="h2 mb-4">Returned Product</h1>
             </div>
-            {{-- Generate Report --}}
-            <form method="POST" action="{{ url('inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form">
-                @csrf
-                <div class="input-group mb-3">
-                    <input type="date" class="custom-date-picker" name="start_date" class="form-control" placeholder="Start Date" max="{{ date('Y-m-d') }}"  required>
-                    <span class="input-group-text">TO</span>
-                    <input type="date" class="custom-date-picker" name="end_date" class="form-control" placeholder="End Date" max="{{ date('Y-m-d') }}"  required>
-                    <button type="submit" class="btn btn-success ms-2">
-                        <i class="fa-solid fa-print"></i> Generate Report
-                    </button>
-                </div>
-            </form>
-            <div class="d-flex justify-content-end">
+            {{-- <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-success ms-2" onclick="">
                     <i class="fa-solid fa-print"></i> Scrap Product
                 </button>
-            </div>
+            </div> --}}
 
             <!-- Table Section -->
             <table class="table table-responsive">
@@ -113,7 +101,7 @@
                 </thead>
                 <tbody>
                     @forelse($returnProductJoined as $data)
-                        <tr>
+                        {{-- <tr><td>{{ $data->return_product_id }}</td> --}}
                             <td>{{ $data->sales_id }}</td>
                             <td>{{ $data->first_name }} {{ $data->last_name }}</td>
                             <td>{{ $data->product_name }}</td>
@@ -134,29 +122,26 @@
                                         <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="{{ route('dispose_product', $data->return_product_id) }}" method="POST">
+                                        <form action="{{ route('dispose_product') }}" method="POST">
                                             @csrf
-                                            @method('DELETE')
 
-                                            <input type="hidden" name="product_name" value="{{ $data->product_name }}">
-                                            <input type="hidden" name="return_quantity" value="{{ $data->return_quantity }}">
-                                            {{-- to identofy which modal to open to display error alert --}}
-                                            <input type="hidden" name="user_id" value="{{ $data->user_id }}">
+                                            <input type="hidden" name="return_product_id" value="{{ $data->return_product_id }}" required>
+                                            <input type="hidden" name="return_quantity" value="{{ $data->return_quantity }}" required>
 
-                                            <!-- Conpfirm Username Input -->
+                                            <!-- Confirm Username Input -->
                                             <div class="form-group">
-                                                <label for="confirm_username">Confirm Username</label>
-                                                <input type="text" class="form-control" id="confirm_username_{{ $data->user_id }}" name="confirm_username" required>
+                                                <label for="confirm_username_{{ $data->return_product_id }}">Confirm Username</label>
+                                                <input type="text" class="form-control" id="confirm_username_{{ $data->return_product_id }}" name="confirm_username" required>
                                             </div>
 
                                             <!-- Confirm Password Input -->
                                             <div class="form-group">
-                                                <label for="confirm_password">Confirm Password</label>
-                                                <input type="password" class="form-control" id="confirm_password_{{ $data->user_id }}" name="confirm_password" required>
+                                                <label for="confirm_password_{{ $data->return_product_id }}">Confirm Password</label>
+                                                <input type="password" class="form-control" id="confirm_password_{{ $data->return_product_id }}" name="confirm_password" required>
                                             </div>
 
                                             <!-- Modal Validation Error Alert Message-->
-                                            @if ($errors->any() && old('user_id') == $data->user_id)
+                                            @if ($errors->any() && old('return_product_id') == $data->return_product_id)
                                                 <div class="alert alert-danger">
                                                     <ul>
                                                         @foreach ($errors->all() as $error)
@@ -166,14 +151,14 @@
                                                 </div>
                                                 <script>
                                                     $(document).ready(function() {
-                                                        $('#disposalProductModal{{ $data->user_id }}').modal('show');
+                                                        $('#disposalProductModal{{ $data->return_product_id }}').modal('show');
                                                     });
                                                 </script>
                                             @endif
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                                <button type="submit" class="btn btn-danger">Confirm Dispose</button>
                                             </div>
                                         </form>
                                     </div>
