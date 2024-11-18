@@ -9,7 +9,8 @@
             <div class="main-content">
                 <!-- Alert Messages -->
                 @include('common.alert')
-                {{-- Progress bar at the top --}}
+
+                <!-- Progress Bar -->
                 <div class="progress" style="height: 20px; margin-bottom: 20px;">
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
                         style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100">
@@ -17,14 +18,37 @@
                     </div>
                 </div>
 
-                {{-- The steps taken to recocile the products discrepancy here--}}
+                <!-- Form for Resolving Discrepancies -->
                 <form action="{{ route('inventory.audit.step4') }}" method="POST">
                     @csrf
-                
-                    <label for="actions_taken" class="form-label">Describe Actions Taken to Resolve Discrepancies:</label>
-                    <textarea class="form-control" id="actions_taken" rows="5" name="actions_taken" placeholder="List all actions taken for each discrepancy here..." maxlength="500" required></textarea>
-                    <small id="charCount" class="form-text text-muted">0 / 500 characters used</small>
-
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Describe Actions Taken to Resolve Discrepancies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($discrepancies as $key => $discrepancy)
+                                <input type="hidden" name="inventory_id[]" value="{{ $discrepancy['inventory']->inventory_id }}">
+                                <tr>
+                                    <td>{{ $discrepancy['inventory']->product_name }}</td>
+                                    <td>
+                                        <textarea 
+                                            class="form-control actions-taken" 
+                                            id="actions_taken_{{ $key }}" 
+                                            rows="5" 
+                                            name="actions_taken[{{ $key }}]" 
+                                            placeholder="List all actions taken for each discrepancy here..." 
+                                            maxlength="500" 
+                                            required
+                                            data-char-count-target="charCount_{{ $key }}"></textarea>
+                                        <small id="charCount_{{ $key }}" class="form-text text-muted">0 / 500 characters used</small>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">Next</button>
                     </div>
@@ -36,15 +60,15 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const textarea = document.getElementById('actions_taken');
-        const charCount = document.getElementById('charCount');
-
-        if (textarea && charCount) {
+        // Attach input listeners to all textareas
+        const textareas = document.querySelectorAll('.actions-taken');
+        textareas.forEach(textarea => {
+            const charCount = document.getElementById(textarea.dataset.charCountTarget);
             textarea.addEventListener('input', function() {
-                const currentLength = textarea.value.length;
-                charCount.textContent = `${currentLength} / 500 characters used`;
+                if (charCount) {
+                    charCount.textContent = `${textarea.value.length} / 500 characters used`;
+                }
             });
-        }
+        });
     });
 </script>
-

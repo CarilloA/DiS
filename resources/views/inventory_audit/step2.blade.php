@@ -45,7 +45,6 @@
             
                                 <input type="hidden" name="inventory_id[]" value="{{ $discrepancy['inventory']->inventory_id }}">
                                 <tr>
-                                    {{ $discrepancy['inventory']->product_name }}</td> 
                                     <td>{{ $discrepancy['inventory']->product_name }}</td> 
                                     <td>{{ $discrepancy['fetch_quantity_on_hand'] }}</td> <!-- Fetch the inputted count_quantity_on_hand -->
                                     <td>{{ $discrepancy['fetch_store_quantity'] }}</td> <!-- Fetch the inputted count_store_quantity -->
@@ -54,12 +53,14 @@
                                     <td>{{ $discrepancy['variance_in_stock'] }}</td>
                                     <td>{{ $discrepancy['variance_store_stock'] }}</td>
                                     <td>{{ $discrepancy['variance_stockroom_quantity'] }}</td>
-                                    <td><input type="text" name="reason[{{ $key }}]" required></td>
+                                    <td><input type="text" name="reason[{{ $key }}]" placeholder="Type here" required></td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <button type="submit" class="btn btn-success">Next</button>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">Next</button>
+                    </div>
                 </form>
             @endif
         </div>

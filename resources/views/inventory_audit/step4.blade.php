@@ -24,9 +24,9 @@
                         <thead>
                             <tr>
                                 <th>Product Name</th>
-                                <th>Adjusted QoH</th>
                                 <th>Adjusted Store Stock</th>
                                 <th>Adjusted Stockroom Stock</th>
+                                <th>Adjusted QoH</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -34,15 +34,15 @@
                                 <tr>
                                     <td>{{ $discrepancy['inventory']->product_name }}</td>
                                     <td>
-                                        <input type="number" id="adjusted_qoh_{{ $key }}" name="adjusted_quantity_on_hand[]" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="number" id="adjusted_store_stock_{{ $key }}" name="adjusted_store_quantity[]" 
+                                        <input type="number" id="adjusted_store_stock_{{ $key }}" name="adjusted_store_quantity[]" placeholder="Input number only" 
                                                required oninput="calculateQoH({{ $key }})">
                                     </td>
                                     <td>
-                                        <input type="number" id="adjusted_stockroom_stock_{{ $key }}" name="adjusted_stockroom_quantity[]" 
+                                        <input type="number" id="adjusted_stockroom_stock_{{ $key }}" name="adjusted_stockroom_quantity[]" placeholder="Input number only"
                                                required oninput="calculateQoH({{ $key }})">
+                                    </td>
+                                    <td>
+                                        <input type="number" id="adjusted_qoh_{{ $key }}" name="adjusted_quantity_on_hand[]" placeholder="Read only: Total" readonly>
                                     </td>
                                 </tr>
                             @endforeach
@@ -51,13 +51,13 @@
                     
                     {{-- Confirmation inputs and submit button --}}
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col">
                             <span class="input-group-text">
-                                <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Audit</label>
+                                <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Auditor Audit</label>
                             </span>
 
                             <div class="form-group">
-                                <label for="username">Confirm Auditor Username</label>
+                                <label for="username">Auditor Username</label>
                                 <input type="text" class="form-control @error('confirm_username') is-invalid @enderror" placeholder="Enter current username" name="confirm_username" pattern="^[A-Za-z0-9]*" required>
 
                                 @error('confirm_username')
@@ -68,7 +68,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="password">Confirm Auditor Password</label>
+                                <label for="password">Auditor Password</label>
                                 <input type="password" class="form-control @error('confirm_password') is-invalid @enderror" placeholder="Enter current password" name="confirm_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                             
                                 @error('confirm_password')
@@ -77,9 +77,13 @@
                                     </span>
                                 @enderror
                             </div>
-
+                        </div>
+                        <div class="col">
+                            <span class="input-group-text">
+                                <i class="fa fa-key fa-lg"></i><label class="ms-2">Admin Confirmation</label>
+                            </span>
                             <div class="form-group">
-                                <label for="username">Confirm Admin Username</label>
+                                <label for="username">Admin Username</label>
                                 <input type="text" class="form-control @error('confirm_admin_username') is-invalid @enderror" placeholder="Enter current username" name="confirm_admin_username" pattern="^[A-Za-z0-9]*" required>
                             
                                 @error('confirm_admin_username')
@@ -90,7 +94,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="password">Confirm Admin Password</label>
+                                <label for="password">Admin Password</label>
                                 <input type="password" class="form-control @error('confirm_admin_password') is-invalid @enderror" placeholder="Enter current password" name="confirm_admin_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                             
                                 @error('confirm_admin_password')
@@ -101,8 +105,9 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="btn btn-success">Submit Audit</button>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">Submit Audit</button>
+                    </div>
                 </form>
             </div>
         </main>

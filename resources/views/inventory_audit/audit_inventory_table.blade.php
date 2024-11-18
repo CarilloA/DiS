@@ -146,22 +146,32 @@
                     <!-- Alert Messages -->
                 @include('common.alert')
 
+                
                 <!-- Generate Report -->
                 <form method="POST" action="{{ url('inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form">
                     @csrf
-                    <div class="input-group mb-3">
-                        <input type="date" class="custom-date-picker" name="start_date" class="form-control" placeholder="Start Date" max="{{ date('Y-m-d') }}"  required>
-                        <span class="input-group-text">TO</span>
-                        <input type="date" class="custom-date-picker" name="end_date" class="form-control" placeholder="End Date" max="{{ date('Y-m-d') }}"  required>
-                        <button type="submit" class="btn btn-success ms-2">
-                            <i class="fa-solid fa-print"></i> Generate Report
-                        </button>
+                    <div class="input-group mb-3 justify-content-between">
+                        <div class="d-flex justify-content-start">
+                            <input type="date" class="custom-date-picker" name="start_date" class="form-control" placeholder="Start Date" max="{{ date('Y-m-d') }}"  required>
+                            <span class="input-group-text">TO</span>
+                            <input type="date" class="custom-date-picker" name="end_date" class="form-control" placeholder="End Date" max="{{ date('Y-m-d') }}"  required>
+                            <button type="submit" class="btn btn-success ms-2">
+                                <i class="fa-solid fa-print"></i> Generate Report
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-success" onclick="window.location.href='{{ route('step1') }}'">
+                                Start Audit
+                            </button>
+                        </div>
                     </div>
                 </form>
-
-                <button type="button" class="btn btn-success" onclick="window.location.href='{{ route('step1') }}'">
-                    Start Audit
-                </button>
+                
+                {{-- <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-success" onclick="window.location.href='{{ route('step1') }}'">
+                        Start Audit
+                    </button>
+                </div> --}}
 
                 <!-- Table Section -->
                 <table class="table table-responsive">

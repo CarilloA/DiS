@@ -187,7 +187,11 @@ class InventoryAuditController extends Controller
 
     public function showStep3() 
     {
+        // Retrieve discrepancies and input data from the session
+        $discrepancies = session('discrepancies', []);
+
         return view('inventory_audit.step3', [
+            'discrepancies' => $discrepancies,
             'progress' => 75 // Set progress for step 3
         ]);
     }
@@ -197,11 +201,25 @@ class InventoryAuditController extends Controller
     {
         // Validate the submitted data
         $request->validate([
-            'actions_taken' => 'required|string',
+            'inventory_id' => 'required|array',  // Ensure 'inventory_id' is an array
+            'inventory_id.*' => 'required|integer',  // Validate that each inventory_id is an integer
+            'actions_taken' => 'required|array',
+            'actions_taken.*' => 'required|string',
         ]);
 
+        // Initialize the audit data array
+        $actions_taken = [];
+
+        // Collect and store audit data for each discrepancy
+        foreach ($request->inventory_id as $key => $inventoryId) {
+            $actions_taken[] = [
+                'inventory_id' => $inventoryId,  // Store the inventory_id
+                'actions_taken' => $request->actions_taken[$key],  // Store the corresponding actions
+            ];
+        }
+
         // Store actions_taken in the session
-        session(['actions_taken' => $request->actions_taken]);
+        session(['actions_taken' => $actions_taken]);
 
         // Redirect to step4
         return redirect()->route('step4');
@@ -285,7 +303,7 @@ class InventoryAuditController extends Controller
                 'store_stock_discrepancy' => $discrepancy['variance_store_stock'],
                 'stockroom_stock_discrepancy' => $discrepancy['variance_stockroom_quantity'],
                 'discrepancy_reason' => $discrepancy_reason[$key]['discrepancy_reason'],
-                'resolve_steps' => $actions_taken,
+                'resolve_steps' => $actions_taken[$key]['actions_taken'],
                 'audit_date' => now(),
             ]);
         }

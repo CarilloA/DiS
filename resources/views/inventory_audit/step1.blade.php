@@ -40,19 +40,19 @@
                                 <td>
                                     <div class="form-group">
                                         <label for="count_quantity_on_hand">Count Quantity on Hand</label>
-                                        <input class="form-control" type="number" name="count_quantity_on_hand[]" placeholder="Count Quantity On Hand" pattern="^\d{1,6}$" required>
+                                        <input class="form-control" type="number" name="count_quantity_on_hand[]" placeholder="Input number only" pattern="^\d{1,6}$" required>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="form-group">
                                         <label for="count_store_quantity">Count Stock in the Store</label>
-                                        <input class="form-control" type="number" name="count_store_quantity[]" placeholder="Count Quantity in the Store" pattern="^\d{1,6}$" required>
+                                        <input class="form-control" type="number" name="count_store_quantity[]" placeholder="Input number only" pattern="^\d{1,6}$" required>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="form-group">
                                         <label for="count_stockroom_quantity">Count Stock in the Stockroom</label>
-                                        <input class="form-control" type="number" name="count_stockroom_quantity[]" placeholder="Count Quantity in the Stockroom" pattern="^\d{1,6}$" required>
+                                        <input class="form-control" type="number" name="count_stockroom_quantity[]" placeholder="Input number only" pattern="^\d{1,6}$" required>
                                     </div>
                                 </td>
                             </tr>
@@ -63,7 +63,9 @@
                         @endforelse
                     </tbody>
                 </table>
-                <button type="submit" class="btn btn-success">Next</button>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">Next</button>
+                </div>
             </form>
         </div>
     </main>

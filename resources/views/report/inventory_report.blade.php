@@ -154,7 +154,7 @@
                             <td>{{ $data->product_quantity }}</td>
                             <td>{{ $data->in_stock }}</td>
                             <td>{{ $data->reorder_level }}</td>
-                            <td>{{ $data->updated_at }}</td>
+                            <td>{{ $data->inventory_updated_at }}</td>
                             <td>{{ $data->descriptionArray['color'] ?? 'N/A' }}</td>
                             <td>{{ $data->descriptionArray['size'] ?? 'N/A' }}</td>
                             <td>{{ $data->descriptionArray['description'] ?? 'N/A' }}</td>
