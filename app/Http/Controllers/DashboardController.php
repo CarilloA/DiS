@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InventoryAudit;
 use App\Models\Inventory;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\SalesDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\StockTransfer;
+use App\Models\Stockroom;
 use function PHPUnit\Framework\isNull;
 
 class DashboardController extends Controller
@@ -42,12 +45,38 @@ class DashboardController extends Controller
             // Prepare an array to hold low stock messages
             $lowStockMessages = [];
 
+            // stockroom restock
             foreach ($inventoryJoined as $data) {
                 if ($data->in_stock <= $data->reorder_level) {
                     $lowStockMessages[] = "Product ID {$data->product_id} ({$data->product->product_name}) is low on stock. Please restock.";
                 }
             }
 
+            // for graph
+            // Fetch products with their stockroom and store stock
+            $products = Inventory::with('product')
+                ->join('product', 'inventory.product_id', '=', 'product.product_id')
+                ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+                ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+                ->select('inventory.*', 'product.*', 'stock_transfer.*', 'stockroom.*')
+                ->where('inventory.in_stock', '<=', DB::raw('reorder_level'))  // For products that need restocking
+                ->orWhere('stockroom.product_quantity', '<=', DB::raw('reorder_level')) // For stockroom products that need restocking
+                ->get();
+
+            // Prepare arrays for the graph data
+            $productNames = [];
+            $storeStock = [];
+            $stockroomStock = [];
+
+            // Loop through products to calculate store stock and prepare chart data
+            foreach ($products as $product) {
+                $storeRestock = $product->in_stock - $product->product_quantity;
+
+                // Prepare data for the chart
+                $productNames[] = $product->product_name;
+                $storeStock[] = $storeRestock;
+                $stockroomStock[] = $product->product_quantity;
+            }
 
             // Join `user`, `credentials`, and `contact_details` using the foreign keys
             $userSQL = DB::table('user')
@@ -55,12 +84,92 @@ class DashboardController extends Controller
                 ->where('user_id', '=', $user_id) // Correctly filter using `user_id`
                 ->first(); // Get only one user (since it's based on logged-in user)
 
+
+            // Inventory dashboard graph
+            // Data for inventory overview
+            $totalProducts = Product::count();
+            $totalStockroom = Stockroom::sum('product_quantity');
+            $totalStoreStock = Inventory::sum('in_stock') - $totalStockroom;
+            $totalStock = Inventory::sum('in_stock');
+            $totalSalesQuantity = SalesDetails::sum('sales_quantity');
+
+            // Stock transfer tracking
+            $stockTransfers = StockTransfer::selectRaw('DATE(transfer_date) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->orderBy('date', 'asc')
+                ->get();
+
+            // Auditor Dashboard Content
+            // Fetch all inventory audit data
+            $audits = InventoryAudit::with(['inventory', 'user'])->get();
+
+            // Prepare data for the graphs
+            $discrepancies = [
+                'stockroom' => 0,
+                'store' => 0,
+            ];
+
+            $quantityOnHand = [];
+            $storeQuantities = [];
+            $stockroomQuantities = [];
+            $newQuantityOnHand = [];
+            $newStoreQuantities = [];
+            $newStockroomQuantities = [];
+            $auditDates = [];
+            $discrepancyData = [];
+
+            foreach ($audits as $audit) {
+                // Sum discrepancies for stockroom and store
+                $discrepancies['stockroom'] += $audit->stockroom_stock_discrepancy;
+                $discrepancies['store'] += $audit->store_stock_discrepancy;
+
+                // Prepare data for the line graph of quantity on hand vs store quantity
+                $quantityOnHand[] = $audit->previous_quantity_on_hand;
+                $storeQuantities[] = $audit->previous_store_quantity;
+                $stockroomQuantities[] = $audit->previous_stockroom_quantity;
+                $newQuantityOnHand[] = $audit->new_quantity_on_hand;
+                $newStoreQuantities[] = $audit->new_store_quantity;
+                $newStockroomQuantities[] = $audit->new_stockroom_quantity;
+                
+                // Prepare audit dates for the discrepancy trends graph
+                $auditDates[] = $audit->audit_date;
+                
+                // Prepare discrepancy reasons and total discrepancies for the doughnut chart
+                $discrepancyData[] = $audit->in_stock_discrepancy + $audit->store_stock_discrepancy + $audit->stockroom_stock_discrepancy;
+            }
+
+            if ($userSQL && $userSQL->role === "Administrator") {
+                return redirect()->route('accounts_table')->with('success', 'You have successfully logged in.');
+            }
+
+
             // Check if the user is an Administrator (role is in `credentials` table)
-            if ($userSQL && $userSQL->role === "Administrator" || $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
+            if ($userSQL && $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
                 // Pass the inventory managers and user role to the view
                 return view('dashboard', [
                     'userSQL' => $userSQL,
-                    'lowStockMessages' => $lowStockMessages
+                    'lowStockMessages' => $lowStockMessages,
+                    'totalProducts' => $totalProducts,
+                    'totalStockroom'=> $totalStockroom,
+                    'totalStoreStock' => $totalStoreStock,
+                    'stockTransfers' => $stockTransfers,
+                    'productNames' => $productNames,
+                    'storeStock' => $storeStock,
+                    'stockroomStock' => $stockroomStock,
+                    'totalSalesQuantity' => $totalSalesQuantity,
+                    'totalStock' => $totalStock,
+                    //discrepancies, audit dashboard
+                    'audits' => $audits,
+                    'discrepancies' => $discrepancies,
+                    'quantityOnHand' => $quantityOnHand,
+                    'storeQuantities' => $storeQuantities,
+                    'stockroomQuantities' => $stockroomQuantities,
+                    'newQuantityOnHand' => $newQuantityOnHand,
+                    'newStoreQuantities' => $newStoreQuantities,
+                    'newStockroomQuantities' => $newStockroomQuantities,
+                    'auditDates' => $auditDates,
+                    'discrepancyData' => $discrepancyData
+
                 ]);
             } else {
                 return redirect('/login')->withErrors('Unauthorized access.');
@@ -71,27 +180,27 @@ class DashboardController extends Controller
     }
 
 
-public function destroy(int $id)
-{
-    $userAccount = User::find($id);
+// public function destroy(int $id)
+// {
+//     $userAccount = User::find($id);
 
-    if (!$userAccount) {
-        return redirect('dashboard')->with('error', 'User not found');
-    }
+//     if (!$userAccount) {
+//         return redirect('dashboard')->with('error', 'User not found');
+//     }
 
-    // Check if the logged-in user is an Administrator
-    if (auth()->user()->role === "Administrator") {  // Assuming role is in the credentials table
-        // Check if the user being deleted is not an Administrator or Customer
-        if ($userAccount->role != "Administrator") {
-            $userAccount->delete();
-            return redirect('dashboard')->with('success', 'User account deleted successfully');
-        } else {
-            return redirect('dashboard')->with('error', 'You cannot delete an administrator or customer account');
-        }
-    } else {
-        return redirect('dashboard')->with('error', 'Unauthorized access');
-    }
-}
+//     // Check if the logged-in user is an Administrator
+//     if (auth()->user()->role === "Administrator") {  // Assuming role is in the credentials table
+//         // Check if the user being deleted is not an Administrator or Customer
+//         if ($userAccount->role != "Administrator") {
+//             $userAccount->delete();
+//             return redirect('dashboard')->with('success', 'User account deleted successfully');
+//         } else {
+//             return redirect('dashboard')->with('error', 'You cannot delete an administrator or customer account');
+//         }
+//     } else {
+//         return redirect('dashboard')->with('error', 'Unauthorized access');
+//     }
+// }
 
 
 }

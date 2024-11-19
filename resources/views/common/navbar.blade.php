@@ -145,9 +145,9 @@
         </div>
     </div>
     <ul class="list-unstyled components">
-        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
+        {{-- <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
             <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
-        </li>
+        </li> --}}
         <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-user-shield"></i> ACCOUNT</a>
         </li>
