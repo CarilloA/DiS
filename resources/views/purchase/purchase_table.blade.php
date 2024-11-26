@@ -114,9 +114,9 @@
                                     <strong style="color: white; text-decoration: none; font-weight: normal;" >more info.</strong>
                                 </button>
                             </td>
-                            <td colspan="2">
+                            <td>
                                 @if ($storeStock === 0)
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#storeRestockModal{{ $data->product_id }}">
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#storeRestockModal{{ $data->product_id }}" style="1em">
                                         Store Restock
                                     </button>
                                 @else
@@ -124,6 +124,8 @@
                                         Store Restock
                                     </button>
                                 @endif
+                            </td>
+                            <td>
                                 @if ($data->in_stock <= $data->reorder_level)
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#restockModal{{ $data->product_id }}">
                                         Restock
@@ -204,6 +206,8 @@
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $data->product_id }}">
                                         <input type="hidden" name="supplier_id" value="{{ $data->supplier_id }}">
+                                        <input type="hidden" name="stockroom_id" value="{{ $data->stockroom_id }}">
+                                        
                                         <div class="modal-body">
                                             <div class="form-group">
                                                 <label for="purchase_price_per_unit">Purchase Price Per Unit</label>

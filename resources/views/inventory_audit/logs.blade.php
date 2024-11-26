@@ -141,16 +141,18 @@
             <div class="main-content">
                 <!-- Alert Messages -->
                 @include('common.alert')
+                <div id="alertContainer"></div> <!-- Error message placeholder -->
+
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                    <h1 class="h2 mb-4">Logs</h1>
+                    <h1 class="h2 mb-4">Audit Logs</h1>
                 </div>
                 <!-- Generate Report -->
-                <form method="POST" action="{{ url('audit_inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form">
+                <form method="POST" action="{{ url('audit_inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form" id="reportForm">
                     @csrf
                     <div class="input-group mb-3">
-                        <input type="date" class="custom-date-picker" name="start_date" class="form-control" placeholder="Start Date" max="{{ date('Y-m-d') }}"  required>
+                        <input type="date" class="custom-date-picker" id="startDate" name="start_date" class="form-control" max="{{ date('Y-m-d') }}"  required>
                         <span class="input-group-text">TO</span>
-                        <input type="date" class="custom-date-picker" name="end_date" class="form-control" placeholder="End Date" max="{{ date('Y-m-d') }}"  required>
+                        <input type="date" class="custom-date-picker" id="endDate" name="end_date" class="form-control" max="{{ date('Y-m-d') }}"  required>
                         <button type="submit" class="btn btn-success ms-2">
                             <i class="fa-solid fa-print"></i> Generate Report
                         </button>
@@ -211,6 +213,44 @@
 @endsection
 
 <script>
+    // error handling for generate report
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('reportForm');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const alertContainer = document.getElementById('alertContainer');
+
+        form.addEventListener('submit', function (event) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            // Clear previous errors
+            alertContainer.innerHTML = '';
+
+            if (startDate > endDate) {
+                event.preventDefault(); // Prevent form submission
+
+                // Create and append alert message
+                const alertMessage = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> The end date cannot be earlier than the start date.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                alertContainer.innerHTML = alertMessage;
+                return false;
+            }
+        });
+
+        // Clear the alert container when input values are changed
+        [startDateInput, endDateInput].forEach(input => {
+            input.addEventListener('change', () => {
+                alertContainer.innerHTML = '';
+            });
+        });
+    });
+
+    // sweetalerts for resolve steps
     function showResolveSteps(resolveSteps) {
         const resolveStepsDetails = `${resolveSteps}`;
 

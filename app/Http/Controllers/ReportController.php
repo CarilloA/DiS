@@ -40,6 +40,7 @@ class ReportController extends Controller
         ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
         // ->join('sales_details', 'stock_transfer.product_id', '=', 'sales_details.product_id')
         ->select('stock_transfer.*', 'user.*')
+        ->whereBetween(DB::raw('DATE(stock_transfer.transfer_date)'), [$startDate, $endDate])
         ->orderBy('transfer_date', 'desc')
         ->get();
 

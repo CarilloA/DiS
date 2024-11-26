@@ -142,14 +142,13 @@
                         <th>New QoH</th>
                         <th>Store Stock Discrepancy</th>
                         <th>Stockroom Stock Discrepancy	</th>
-                        <th>in_stock_discrepancy</th>
+                        <th>QoH Discrepancy</th>
                         <th>Discrepancy Reason</th>
-                        <th>Audit Timestamp</th>
+                        <th>Audit Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($auditLogs as $log)
-                    <div>
+                    @forelse ($auditLogs as $log)
                         <tr>
                             <td>{{ $log->audit_id }}</td>
                             <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
@@ -166,8 +165,11 @@
                             <td>{{ $log->discrepancy_reason }}</td>
                             <td>{{ $log->audit_date }}</td>
                         </tr>
-                    </div>
-                @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="14" class="text-center">No data available for the selected period.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
             <table class="table table-bordered">
@@ -186,34 +188,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($auditLogs as $log)
-                        <div>
-                            <tr>
-                                <td>{{ $log->audit_id }}</td>
-                                <!-- Check if there's a store stock discrepancy -->
-                                @if($log->store_stock_discrepancy != null)
-                                    <td>In-Store</td>
-                                    @else
-                                    <!-- If no store discrepancy, leave cells blank or mark as N/A -->
-                                    <td>N/A</td>
-                                @endif
-                                <!-- Check if there's a stockroom stock discrepancy and display location details if true -->
-                                @if($log->stockroom_stock_discrepancy != null)
-                                    @php
-                                        // Get the related inventory data for this log
-                                        $inventoryData = $inventoryJoined->firstWhere('inventory_id', $log->inventory_id);
-                                    @endphp
-
-                                    <td>{{ $inventoryData->aisle_number ?? 'N/A' }}</td>
-                                    <td>{{ $inventoryData->cabinet_level ?? 'N/A' }}</td>
-                                @else
-                                    <!-- If no stockroom discrepancy, leave cells blank or mark as N/A -->
-                                    <td>N/A</td>
-                                    <td>N/A</td>
-                                @endif
-                            </tr>
-                        </div>
-                    @endforeach
+                    @forelse ($auditLogs as $log)
+                        <tr>
+                            <td>{{ $log->audit_id }}</td>
+                            <td>{{ $log->store_stock_discrepancy ? 'In-Store' : 'N/A' }}</td>
+                            <td>{{ $log->stockroom_stock_discrepancy ? $inventoryJoined->firstWhere('inventory_id', $log->inventory_id)->aisle_number ?? 'N/A' : 'N/A' }}</td>
+                            <td>{{ $log->stockroom_stock_discrepancy ? $inventoryJoined->firstWhere('inventory_id', $log->inventory_id)->cabinet_level ?? 'N/A' : 'N/A' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center">No data available for the selected period.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
             <table class="table table-bordered">
@@ -224,14 +210,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($auditLogs as $log)
-                        <div>
-                            <tr>
-                                <td style="word-wrap: break-word; max-width: 10em; white-space: normal;">{{ $log->audit_id }}</td>
-                                <td style="word-wrap: break-word; max-width: 50em; white-space: normal;">{{ $log->resolve_steps }}</td>
-                            </tr>
-                        </div>
-                    @endforeach
+                    @forelse ($auditLogs as $log)
+                        <tr>
+                            <td>{{ $log->audit_id }}</td>
+                            <td style="white-space: pre-wrap;">{{ $log->resolve_steps }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center">No data available for the selected period.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

@@ -135,7 +135,7 @@
                         <th>UoM</th>
                         <th colspan="3">In Stock</th>
                         <th style="font-size: 0.89em">Reorder Level</th>
-                        <th>Timestamp</th>
+                        <th>Date Updated</th>
                         <th>Color</th>
                         <th>Size</th>
                         <th>Description</th>
@@ -177,7 +177,7 @@
                         <th>From Stockroom</th>
                         <th>To Stockroom</th>
                         <th>Transfer Quantity</th>
-                        <th>Transfer Timestamp</th>
+                        <th>Transfer Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -228,7 +228,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center">No data available for the selected period.</td>
+                            <td colspan="6" class="text-center">No data available for the selected period.</td>
                         </tr>
                     @endforelse
                 </tbody>

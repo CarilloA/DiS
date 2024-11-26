@@ -36,15 +36,17 @@ class PurchaseController extends Controller
         ->get();
 
         $productJoined = DB::table('inventory')
-        // ->join('credentials', 'user.credential_id', '=', 'credentials.credential_id')
-        ->join('product', 'inventory.product_id', '=', 'product.product_id')
-        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
-        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
-        ->join('category', 'product.category_id', '=', 'category.category_id')
-        ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
-        ->orderBy('updated_at', 'desc')
-        ->get();
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // Filter duplicates based on a unique key (e.g., product_id)
+        $productJoined = $productJoined->unique('product_id');
 
         // Decode the description for each inventory item
         foreach ($productJoined as $item) {
@@ -191,6 +193,7 @@ class PurchaseController extends Controller
         'quantity' => ['required', 'numeric', 'min:1'],
         'update_supplier' => ['nullable', 'boolean'],
         'supplier_id' => 'required|exists:supplier,supplier_id',
+        'stockroom_id' => ['required', 'exists:stockroom,stockroom_id'],
     ]);
 
     // Use DB transaction to ensure data integrity
@@ -205,6 +208,25 @@ class PurchaseController extends Controller
             'sale_price_per_unit' => $validatedData['sale_price_per_unit'],
             'unit_of_measure' => $validatedData['unit_of_measure'],
             'in_stock' => $inventory->in_stock + $validatedData['quantity'], // Increment stock
+        ]);
+
+        $userId = Auth::id();
+
+        // Insert into stock_transfer
+        DB::table('stock_transfer')->insert([
+            'stock_transfer_id' => $this->generateId('stock_transfer'),
+            'transfer_quantity' => $validatedData['quantity'],
+            'transfer_date' => now(),
+            'product_id' => $validatedData['product_id'],
+            'user_id' => $userId,
+            'to_stockroom_id' => $validatedData['stockroom_id'],
+        ]);
+
+        // Update Stockroom
+        $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
+        // Update stockroom details
+        $stockroom->update([
+            'product_quantity' => $validatedData['quantity'],
         ]);
 
         // Check if the supplier details need to be updated

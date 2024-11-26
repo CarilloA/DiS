@@ -375,6 +375,18 @@ $(document).ready(function() {
         event.preventDefault(); // Prevent default form submission
         let query = $('#searchInput').val(); // Get search input
 
+        // error handling for empty query
+        let emptyQuery = $('#searchInput').val().trim(); // Get search input and remove extra spaces
+        if (emptyQuery === "") {
+            Swal.fire({
+                title: 'Error',
+                text: 'Please enter sales details to search.',
+                icon: 'error',
+                confirmButtonText: 'Okay'
+            });
+            return; // Exit the function if input is empty
+        }
+
         $.ajax({
             url: "{{ route('sales.search') }}", // Adjust the route accordingly
             method: "GET",
@@ -425,13 +437,24 @@ $(document).ready(function() {
                     });
                 } else {
                     // Handle no results case
+                    Swal.fire({
+                        title: 'No Results',
+                        text: 'No sales match the given data. Please try again.',
+                        icon: 'info',
+                        confirmButtonText: 'Okay'
+                    });
                     tableBody.append('<tr><td colspan="9" class="text-center">No results found.</td></tr>');
                     $('#searchResultsTable').hide();
                     $('#allSalesTable').show(); // Show all sales table again if no results
                 }
             },
             error: function() {
-                console.log('Error occurred while fetching sales data.');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while fetching sales data. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
             }
         });
     });

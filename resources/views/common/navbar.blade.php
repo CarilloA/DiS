@@ -153,6 +153,8 @@
         </li>
         <li class="{{ Request::routeIs('inventory_table') ? 'active' : '' }}">
             <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
+        </li><li class="{{ Request::routeIs('inventory.audit.logs') ? 'active' : '' }}">
+            <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-warehouse"></i> AUDIT LOGS</a>
         </li>
         {{-- <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
@@ -249,7 +251,7 @@
             <a href="{{ route('audit_inventory_table') }}"><i class="fa-solid fa-warehouse"></i>INVENTORY</a>
         </li>
         <li class="{{ Request::routeIs('inventory.audit.logs') ? 'active' : '' }}">
-            <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-file"></i> LOGS</a>
+            <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-file"></i> AUDIT LOGS</a>
         </li>
         {{-- <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
