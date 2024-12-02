@@ -89,8 +89,8 @@
                                 </div>
                             @endif --}}
                             @if(!empty($lowStoreStockMessages))
-                                <div class="alert alert-warning">
-                                    <strong>Low Stock Alerts:</strong>
+                                <div class="alert alert-warning" style="height: 6em">
+                                    <strong>Low Store Product Stock Alerts:</strong>
                                     <ul>
                                         @foreach($lowStoreStockMessages as $message)
                                             <li>{{ $message }}
@@ -101,8 +101,8 @@
                                 </div>
                             @endif
                             @if(!empty($lowStockroomStockMessages))
-                                <div class="alert alert-warning">
-                                    <strong>Low Stock Alerts:</strong>
+                                <div class="alert alert-warning" style="height: 6em">
+                                    <strong>Low Stockroom Product Stock Alerts:</strong>
                                     <ul>
                                         @foreach($lowStockroomStockMessages as $message)
                                             <li>{{ $message }}

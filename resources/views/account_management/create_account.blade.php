@@ -100,7 +100,11 @@
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">First Name</label>
                                 </span>
                                 <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" placeholder="Format Sample: Gabriel" value="{{ old('first_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
-
+                                <small class="text form-text text-danger mt-2">
+                                    <p class="text">
+                                        Note: Please enter the value starting with an uppercase letter, followed by lowercase letters only.
+                                    </p>
+                                </small>
                                 @error('first_name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -113,7 +117,11 @@
                                     <i class="fa fa-user fa-lg"></i><label class="ms-2">Last Name</label>
                                 </span>
                                 <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" placeholder="Format Sample: Madriago" value="{{ old('last_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
-
+                                <small class="text form-text text-danger mt-2">
+                                    <p class="text">
+                                        Note: Please enter the value starting with an uppercase letter, followed by lowercase letters only.
+                                    </p>
+                                </small>
                                 @error('last_name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -128,7 +136,11 @@
                                     <i class="fa-solid fa-envelope fa-lg"></i><label class="ms-2">Email Address</label>
                                 </span>
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" placeholder="Email Address should be valid" value="{{ old('email') }}" required>
-
+                                <small class="text form-text text-danger mt-2">
+                                    <p class="text">
+                                        Note: Please enter a verified email address.
+                                    </p>
+                                </small>
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -141,7 +153,11 @@
                                     <i class="fa-solid fa-sim-card fa-lg"></i><label class="ms-2">Mobile Number</label>
                                 </span>
                                 <input id="cp_number" type="number" class="form-control @error('mobile_number') is-invalid @enderror" name="mobile_number" placeholder="Format Sample: 09123456789 and is 11 digits" value="{{ old('mobile_number') }}" pattern="^09\d{9}$" required>
-
+                                <small class="text form-text text-danger mt-2">
+                                    <p class="text">
+                                        Note: Please enter a PH mobile number starting with '09' followed by 9 digits.
+                                    </p>
+                                </small>
                                 @error('mobile_number')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -176,7 +192,14 @@
                                         <i class="fa fa-user fa-lg"></i><label class="ms-2">Username</label>
                                     </span>
                                     <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Username must be unique" value="{{ old('username') }}" pattern="^[A-Za-z0-9]*" required>
-
+                                    <small class="text form-text mt-2">
+                                        <p class="text">
+                                            Note for User: <ul>
+                                                <li>The input must contain only alphanumeric characters (letters and numbers).</li>
+                                                <li>Please ensure that this value is unique. It cannot be the same as any other existing entry.</li>
+                                                </ul>
+                                        </p>
+                                    </small>
                                     @error('username')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>

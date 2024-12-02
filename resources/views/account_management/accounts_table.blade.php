@@ -111,7 +111,8 @@
                                 <th>Email</th>
                                 <th>Mobile Number</th>
                                 <th>User Role</th>
-                                <th>Action</th>
+                                <th>Email Verified At</th>
+                                <th colspan="2">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,6 +125,18 @@
                                         <td>{{ $data->email }}</td>
                                         <td>{{ $data->mobile_number }}</td>
                                         <td>{{ $data->role }}</td>
+                                        @if($data->email_verified_at !=null)
+                                            <td>{{ $data->email_verified_at }}</td>
+                                            <td><button type="button" class="btn btn-primary" disabled>Resend Link</button></td>
+                                        @else
+                                            <td>Not Yet Verified</td>
+                                            <td>
+                                                <form action="{{ route('resend_confirmation_email', $data->user_id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-primary">Resend Link</button>
+                                                </form>
+                                            </td>
+                                        @endif
                                         <td>
                                             <!-- Trigger the modal with a button -->
                                             <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">

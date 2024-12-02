@@ -73,107 +73,131 @@
 @if(Auth::user()->role === 'Administrator' || Auth::user()->role === 'Inventory Manager')
     <div class="container-fluid">
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <div class="main-content">
-                <!-- Alert Messages -->
-            @include('common.alert')
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h1 class="h2 mb-4">Returned Product</h1>
-            </div>
-            {{-- <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-success ms-2" onclick="">
-                    <i class="fa-solid fa-print"></i> Scrap Product
-                </button>
-            </div> --}}
+            <form action="{{ route('dispose_product') }}" method="POST" id="disposeForm">
+                @csrf
+                <div class="main-content">
+                    <!-- Alert Messages -->
+                    @include('common.alert')
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                        <h1 class="h2 mb-4">Returned Product</h1>
+                    </div>
 
-            <!-- Table Section -->
-            <table class="table table-responsive">
-                <thead>
-                    <tr>
-                        <th>Ref. No.</th>
-                        <th>Seller</th>
-                        <th>Product Name</th>
-                        <th>Returned Quantity</th>
-                        <th>Total Returned Amount</th>
-                        <th>Returned Reason</th>
-                        <th>Returned Timestamp</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($returnProductJoined as $data)
-                        {{-- <tr><td>{{ $data->return_product_id }}</td> --}}
-                            <td>{{ $data->sales_id }}</td>
-                            <td>{{ $data->first_name }} {{ $data->last_name }}</td>
-                            <td>{{ $data->product_name }}</td>
-                            <td>{{ $data->return_quantity }}</td>
-                            <td>{{ $data->total_return_amount }}</td>
-                            <td>{{ $data->return_reason }}</td>
-                            <td>{{ $data->return_date }}</td>
-                                <td><button type="button" class="btn btn-warning" data-toggle="modal" data-target="#disposalProductModal{{ $data->return_product_id }}">
-                                    Dispose
-                                </button></td>
-                        </tr>
-                        <!-- Dispose Product Modal -->
-                        <div class="modal fade" style="color: black" id="disposalProductModal{{ $data->return_product_id }}" tabindex="-1" role="dialog" aria-labelledby="storeRestockModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">Confirm Product Disposal</h4>
-                                        <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ route('dispose_product') }}" method="POST">
-                                            @csrf
-
-                                            <input type="hidden" name="return_product_id" value="{{ $data->return_product_id }}" required>
-                                            <input type="hidden" name="return_quantity" value="{{ $data->return_quantity }}" required>
-
-                                            <!-- Confirm Username Input -->
-                                            <div class="form-group">
-                                                <label for="confirm_username_{{ $data->return_product_id }}">Confirm Username</label>
-                                                <input type="text" class="form-control" id="confirm_username_{{ $data->return_product_id }}" name="confirm_username" required>
-                                            </div>
-
-                                            <!-- Confirm Password Input -->
-                                            <div class="form-group">
-                                                <label for="confirm_password_{{ $data->return_product_id }}">Confirm Password</label>
-                                                <input type="password" class="form-control" id="confirm_password_{{ $data->return_product_id }}" name="confirm_password" required>
-                                            </div>
-
-                                            <!-- Modal Validation Error Alert Message-->
-                                            @if ($errors->any() && old('return_product_id') == $data->return_product_id)
-                                                <div class="alert alert-danger">
-                                                    <ul>
-                                                        @foreach ($errors->all() as $error)
-                                                            <li>{{ $error }}</li>
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                                <script>
-                                                    $(document).ready(function() {
-                                                        $('#disposalProductModal{{ $data->return_product_id }}').modal('show');
-                                                    });
-                                                </script>
-                                            @endif
-
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-danger">Confirm Dispose</button>
-                                            </div>
-                                        </form>
-                                    </div>
+                    <!-- Table Section -->
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll"> Select All
+                                </th>
+                                <th>Ref. No.</th>
+                                <th>Seller</th>
+                                <th>Product Name</th>
+                                <th>Returned Quantity</th>
+                                <th>Total Returned Amount</th>
+                                <th>Returned Reason</th>
+                                <th>Returned Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($returnProductJoined as $data)
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selected_products[]" value="{{ json_encode(['return_product_id' => $data->return_product_id, 'return_quantity' => $data->return_quantity]) }}">
+                                        Select
+                                    </td>
+                                    <td>{{ $data->sales_id }}</td>
+                                    <td>{{ $data->first_name }} {{ $data->last_name }}</td>
+                                    <td>{{ $data->product_name }}</td>
+                                    <td>{{ $data->return_quantity }}</td>
+                                    <td>{{ $data->total_return_amount }}</td>
+                                    <td>{{ $data->return_reason }}</td>
+                                    <td>{{ $data->return_date }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center">No returned products found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+            
+                    <!-- Batch Disposal Button -->
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDisposeModal">
+                        Dispose Selected
+                    </button>
+                </div>
+            
+                <!-- Confirm Disposal Modal -->
+                <div class="modal fade" id="confirmDisposeModal" tabindex="-1" role="dialog" aria-labelledby="confirmDisposeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmDisposeModalLabel">Confirm Disposal</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="confirm_username">Confirm Username</label>
+                                    <input type="text" class="form-control" id="confirm_username" name="confirm_username" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="confirm_password">Confirm Password</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                </div>
+
+                                <!-- Modal Validation Error Alert Message-->
+                                @if ($errors->any())
+                                    <div class="alert alert-danger mt-2" style="height: 4em;">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    <script>
+                                        $(document).ready(function() {
+                                            $('#confirmDisposeModal').modal('show');
+                                        });
+                                    </script>
+                                @endif
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Confirm Dispose</button>
                             </div>
                         </div>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center">No returned products found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                    </div>
+                </div>
+            </form>
+            
         </main>
     </div>
 @endif
 @endsection
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const productCheckboxes = document.querySelectorAll('input[name="selected_products[]"]');
+
+        // Function to handle "Select All" toggle
+        selectAllCheckbox.addEventListener('change', function() {
+            productCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+
+        // Update "Select All" state when individual checkboxes change
+        productCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Check if all are selected, if not, uncheck "Select All"
+                selectAllCheckbox.checked = Array.from(productCheckboxes).every(cb => cb.checked);
+            });
+        });
+    });
+</script>
+

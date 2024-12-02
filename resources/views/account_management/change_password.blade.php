@@ -10,7 +10,7 @@
                     Change Default Password
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('password.update') }}">
+                    <form method="POST" action="{{ route('password_update') }}">
                         @csrf
                         <div class="mb-3">
                             <label for="password" class="form-label">New Password</label>

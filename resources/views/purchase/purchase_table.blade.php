@@ -77,7 +77,7 @@
                             <th>UoM</th>
                             <th>In Stock</th>
                             <th>Reorder Level</th>
-                            <th>Date & Time</th>
+                            <th>Updated At</th>
                             <th>Description</th>
                             <th>Supplier Details</th>
                             <th>Location</th>

@@ -30,19 +30,29 @@ class LoginController extends Controller
 
         // Check if user exists and if password is not null (i.e., default password exists)
         if ($credential) {
-            // Check if the user has not updated their default password
-            if ($credential->password === null && $credential->default_password !== null) {
-                // Check if the user entered the default password
-                if (Hash::check($credentials['password'], $credential->default_password)) {
+            // Fetch the user and check if the user has valid email verification or is an administrator
+            $user = User::where('user_id', $credential->user_id)->first();
+            $userFKey = DB::table('user')
+                ->select('user.*')
+                ->where('user_id', '=',  $credential->user_id)
+                ->first();
+            if ($credential->role === 'Administrator' || $userFKey->email_verified_at !== null) {
+                // Check if the user has not updated their default password
+                if ($credential->password === null && $credential->default_password !== null) {
+                    // Check if the user entered the default password
+                    if (Hash::check($credentials['password'], $credential->default_password)) {
 
-                    // Fetch the user and check if the user has valid email verification or is an administrator
-                    $user = User::where('user_id', $credential->user_id)->first();
-                    // Log the user in
-                    Auth::login($user);
+                        // Fetch the user and check if the user has valid email verification or is an administrator
+                        $user = User::where('user_id', $credential->user_id)->first();
+                        // Log the user in
+                        Auth::login($user);
 
-                    // After login, redirect to password change page
-                    return redirect()->route('password.change')->with('info', 'Please change your default password.');
+                        // After login, redirect to password change page
+                        return redirect()->route('password.change')->with('info', 'Please change your default password.');
+                    }
                 }
+            }else {
+                return back()->with('error', 'Your email is not verified. Please check your inbox.');
             }
 
             // Now, check if the password entered by the user matches the stored password

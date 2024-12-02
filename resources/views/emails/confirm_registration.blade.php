@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Hi {{ $user->first_name }}</h1>
-    <p>Please click the button below to confirm your email address:</p>
+    <p>Please click the button below to confirm your email address. The link will be valid for 60 minutes from the time of registration:</p>
     <a href="{{ route('confirm.email', $user->user_id) }}" style="background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
         Confirm Email
     </a>
@@ -15,4 +15,3 @@
     <p>Best regards,<br>Dumpstreet</p>
 </body>
 </html>
-

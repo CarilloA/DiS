@@ -69,19 +69,19 @@ class DashboardController extends Controller
             foreach ($productJoined as $data) {
                 $restockStore = $data->in_stock - $data->product_quantity;
                 
-                // Check if the product has already been added to the list of messages
-                if ($restockStore <= $data->reorder_level && !in_array($data->product_id, $processedProducts)) {
-                    // Add product to low store stock messages
-                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
-                    // Mark product as processed to avoid duplicate entries
-                    $processedProducts[] = $data->product_id;
-                }
-                
-                if ($data->product_quantity <= $data->reorder_level && !in_array($data->product_id, $processedProducts)) {
-                    // Add product to low stockroom stock messages
-                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
-                    // Mark product as processed to avoid duplicate entries
-                    $processedProducts[] = $data->product_id;
+                // Check if the product is low on stock for either the store or the stockroom
+                if (!in_array($data->product_id, $processedProducts)) {
+                    if ($restockStore <= $data->reorder_level) {
+                        // Add product to low store stock messages
+                        $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                        $processedProducts[] = $data->product_id; // Mark as processed
+                    }
+
+                    if ($data->product_quantity <= $data->reorder_level) {
+                        // Add product to low stockroom stock messages
+                        $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                        $processedProducts[] = $data->product_id; // Mark as processed
+                    }
                 }
             }
 

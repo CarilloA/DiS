@@ -53,13 +53,14 @@ Route::middleware(['auth', 'check.default_password'])->group(function () {
 use App\Http\Controllers\AccountManagementController;
 Route::resource('account_management', AccountManagementController::class);
 Route::get('confirm-email/{id}', [AccountManagementController::class, 'confirmEmail'])->name('confirm.email');
+Route::post('/resend-confirmation/{id}', [AccountManagementController::class, 'resendConfirmationEmail'])->name('resend_confirmation_email');
 Route::get('accounts_table', [AccountManagementController::class, 'index'])->name('accounts_table');
 Route::get('create', [AccountManagementController::class, 'create'])->name('create_account');
 Route::delete('delete/{id}', [AccountManagementController::class, 'destroy'])->name('delete_account');
 
 // for change default password
 Route::get('/change-password', [AccountManagementController::class, 'changePassword'])->name('password.change');
-Route::post('/change-password', [AccountManagementController::class, 'updatePassword'])->name('password.update');
+Route::post('/change-password', [AccountManagementController::class, 'updatePassword'])->name('password_update');
 
 
 use App\Http\Controllers\ProfileController;
