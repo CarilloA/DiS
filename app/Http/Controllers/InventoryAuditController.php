@@ -18,24 +18,35 @@ class InventoryAuditController extends Controller
             // If the user is not logged in, redirect to login
             return redirect('/login')->withErrors('You must be logged in.');
         }
-
+    
         $user = Auth::user();
-
+    
+        // Aggregate stock_transfer data to get the latest transfer for each product
+        $latestStockTransfer = DB::table('stock_transfer')
+            ->select(
+                'product_id',
+                DB::raw('MAX(to_stockroom_id) as latest_stockroom_id')  // Get the latest stockroom transfer for each product
+            )
+            ->groupBy('product_id');  // Group by product_id to avoid duplicates
+    
+        // Now join the inventory data with the aggregated stock transfer data
         $inventoryJoined = DB::table('inventory')
-        ->join('product', 'inventory.product_id', '=', 'product.product_id')
-        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
-        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
-        ->join('category', 'product.category_id', '=', 'category.category_id')
-        ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
-        ->orderBy('updated_at', 'desc')
-        ->get();
-
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->leftJoinSub($latestStockTransfer, 'stock_transfer', function ($join) {
+                $join->on('stock_transfer.product_id', '=', 'product.product_id');
+            })
+            ->leftJoin('stockroom', 'stock_transfer.latest_stockroom_id', '=', 'stockroom.stockroom_id')  // Join the latest stockroom for each product
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stockroom.*')
+            ->orderBy('inventory.updated_at', 'desc')
+            ->get();
+    
         // Decode the description for each inventory item
         foreach ($inventoryJoined as $item) {
             $item->descriptionArray = json_decode($item->description, true); // Decode the JSON description into an array
         }
-        
+    
         if ($user->role === "Auditor") {
             // Pass the inventory managers and user role to the view
             return view('inventory_audit.audit_inventory_table', [
@@ -44,6 +55,7 @@ class InventoryAuditController extends Controller
             ]);
         }
     }
+    
 
     private function generateId($table, $column = 'audit_id')
     {
@@ -56,14 +68,30 @@ class InventoryAuditController extends Controller
     }
 
     public function showStep1() {
-        // Fetch data from the inventory, join with related tables as needed
+         // Aggregate stock_transfer to avoid duplicates
+        $aggregatedStockTransfer = DB::table('stock_transfer')
+        ->select(
+            'product_id',
+            DB::raw('MAX(to_stockroom_id) as latest_stockroom_id')
+        )
+        ->groupBy('product_id');
+
+        // Fetch inventory and related details
         $inventoryJoined = DB::table('inventory')
             ->join('product', 'inventory.product_id', '=', 'product.product_id')
-            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
-            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
-            ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->leftJoinSub($aggregatedStockTransfer, 'stock_transfer', function ($join) {
+                $join->on('stock_transfer.product_id', '=', 'product.product_id');
+            })
+            ->leftJoin('stockroom', 'stock_transfer.latest_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->select(
+                'inventory.inventory_id',
+                'inventory.in_stock',
+                'product.product_id',
+                'product.product_name',
+                'stockroom.product_quantity',
+                'stockroom.stockroom_id'
+            )
+            ->distinct()
             ->get();
     
         return view('inventory_audit.step1', [
@@ -87,14 +115,30 @@ class InventoryAuditController extends Controller
             'count_stockroom_quantity.*' => 'required|numeric',
         ]);
         
-        // Retrieve the inventory data
+        // Aggregate stock_transfer to avoid duplicates
+        $aggregatedStockTransfer = DB::table('stock_transfer')
+        ->select(
+            'product_id',
+            DB::raw('MAX(to_stockroom_id) as latest_stockroom_id')
+        )
+        ->groupBy('product_id');
+
+        // Fetch inventory and related details
         $inventoryJoined = DB::table('inventory')
             ->join('product', 'inventory.product_id', '=', 'product.product_id')
-            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
-            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
-            ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->leftJoinSub($aggregatedStockTransfer, 'stock_transfer', function ($join) {
+                $join->on('stock_transfer.product_id', '=', 'product.product_id');
+            })
+            ->leftJoin('stockroom', 'stock_transfer.latest_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->select(
+                'inventory.inventory_id',
+                'inventory.in_stock',
+                'product.product_id',
+                'product.product_name',
+                'stockroom.product_quantity',
+                'stockroom.stockroom_id'
+            )
+            ->distinct()
             ->get();
         
         // Initialize the discrepancies array

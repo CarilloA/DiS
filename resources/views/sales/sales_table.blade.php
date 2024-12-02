@@ -153,6 +153,8 @@
                             <th>Product Name</th>
                             <th>Category</th>
                             <th>Quantity</th>
+                            <th>Sale Price</th>
+                            <th>Amount</th>
                             <th>Total Amount</th>
                             <th>Sales Timestamp</th>
                             <th>Description</th>
@@ -174,6 +176,7 @@
                             <th>Category</th>
                             <th>Quantity</th>
                             <th>Sale Price</th>
+                            <th>Amount</th>
                             <th>Total Amount</th>
                             <th>Sales Timestamp</th>
                             <th>Description</th>
@@ -194,8 +197,9 @@
                                         <td>{{ $data->product_name }}</td>
                                         <td>{{ $data->category_name }}</td>
                                         <td>{{ $data->sales_quantity }}</td>
-                                        <td>{{ $data->sale_price_per_unit }}</td>
-                                        <td rowspan="{{ count($sales) }}">{{ $data->total_amount }}</td>
+                                        <td>{{ number_format($data->sale_price_per_unit, 2) }}</td>
+                                        <td>{{ number_format($data->amount, 2) }}</td>
+                                        <td rowspan="{{ count($sales) }}">{{ number_format($data->total_amount, 2) }}</td>
                                         <td>{{ $data->sales_date }}</td>
                                         <td>
                                             <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
@@ -217,7 +221,8 @@
                                     <td>{{ $data->product_name }}</td>
                                     <td>{{ $data->category_name }}</td>
                                     <td>{{ $data->sales_quantity }}</td>
-                                    <td>{{ $data->sale_price_per_unit }}</td>
+                                    <td>{{ number_format($data->sale_price_per_unit, 2) }}</td>
+                                    <td>{{ number_format($data->amount, 2) }}</td>
                                     <td>{{ $data->sales_date }}</td>
                                     <td>
                                         <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
@@ -415,14 +420,24 @@ $(document).ready(function() {
                                             </button>`;
                         }
 
+                        // Utility function to format numbers
+                        const formatNumber = (number, decimals = 2) => {
+                            return new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: decimals,
+                                maximumFractionDigits: decimals,
+                            }).format(number);
+                        };
+
                         tableBody.append(`
                             <tr>
                                 <td>${sale.sales_id}</td>
                                 <td>${sale.first_name} ${sale.last_name}</td>
                                 <td>${sale.product_name}</td>
                                 <td>${sale.category_name}</td>
-                                <td>${sale.quantity}</td>
-                                <td>${sale.total_amount}</td>
+                                <td>${sale.sales_quantity}</td>
+                                <td>${formatNumber(sale.sale_price_per_unit)}</td>
+                                <td>${formatNumber(sale.amount)}</td>
+                                <td>${formatNumber(sale.total_amount)}</td>
                                 <td>${sale.sales_date}</td>
                                 <td>
                                     <button type="button" class="btn" onclick="showDescriptionDetail('${sale.descriptionArray.color ?? 'N/A'}', '${sale.descriptionArray.size ?? 'N/A'}', '${sale.descriptionArray.description ?? 'N/A'}')">

@@ -167,7 +167,7 @@
                         </div>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">No returned products found.</td>
+                            <td colspan="8" class="text-center">No returned products found.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -89,6 +89,7 @@ class ReturnProductController extends Controller
         if ($salesJoin) {
             // Ensure the sales quantity does not go below zero after the return
             $newQuantity = $salesJoin->sales_quantity - $validatedData['return_quantity'];
+            $newAmount = $salesJoin->amount - $validatedData['total_return_amount'];
             $newTotalAmount = $salesJoin->total_amount - $validatedData['total_return_amount'];
 
             if ($newQuantity < 0) {
@@ -102,6 +103,7 @@ class ReturnProductController extends Controller
                 ->where('sales_details_id', $salesJoin->sales_details_id)
                 ->update([
                     'sales_quantity' => $newQuantity, // Decrement sale quantity
+                    'amount' => $newAmount, // Decrement sale amount
                     'total_amount' => $newTotalAmount, // Decrement sale total amount
                     'return_product_id' => $newReturnProductId, // Link the return product
                 ]);

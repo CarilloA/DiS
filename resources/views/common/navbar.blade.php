@@ -156,9 +156,6 @@
         </li><li class="{{ Request::routeIs('inventory.audit.logs') ? 'active' : '' }}">
             <a href="{{ route('inventory.audit.logs') }}"><i class="fa-solid fa-warehouse"></i> AUDIT LOGS</a>
         </li>
-        {{-- <li class="{{ Request::routeIs('accounts_table') ? 'active' : '' }}">
-            <a href="{{ route('accounts_table') }}"><i class="fa-solid fa-file"></i> REPORT</a>
-        </li> --}}
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa-solid fa-sign-out-alt"></i> LOGOUT

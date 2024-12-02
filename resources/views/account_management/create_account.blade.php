@@ -188,7 +188,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <span class="input-group-text">
-                                        <i class="fa fa-key fa-lg"></i><label class="ms-2">Password</label>
+                                        <i class="fa fa-key fa-lg"></i><label class="ms-2">Default Password</label>
                                     </span>
                                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                                     <small class="text form-text text-danger mt-2">
@@ -202,16 +202,14 @@
                                         </span>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <div class="row mb-3">
                                 <div class="col-md-6">
                                     <span class="input-group-text">
                                         <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Password</label>
                                     </span>
                                     <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="Entered password should match." required>
                                 </div>
-                            </div>   
+                            </div>
                         </div>
                         
 

@@ -23,38 +23,24 @@
                     <thead>
                         <tr>
                             <th>Product Name</th>
-                            <th>Count Quantity on Hand</th>
                             <th>Count Stock in the Store</th>
                             <th>Count Stock in the Stockroom</th>
+                            <th>Quantity on Hand</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($inventoryJoined as $data)
+                        @forelse($inventoryJoined as $key => $data)
                             <tr>
                                 <td>{{ $data->product_name }}</td>
-                                
+                                <input type="hidden" name="product_name[]" value="{{ $data->product_name }}">
                                 <input type="hidden" name="inventory_id[]" value="{{ $data->inventory_id }}">
                                 <input type="hidden" name="stockroom_id[]" value="{{ $data->stockroom_id }}">
                                 <input type="hidden" name="previous_quantity_on_hand[]" value="{{ $data->in_stock }}">
-
-                                <td>
-                                    <div class="form-group">
-                                        <label for="count_quantity_on_hand">Count Quantity on Hand</label>
-                                        <input class="form-control" type="number" name="count_quantity_on_hand[]" placeholder="Input number only" pattern="^\d{1,6}$" required>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <label for="count_store_quantity">Count Stock in the Store</label>
-                                        <input class="form-control" type="number" name="count_store_quantity[]" placeholder="Input number only" pattern="^\d{1,6}$" required>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-group">
-                                        <label for="count_stockroom_quantity">Count Stock in the Stockroom</label>
-                                        <input class="form-control" type="number" name="count_stockroom_quantity[]" placeholder="Input number only" pattern="^\d{1,6}$" required>
-                                    </div>
-                                </td>
+                                <input type="hidden" name="previous_product_quantity[]" value="{{ $data->product_quantity }}">
+                
+                                <td><input class="form-control" type="number" oninput="calculateQoH({{ $key }})" id="count_store_stock_{{ $key }}" name="count_store_quantity[]" required></td>
+                                <td><input class="form-control" type="number" oninput="calculateQoH({{ $key }})" id="count_stockroom_stock_{{ $key }}" name="count_stockroom_quantity[]" required></td>
+                                <td><input class="form-control" type="number" id="count_qoh_{{ $key }}" name="count_quantity_on_hand[]" readonly></td>
                             </tr>
                         @empty
                             <tr>
@@ -63,6 +49,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-success">Next</button>
                 </div>
@@ -70,4 +57,14 @@
         </div>
     </main>
 </div>
+
+{{-- JavaScript for calculating Quantity on Hand --}}
+<script>
+    function calculateQoH(index) {
+        const storeStock = parseInt(document.getElementById(`count_store_stock_${index}`).value) || 0;
+        const stockroomStock = parseInt(document.getElementById(`count_stockroom_stock_${index}`).value) || 0;
+        const qoh = storeStock + stockroomStock;
+        document.getElementById(`count_qoh_${index}`).value = qoh;
+    }
+</script>
 @endsection

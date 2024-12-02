@@ -119,7 +119,13 @@ class ProfileController extends Controller
             'mobile_number' => ['required', 'digits:11', 'unique:user,mobile_number,' . $id . ',user_id'], //',user_id' is for primary key
             'email' => ['required', 'string', 'email', 'max:255', 'unique:user,email,' . $id . ',user_id'],
             'username' => ['required', 'string', 'max:255', 'unique:user,username,' . $id . ',user_id'],
-            'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'new_password' => ['nullable', 'string', 'min:8', 'confirmed',
+                function ($attribute, $value, $fail) use ($user) {
+                    if (Hash::check($value, $user->password)) {
+                        $fail('The new password cannot be the same as the current password.');
+                    }
+                },
+            ],
         ]);
         
 
@@ -159,20 +165,8 @@ class ProfileController extends Controller
         });
 
         // Redirect back to profile with success message
-        return redirect()->route('show_profile')->with('success', 'User updated successfully.');
+        return redirect()->route('show_profile')->with('success', 'User profile updated successfully.');
     }
 
 
-
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

@@ -28,15 +28,21 @@
                 <form action="{{ route('inventory.audit.step3') }}" method="POST">
                     @csrf
                     <table class="table table-responsive">
+                        <h5>NOTE:</h5>
+                        <ul>
+                            <li>If the discrepancy result is 0, there is no difference between the physical stock and the system's recorded value.</li>
+                            <li>If the discrepancy result is positive, the physical stock exceeds the system's recorded value.</li>
+                            <li>If the discrepancy result is negative, the physical stock is less than the system's recorded value.</li>
+                        </ul>
                         <thead>
                             <tr>
                                 <th>Product Name</th>
-                                <th>Counted Quantity on Hand</th>
                                 <th>Counted Stock in the Store</th>
                                 <th>Counted Stock in the Stockroom</th>
-                                <th>Discrepancy (QoH)</th>
+                                <th>Counted Quantity on Hand</th>
                                 <th>Discrepancy (Store Stock)</th>
                                 <th>Discrepancy (Stockroom Stock)</th>
+                                <th>Discrepancy (QoH)</th>
                                 <th>Reason for Discrepancy</th>
                             </tr>
                         </thead>
@@ -46,13 +52,13 @@
                                 <input type="hidden" name="inventory_id[]" value="{{ $discrepancy['inventory']->inventory_id }}">
                                 <tr>
                                     <td>{{ $discrepancy['inventory']->product_name }}</td> 
-                                    <td>{{ $discrepancy['fetch_quantity_on_hand'] }}</td> <!-- Fetch the inputted count_quantity_on_hand -->
                                     <td>{{ $discrepancy['fetch_store_quantity'] }}</td> <!-- Fetch the inputted count_store_quantity -->
                                     <td>{{ $discrepancy['fetch_stockroom_quantity'] }}</td> <!-- Fetch the inputted count_stockroom_quantity -->
+                                    <td>{{ $discrepancy['fetch_quantity_on_hand'] }}</td> <!-- Fetch the inputted count_quantity_on_hand -->
 
-                                    <td>{{ $discrepancy['variance_in_stock'] }}</td>
                                     <td>{{ $discrepancy['variance_store_stock'] }}</td>
                                     <td>{{ $discrepancy['variance_stockroom_quantity'] }}</td>
+                                    <td>{{ $discrepancy['variance_in_stock'] }}</td>
                                     <td><input type="text" name="reason[{{ $key }}]" placeholder="Type here" required></td>
                                 </tr>
                             @endforeach

@@ -81,7 +81,7 @@
                             <th>Description</th>
                             <th>Supplier Details</th>
                             <th>Location</th>
-                            <th colspan="2">Action</th>
+                            <th colspan="3">Restock Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -90,8 +90,8 @@
                             <td>{{ $data->product_id }}</td>
                             <td>{{ $data->product_name }}</td>
                             <td>{{ $data->category_name }}</td>
-                            <td>{{ $data->purchase_price_per_unit }}</td>
-                            <td>{{ $data->sale_price_per_unit }}</td>
+                            <td>{{ number_format($data->purchase_price_per_unit, 2) }}</td>
+                            <td>{{ number_format($data->sale_price_per_unit, 2) }}</td>
                             <td>{{ $data->unit_of_measure }}</td>
                             <td>{{ $data->in_stock }}</td>
                             <td>{{ $data->reorder_level }}</td>
@@ -115,27 +115,38 @@
                                 </button>
                             </td>
                             <td>
-                                @if ($storeStock === 0)
+                                @if ($storeStock <= $data->reorder_level)
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#storeRestockModal{{ $data->product_id }}" style="1em">
-                                        Store Restock
+                                        Store
                                     </button>
                                 @else
                                     <button type="button" class="btn btn-secondary" disabled>
-                                        Store Restock
+                                        Store
                                     </button>
                                 @endif
                             </td>
                             <td>
-                                @if ($data->in_stock <= $data->reorder_level)
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#restockModal{{ $data->product_id }}">
-                                        Restock
+                                @if ($data->product_quantity <= $data->reorder_level)
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#stockroomRestockModal{{ $data->product_id }}">
+                                        Stockroom
                                     </button>
                                 @else
                                     <button type="button" class="btn btn-secondary" disabled>
-                                        Restock
+                                        Stockroom
                                     </button>
                                 @endif
                             </td>
+                            {{-- <td>
+                                @if ($data->in_stock >= $data->reorder_level)
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#restockModal{{ $data->product_id }}">
+                                        QoH
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-secondary" disabled>
+                                        QoH
+                                    </button>
+                                @endif
+                            </td> --}}
                         </tr>
 
                         <!-- Store Restock Modal for Each Product -->
@@ -192,7 +203,129 @@
                             </div>
                         </div>
 
-                        <!-- Restock Modal for Each Product -->
+                        <!-- Restock Modal for Each Product in the stockroom-->
+                        <div class="modal fade" style="color: black" id="stockroomRestockModal{{ $data->product_id }}" tabindex="-1" role="dialog" aria-labelledby="stockroomRestockModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="stockroomRestockModalLabel">Restock Product</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form id="restockForm{{ $data->product_id }}" action="{{ route('restock_product') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $data->product_id }}">
+                                        <input type="hidden" name="supplier_id" value="{{ $data->supplier_id }}">
+                                        <input type="hidden" name="stockroom_id" value="{{ $data->stockroom_id }}">
+                                        <input type="hidden" name="previous_quantity" value="{{ $data->product_quantity }}">
+                                        
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="purchase_price_per_unit">Purchase Price Per Unit</label>
+                                                <input type="text" class="form-control" name="purchase_price_per_unit" value="{{ $data->purchase_price_per_unit }}" pattern="^\d{1,6}(\.\d{1,2})?$" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="sale_price_per_unit">Sale Price Per Unit</label>
+                                                <input type="text" class="form-control" name="sale_price_per_unit" value="{{ $data->sale_price_per_unit }}" pattern="^\d{1,6}(\.\d{1,2})?$" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <labelfor="unit_of_measure"> Unit of Measure</label>
+                                                <div class="custom-select">
+                                                    <select name="unit_of_measure" id="unit_of_measure" class="form-select @error('unit_of_measure') is-invalid @enderror" required>
+                                                        <option value="pcs">piece</option> 
+                                                        <option value="pair">pair</option>
+                                                        <option value="set">set</option>
+                                                        <option value="box">box</option> 
+                                                        <option value="pack">pack</option>
+                                                        <option value="kit">kit</option>
+                                                        <option value="liter">liter</option>
+                                                        <option value="gallon">gallon</option>
+                                                        <option value="roll">roll</option>
+                                                        <option value="meter">meter</option>
+                                                    </select>
+                                                </div>
+                                                @error('unit_of_measure')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="quantity">Quantity</label>
+                                                <input type="text" class="form-control" name="quantity" value="{{ $data->product_quantity }}" pattern="^\d{1,6}$" required>
+                                            </div>
+                                            <div class="form-group">
+                                            <input type="hidden" name="update_supplier" value="0">  <!-- Hidden input to default to false -->
+                                                <input type="checkbox" id="update_supplier_checkbox{{ $data->supplier_id }}" name="update_supplier" value="1" {{ old('update_supplier') ? 'checked' : '' }}> <!-- Checkbox -->
+                                                <label for="update_supplier_checkbox{{ $data->supplier_id }}">Update supplier</label>
+                                            </div>
+                                            
+                                            <div id="supplier_details_section{{ $data->supplier_id }}" style="display: none;">
+                                                <div class="form-group">
+                                                    <label for="company_name">Company Name</label>
+                                                    <input type="text" class="form-control" name="company_name" value="{{ $data->company_name }}" pattern="^[a-zA-Z0-9\s\-]{1,30}$">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="contact_person">Contact Person</label>
+                                                    <input type="text" class="form-control" name="contact_person" value="{{ $data->contact_person }}" pattern="^[a-zA-Z\s]{1,30}$">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="mobile_number">Mobile Number</label>
+                                                    <input type="number" class="form-control" name="mobile_number" value="{{ $data->mobile_number }}" pattern="^09\d{9}$">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="email">Email</label>
+                                                    <input type="email" class="form-control" name="email" value="{{ $data->email }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="address">Address</label>
+                                                    <input type="text" class="form-control" name="address" value="{{ $data->address }}" pattern="^[a-zA-Z0-9\s.,\-]{1,100}$">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Modal Validation Error Alert Message-->
+                                        @if ($errors->any() && old('product_id') == $data->product_id)
+                                            <div class="alert alert-danger">
+                                                <ul>
+                                                    @foreach ($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                    
+                                            <script>
+                                                $(document).ready(function() {
+                                                    $('#stockroomRestockModal{{ $data->product_id }}').modal('show');
+                                                    
+                                                    // Check if the checkbox is checked and show/hide the supplier details section accordingly
+                                                    if ($('#update_supplier_checkbox{{ $data->supplier_id }}').is(':checked')) {
+                                                        $('#supplier_details_section{{ $data->supplier_id }}').show();
+                                                    }
+                                                    
+                                                    $('[id^="update_supplier_checkbox"]').change(function() {
+                                                        const supplierId = $(this).attr('id').match(/\d+/)[0]; // Get supplier ID from checkbox ID
+                                                        const supplierDetailsSection = `#supplier_details_section${supplierId}`;
+
+                                                        // Toggle supplier details section visibility based on checkbox state
+                                                        $(supplierDetailsSection).toggle(this.checked);
+                                                        $(supplierDetailsSection + ' input').prop('required', this.checked);
+                                                    });
+                                                });
+                                            </script>
+                                        @endif
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Restock</button>
+                                        </div>
+                                    </form>
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- <!-- Restock Modal for Each Product -->
                         <div class="modal fade" style="color: black" id="restockModal{{ $data->product_id }}" tabindex="-1" role="dialog" aria-labelledby="restockModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -239,10 +372,6 @@
                                                     </span>
                                                 @enderror
                                             </div>
-                                            {{-- <div class="form-group">
-                                                <label for="unit_of_measure">Unit of Measure</label>
-                                                <input type="text" class="form-control" name="unit_of_measure" value="{{ $data->unit_of_measure }}" pattern="^[a-zA-Z\s]{1,15}$" required>
-                                            </div> --}}
                                             <div class="form-group">
                                                 <label for="quantity">Quantity</label>
                                                 <input type="text" class="form-control" name="quantity" value="{{ $data->in_stock }}" pattern="^\d{1,6}$" required>
@@ -315,7 +444,7 @@
                                     
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         @endforeach
                     </tbody>
                 </table>   

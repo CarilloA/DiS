@@ -18,41 +18,62 @@ class LoginController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function login(Request $request)
-{
-    // Validate the form data
-    $credentials = $request->validate([
-        'username' => 'required|string',
-        'password' => 'required|string',
-    ]);
+    {
+        // Validate the form data
+        $credentials = $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-    // Fetch the credential based on the username
-    $credential = User::where('username', $credentials['username'])->first();
-    
-    if ($credential && Hash::check($credentials['password'], $credential->password)) {
-        // Fetch the user based on the credential_id
-        $user = User::where('user_id', $credential->user_id)->first();
-        $userFKey = DB::table('user')
+        // Fetch the user by username
+        $credential = User::where('username', $credentials['username'])->first();
+
+        // Check if user exists and if password is not null (i.e., default password exists)
+        if ($credential) {
+            // Check if the user has not updated their default password
+            if ($credential->password === null && $credential->default_password !== null) {
+                // Check if the user entered the default password
+                if (Hash::check($credentials['password'], $credential->default_password)) {
+
+                    // Fetch the user and check if the user has valid email verification or is an administrator
+                    $user = User::where('user_id', $credential->user_id)->first();
+                    // Log the user in
+                    Auth::login($user);
+
+                    // After login, redirect to password change page
+                    return redirect()->route('password.change')->with('info', 'Please change your default password.');
+                }
+            }
+
+            // Now, check if the password entered by the user matches the stored password
+            if (Hash::check($credentials['password'], $credential->password)) {
+                // Fetch the user and check if the user has valid email verification or is an administrator
+                $user = User::where('user_id', $credential->user_id)->first();
+                $userFKey = DB::table('user')
                     ->select('user.*')
                     ->where('user_id', '=',  $credential->user_id)
                     ->first();
 
-                    if ($userFKey) { // Check if the userFKey is not null before accessing its properties
-                        // Check if the user is an Administrator or has a verified email
-                        if ($credential->role === 'Administrator' || 
-                            ($userFKey->email_verified_at !== null && $userFKey->email_verified_at !== '0000-00-00 00:00:00')) {
-                            // Log in the user
-                            Auth::login($user);
-                            return redirect()->intended('/dashboard')->with('success', 'You have successfully logged in.');
-                        } else {
-                // Redirect with an error message for unverified email
-                return back()->with('error', 'Your email is not verified. Please check your inbox.');
+                // Make sure the user exists and handle email verification or admin check
+                if ($userFKey) {
+                    if ($credential->role === 'Administrator' || 
+                        ($userFKey->email_verified_at !== null && $userFKey->email_verified_at !== '0000-00-00 00:00:00')) {
+                        // Log the user in
+                        Auth::login($user);
+
+                        return redirect()->intended('/dashboard')->with('success', 'You have successfully logged in.');
+                    } else {
+                        // Redirect if the email is not verified
+                        return back()->with('error', 'Your email is not verified. Please check your inbox.');
+                    }
+                }
             }
         }
+
+        // If login fails, redirect back with an error message
+        return back()->with('error', 'The provided credentials do not match our records.');
     }
 
-    // If login fails, redirect back with an error message
-    return back()->with('error', 'The provided credentials do not match our records.');
-}
 
 
     public function showLoginForm()

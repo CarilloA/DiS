@@ -34,7 +34,9 @@ class ReportController extends Controller
             ->select('inventory.*', 'inventory.updated_at as inventory_updated_at', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*', 'user.*')
             ->whereBetween(DB::raw('DATE(inventory.updated_at)'), [$startDate, $endDate])
             ->orderBy('inventory.updated_at', 'desc')
-            ->get();
+            ->get('product.product_id');
+
+        $inventoryJoined = $inventoryJoined->unique('product_id');
 
         $stockTransferJoined = DB::table('stock_transfer')
         ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')

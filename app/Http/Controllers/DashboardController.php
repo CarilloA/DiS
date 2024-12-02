@@ -40,17 +40,52 @@ class DashboardController extends Controller
             $user_id = $user->user_id;
 
             // Fetch products and their inventory details
-            $inventoryJoined = Inventory::with('product')->get();
+            // $inventoryJoined = Inventory::with('product')->get();
 
             // Prepare an array to hold low stock messages
-            $lowStockMessages = [];
+            // $lowStockMessages = [];
 
             // stockroom restock
-            foreach ($inventoryJoined as $data) {
-                if ($data->in_stock <= $data->reorder_level) {
-                    $lowStockMessages[] = "Product ID {$data->product_id} ({$data->product->product_name}) is low on stock. Please restock.";
+            // foreach ($inventoryJoined as $data) {
+            //     if ($data->in_stock <= $data->reorder_level) {
+            //         $lowStockMessages[] = "Product ID {$data->product_id} ({$data->product->product_name}) is low on stock. Please restock.";
+            //     }
+            // }
+
+            $productJoined = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->get();
+        
+            $lowStoreStockMessages = [];
+            $lowStockroomStockMessages = [];
+            $processedProducts = [];  // Array to track products that have been processed
+
+            // stockroom restock
+            foreach ($productJoined as $data) {
+                $restockStore = $data->in_stock - $data->product_quantity;
+                
+                // Check if the product has already been added to the list of messages
+                if ($restockStore <= $data->reorder_level && !in_array($data->product_id, $processedProducts)) {
+                    // Add product to low store stock messages
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    // Mark product as processed to avoid duplicate entries
+                    $processedProducts[] = $data->product_id;
+                }
+                
+                if ($data->product_quantity <= $data->reorder_level && !in_array($data->product_id, $processedProducts)) {
+                    // Add product to low stockroom stock messages
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    // Mark product as processed to avoid duplicate entries
+                    $processedProducts[] = $data->product_id;
                 }
             }
+
+        
 
             // for graph
             // Fetch products with their stockroom and store stock
@@ -61,6 +96,7 @@ class DashboardController extends Controller
                 ->select('inventory.*', 'product.*', 'stock_transfer.*', 'stockroom.*')
                 ->where('inventory.in_stock', '<=', DB::raw('reorder_level'))  // For products that need restocking
                 ->orWhere('stockroom.product_quantity', '<=', DB::raw('reorder_level')) // For stockroom products that need restocking
+                ->orWhere(DB::raw('inventory.in_stock - stockroom.product_quantity'), '<=', DB::raw('reorder_level'))  // For store products that need restocking
                 ->get();
 
             // Prepare arrays for the graph data
@@ -68,14 +104,23 @@ class DashboardController extends Controller
             $storeStock = [];
             $stockroomStock = [];
 
-            // Loop through products to calculate store stock and prepare chart data
+            $processedProductIds = []; // Array to track processed products
+
             foreach ($products as $product) {
+                // If product has already been processed, skip it
+                if (in_array($product->product_id, $processedProductIds)) {
+                    continue;
+                }
+
                 $storeRestock = $product->in_stock - $product->product_quantity;
 
-                // Prepare data for the chart
+                // Prepare data for the chart only if the product hasn't been processed
                 $productNames[] = $product->product_name;
                 $storeStock[] = $storeRestock;
                 $stockroomStock[] = $product->product_quantity;
+
+                // Mark the product as processed to avoid duplication
+                $processedProductIds[] = $product->product_id;
             }
 
             // Join `user`, `credentials`, and `contact_details` using the foreign keys
@@ -94,10 +139,31 @@ class DashboardController extends Controller
             $totalSalesQuantity = SalesDetails::sum('sales_quantity');
 
             // Stock transfer tracking
-            $stockTransfers = StockTransfer::selectRaw('DATE(transfer_date) as date, COUNT(*) as count')
-                ->groupBy('date')
-                ->orderBy('date', 'asc')
-                ->get();
+            // Retrieve stock transfer data, including related product and stockroom information
+            $stockTransfers = StockTransfer::with(['product', 'from_stockroom', 'to_stockroom', ])
+            ->orderBy('transfer_date', 'asc')
+            ->get();
+
+            // Prepare data for the graph (e.g., stock transfer quantities by date)
+            $transferData = [];
+
+            foreach ($stockTransfers as $transfer) {
+                // Group by transfer date or any other metric you need (e.g., product name)
+                $date = $transfer->transfer_date;
+                $quantity = $transfer->transfer_quantity;
+                $fromStockroom = $transfer->from_stockroom;  // Assuming 'name' is the field for stockroom
+                $toStockroom = $transfer->to_stockroom;      // Assuming 'name' is the field for stockroom
+                $productName = $transfer->product->product_name;   // Assuming 'product_name' exists
+
+                // You can choose how to structure this data depending on the graph type
+                $transferData[] = [
+                    'date' => $date,
+                    'quantity' => $quantity,
+                    'from_stockroom' => $fromStockroom,
+                    'to_stockroom' => $toStockroom,
+                    'product' => $productName,
+                ];
+            }
 
             // Auditor Dashboard Content
             // Fetch all inventory audit data
@@ -148,11 +214,14 @@ class DashboardController extends Controller
                 // Pass the inventory managers and user role to the view
                 return view('dashboard', [
                     'userSQL' => $userSQL,
-                    'lowStockMessages' => $lowStockMessages,
+                    //'lowStockMessages' => $lowStockMessages,
+                    'lowStoreStockMessages' => $lowStoreStockMessages,
+                    'lowStockroomStockMessages' => $lowStockroomStockMessages,
                     'totalProducts' => $totalProducts,
                     'totalStockroom'=> $totalStockroom,
                     'totalStoreStock' => $totalStoreStock,
-                    'stockTransfers' => $stockTransfers,
+                    // 'stockTransfers' => $stockTransfers,
+                    'transferData' => $transferData,
                     'productNames' => $productNames,
                     'storeStock' => $storeStock,
                     'stockroomStock' => $stockroomStock,

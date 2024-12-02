@@ -78,7 +78,24 @@
             <div class="card">
                 <div class="text card-header text-center" style="background-color: #3a8f66">{{ __('Update User Account') }}</div>
                 <div class="card-body">
+                    {{-- error handling alert message --}}
                     @include('common.alert')
+                    @if(session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <form method="POST" action="{{ url('update_profile/' . $user->user_id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -150,10 +167,6 @@
                                     </span>
                                 @enderror
                             </div>
-                        </div>
-
-                        <!-- New Password Confirmation -->
-                        <div class="row mb-3">
                             <div class="col-md-6">
                                 <span class="input-group-text">
                                     <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm New Password</label>
@@ -163,16 +176,16 @@
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
                                 <span class="input-group-text">
                                     <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Update</label>
                                 </span>
-
+                            <div class="col">
                                     <div class="form-group">
                                         <label class="text" for="username">Confirm Username</label>
                                         <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" pattern="^[A-Za-z0-9]*" required>
                                     </div>
-
+                            </div>
+                            <div class="col">
                                     <div class="form-group">
                                         <label class="text" for="password">Confirm Password</label>
                                         <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>

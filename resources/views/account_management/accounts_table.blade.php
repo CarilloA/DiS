@@ -34,6 +34,7 @@
         background-color: #212529;
         font-family: Arial, sans-serif;
         border: none; /* Remove border */
+        color: #fff;
     }
 
     .modal-content input:focus {

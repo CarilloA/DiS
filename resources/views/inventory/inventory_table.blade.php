@@ -150,8 +150,8 @@
                         <th>Product No.</th>
                         <th>Name</th>
                         <th>Category</th>
-                        <th>Purchase Price</th>
-                        <th>Selling Price</th>
+                        <th>Purchased Price</th>
+                        <th>Sale Price</th>
                         <th>Unit of Measure</th>
                         <th>In Stock</th>
                         <th>Reorder Level</th>
@@ -167,8 +167,8 @@
                             <td>{{ $data->product_id }}</td>
                             <td>{{ $data->product_name }}</td>
                             <td>{{ $data->category_name }}</td>
-                            <td>{{ $data->purchase_price_per_unit }}</td>
-                            <td>{{ $data->sale_price_per_unit }}</td>
+                            <td>{{ number_format($data->purchase_price_per_unit, 2) }}</td>
+                            <td>{{ number_format($data->sale_price_per_unit, 2) }}</td>
                             <td>{{ $data->unit_of_measure }}</td>
                             <td>{{ $data->in_stock }}</td>
                             <td>{{ $data->reorder_level }}</td>

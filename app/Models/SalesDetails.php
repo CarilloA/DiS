@@ -25,6 +25,7 @@ class SalesDetails extends Authenticatable
     protected $fillable = [
         'sales_details_id',
         'sales_quantity',
+        'amount',
         'sales_id', 
         'inventory_id',
         'product_id',

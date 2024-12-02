@@ -34,15 +34,15 @@
                                 <tr>
                                     <td>{{ $discrepancy['inventory']->product_name }}</td>
                                     <td>
-                                        <input type="number" id="adjusted_store_stock_{{ $key }}" name="adjusted_store_quantity[]" placeholder="Input number only" 
+                                        <input class="form-control" type="number" id="adjusted_store_stock_{{ $key }}" name="adjusted_store_quantity[]" placeholder="Input number only" 
                                                required oninput="calculateQoH({{ $key }})">
                                     </td>
                                     <td>
-                                        <input type="number" id="adjusted_stockroom_stock_{{ $key }}" name="adjusted_stockroom_quantity[]" placeholder="Input number only"
+                                        <input class="form-control" type="number" id="adjusted_stockroom_stock_{{ $key }}" name="adjusted_stockroom_quantity[]" placeholder="Input number only"
                                                required oninput="calculateQoH({{ $key }})">
                                     </td>
                                     <td>
-                                        <input type="number" id="adjusted_qoh_{{ $key }}" name="adjusted_quantity_on_hand[]" placeholder="Read only: Total" readonly>
+                                        <input class="form-control" type="number" id="adjusted_qoh_{{ $key }}" name="adjusted_quantity_on_hand[]" placeholder="Read only: Total" readonly>
                                     </td>
                                 </tr>
                             @endforeach

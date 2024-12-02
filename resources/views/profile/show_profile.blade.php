@@ -67,6 +67,9 @@
 
 <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
     <div class="main-content">
+        
+        @include('common.alert')
+
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
             <h1 class="h2 mb-4 mt-2">Profile Management</h1>
         </div>

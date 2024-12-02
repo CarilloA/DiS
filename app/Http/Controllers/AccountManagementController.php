@@ -75,135 +75,176 @@ class AccountManagementController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-{
-    // Validate the incoming request data
-    $validatedData = $request->validate([
-        'image_url' => ['nullable', 'image'],
-        'first_name' => ['required', 'string', 'max:15'],
-        'last_name' => ['required', 'string', 'max:15'],
-        'mobile_number' => ['required', 'digits:11', 'unique:user'],
-        'email' => ['required', 'string', 'email', 'max:30', 'unique:user'],
-        'role' => ['required'],
-        'username' => ['required', 'string', 'max:15', 'unique:user'],
-        'password' => ['required', 'string', 'min:8', 'confirmed'],
-    ]);
-
-    // Handle file upload with a default image if no file is provided
-    $fileNameToStore = 'noimage.jpg'; 
-    if ($request->hasFile('image_url')) {
-        $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
-    }
-
-    // Generate a custom user ID
-    $userId = $this->generateUserId();
-
-    // Use a transaction to ensure data integrity
-    $user = DB::transaction(function () use ($validatedData, $fileNameToStore, $userId) {
-
-        // Create the user
-        $user = User::create([
-            'user_id' => $userId,
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'image_url' => $fileNameToStore,
-            'mobile_number' => $validatedData['mobile_number'],
-            'email' => $validatedData['email'],
-            'username' => $validatedData['username'],
-            'password' => Hash::make($validatedData['password']),
-            'role' => $validatedData['role'],
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'image_url' => ['nullable', 'image'],
+            'first_name' => ['required', 'string', 'max:15'],
+            'last_name' => ['required', 'string', 'max:15'],
+            'mobile_number' => ['required', 'digits:11', 'unique:user'],
+            'email' => ['required', 'string', 'email', 'max:30', 'unique:user'],
+            'role' => ['required'],
+            'username' => ['required', 'string', 'max:15', 'unique:user'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
-        return $user; // Return the user object
-    });
+        // Handle file upload with a default image if no file is provided
+        $fileNameToStore = 'noimage.jpg'; 
+        if ($request->hasFile('image_url')) {
+            $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
+        }
 
-    // Send confirmation email
-    Mail::to($validatedData['email'])->send(new ConfirmRegistration($user));
-    Log::info('Sending confirmation email for user: ', $user->toArray()); // Log email sending
+        // Generate a custom user ID
+        $userId = $this->generateUserId();
 
-    return redirect()->route('accounts_table')->with('success', 'User registered successfully! A confirmation email has been sent.');
-}
+        // Use a transaction to ensure data integrity
+        $user = DB::transaction(function () use ($validatedData, $fileNameToStore, $userId) {
 
-/**
- * Handle file upload and return the filename.
- *
- * @param  \Illuminate\Http\UploadedFile  $file
- * @return string
- */
-private function handleFileUpload($file)
-{
-    $fileNameWithExt = $file->getClientOriginalName();
-    $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
-    $extension = $file->getClientOriginalExtension();
-    $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
-    $file->storeAs('public/userImage', $fileNameToStore);
+            // Create the user
+            $user = User::create([
+                'user_id' => $userId,
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
+                'image_url' => $fileNameToStore,
+                'mobile_number' => $validatedData['mobile_number'],
+                'email' => $validatedData['email'],
+                'username' => $validatedData['username'],
+                'password' => null,
+                'default_password' => Hash::make($validatedData['password']),
+                'role' => $validatedData['role'],
+            ]);
 
-    return $fileNameToStore;
-}
+            Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
+            return $user; // Return the user object
+        });
 
-/**
- * Generate a custom user ID based on the current year and latest user ID.
- *
- * @return string
- */
-private function generateUserId()
-{
-    $currentYear = date('Y');
-    $latestUser = DB::table('user')
-                    ->where('user_id', 'like', "{$currentYear}%")
-                    ->orderBy('user_id', 'desc')
-                    ->first();
+        // Send confirmation email
+        Mail::to($validatedData['email'])->send(new ConfirmRegistration($user));
+        Log::info('Sending confirmation email for user: ', $user->toArray()); // Log email sending
 
-    Log::info('Latest user found: ', (array)$latestUser); // Log latest user information
-
-    // Initialize newIdNumber to 1
-    $newIdNumber = '0000';
-
-    if ($latestUser) {
-        // Extract the last four digits and increment them
-        $latestIdNumber = substr($latestUser->user_id, -4); // Get the last 4 digits of user_id
-        Log::info('Latest ID Number: ' . $latestIdNumber); // Log the latest ID Number
-        
-        $incrementedIdNumber = (int)$latestIdNumber + 1; // Increment the ID Number
-        $newIdNumber = str_pad($incrementedIdNumber, 4, '0', STR_PAD_LEFT); // Format to 4 digits
+        return redirect()->route('accounts_table')->with('success', 'User registered successfully! A confirmation email has been sent.');
     }
 
-    // Concatenate year with new ID number
-    $generatedUserId = $currentYear . $newIdNumber; // e.g., '20240001'
-    Log::info('Generated User ID: ' . $generatedUserId); // Log the generated User ID
+    /**
+     * Handle file upload and return the filename.
+     *
+     * @param  \Illuminate\Http\UploadedFile  $file
+     * @return string
+     */
+    private function handleFileUpload($file)
+    {
+        $fileNameWithExt = $file->getClientOriginalName();
+        $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
+        $file->storeAs('public/userImage', $fileNameToStore);
+
+        return $fileNameToStore;
+    }
+
+    /**
+     * Generate a custom user ID based on the current year and latest user ID.
+     *
+     * @return string
+     */
+    private function generateUserId()
+    {
+        $currentYear = date('Y');
+        $latestUser = DB::table('user')
+                        ->where('user_id', 'like', "{$currentYear}%")
+                        ->orderBy('user_id', 'desc')
+                        ->first();
+
+        Log::info('Latest user found: ', (array)$latestUser); // Log latest user information
+
+        // Initialize newIdNumber to 1
+        $newIdNumber = '0000';
+
+        if ($latestUser) {
+            // Extract the last four digits and increment them
+            $latestIdNumber = substr($latestUser->user_id, -4); // Get the last 4 digits of user_id
+            Log::info('Latest ID Number: ' . $latestIdNumber); // Log the latest ID Number
+            
+            $incrementedIdNumber = (int)$latestIdNumber + 1; // Increment the ID Number
+            $newIdNumber = str_pad($incrementedIdNumber, 4, '0', STR_PAD_LEFT); // Format to 4 digits
+        }
+
+        // Concatenate year with new ID number
+        $generatedUserId = $currentYear . $newIdNumber; // e.g., '20240001'
+        Log::info('Generated User ID: ' . $generatedUserId); // Log the generated User ID
+        
+        return $generatedUserId; // Return the new User ID
+    }
+
+
+    public function confirmEmail($id)
+    {
+        Log::info('Email confirmation called for user ID: ' . $id); // Log the incoming ID
+
+        try {
+            // Find the user by ID
+            $user = User::find($id);
+            Log::info('User found: ', ['user' => $user]); // Log the found user details
+
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'User not found.');
+            }
+            
+            if ($user) {
+                $user->email_verified_at = now();
+                $user->save();
+                return redirect()->route('login')->with('success', 'Email has been confirmed!');
+            }
+
+            return redirect()->route('login')->with('error', 'User contact details not found.');
+        } catch (Exception $e) {
+            Log::error('Email confirmation error: ' . $e->getMessage());
+            return redirect()->route('login')->with('error', 'There was an error confirming your email.');
+        }
+    }
     
-    return $generatedUserId; // Return the new User ID
-}
-
-
-
-
-
-public function confirmEmail($id)
-{
-    Log::info('Email confirmation called for user ID: ' . $id); // Log the incoming ID
-
-    try {
-        // Find the user by ID
-        $user = User::find($id);
-        Log::info('User found: ', ['user' => $user]); // Log the found user details
-
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'User not found.');
-        }
-        
-        if ($user) {
-            $user->email_verified_at = now();
-            $user->save();
-            return redirect()->route('login')->with('success', 'Email has been confirmed!');
-        }
-
-        return redirect()->route('login')->with('error', 'User contact details not found.');
-    } catch (Exception $e) {
-        Log::error('Email confirmation error: ' . $e->getMessage());
-        return redirect()->route('login')->with('error', 'There was an error confirming your email.');
+    // for change default password
+    public function changePassword()
+    {
+        return view('account_management.change_password');
     }
-}
+
+    public function updatePassword(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+    
+        $user = Auth::user();
+    
+        // Check if the user is authenticated
+        if (!$user) {
+            return back()->with('error', 'User not authenticated.');
+        }
+    
+        // Check if the new password is the same as the default password
+        if (Hash::check($request->password, $user->default_password)) {
+            return back()->with('error', 'Your new password cannot be the same as the default password.');
+        }
+    
+        // Perform the password update within a transaction
+        DB::transaction(function () use ($request, $user) {
+            // Prepare the update data
+            $updateData = [
+                'password' => Hash::make($request->password), // Hash the new password
+                'default_password' => null, // Set default password to null
+            ];
+    
+            // Update the user's password and set default_password to null
+            User::where('user_id', $user->user_id)->update($updateData);
+        });
+    
+        // Redirect back to the dashboard with a success message
+        return redirect()->route('dashboard')->with('success', 'Password updated successfully!');
+    }
+    
+
 
 
 

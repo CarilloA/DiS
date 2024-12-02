@@ -76,12 +76,38 @@
                                 {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
                             </div>-->
                             <!-- Check and display low stock messages -->
-                            @if(!empty($lowStockMessages))
+                            {{-- @if(!empty($lowStockMessages))
                                 <div class="alert alert-warning">
                                     <strong>Low Stock Alerts:</strong>
                                     <ul>
                                         @foreach($lowStockMessages as $message)
-                                            <li>{{ $message }}</li>
+                                            <li>{{ $message }}
+                                                <button type="button" class="btn btn-warning" onclick="window.location.href='{{ route('purchase_table') }}'">click here</button>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif --}}
+                            @if(!empty($lowStoreStockMessages))
+                                <div class="alert alert-warning">
+                                    <strong>Low Stock Alerts:</strong>
+                                    <ul>
+                                        @foreach($lowStoreStockMessages as $message)
+                                            <li>{{ $message }}
+                                                <button type="button" class="btn btn-warning" onclick="window.location.href='{{ route('purchase_table') }}'">click here</button>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                            @if(!empty($lowStockroomStockMessages))
+                                <div class="alert alert-warning">
+                                    <strong>Low Stock Alerts:</strong>
+                                    <ul>
+                                        @foreach($lowStockroomStockMessages as $message)
+                                            <li>{{ $message }}
+                                                <button type="button" class="btn btn-warning" onclick="window.location.href='{{ route('purchase_table') }}'">click here</button>
+                                            </li>
                                         @endforeach
                                     </ul>
                                 </div>
@@ -104,7 +130,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h3>Stock Transfer Tracking</h3>
-                                        <canvas id="stockTransferTracking"></canvas>
+                                        <canvas id="stockTransferChart" width="400" height="200"></canvas>
+                                        {{-- <canvas id="stockTransferTracking"></canvas> --}}
                                     </div>
                                     <div class="col-md-6">
                                         <h3>Total Stock vs Total Sales Quantity</h3>
@@ -198,48 +225,46 @@
                                     }
                             
                                     // Stock Transfer Tracking
-                                    const stockTransferTrackingCtx = document.getElementById('stockTransferTracking')?.getContext('2d');
-                                    if (stockTransferTrackingCtx) {
-                                        new Chart(stockTransferTrackingCtx, {
-                                            type: 'line',
-                                            data: {
-                                                labels: {!! json_encode($stockTransfers->pluck('date')) !!}, // Dates as labels
-                                                datasets: [{
-                                                    label: 'Stock Transfers',
-                                                    data: {!! json_encode($stockTransfers->pluck('count')) !!}, // Transfer counts
-                                                    borderColor: '#64edbd',
-                                                    fill: false,
-                                                    backgroundColor: '#3a8f66',
-                                                }]
-                                            },
-                                            options: {
-                                                responsive: true,
-                                                plugins: { 
-                                                    legend: { 
-                                                        display: false,
-                                                        labels: { color: 'white' } // Legend label color
+                                    const ctx = document.getElementById('stockTransferChart').getContext('2d');
+                                    const transferData = @json($transferData); // Pass the data from the controller to JS
+                                    const labels = transferData.map(item => item.date); // Extract dates for x-axis
+                                    const quantities = transferData.map(item => item.quantity); // Extract transfer quantities
+
+                                    const stockTransferChart = new Chart(ctx, {
+                                        type: 'line', // You can change this to 'bar' or 'pie' based on your preference
+                                        data: {
+                                            labels: labels,
+                                            datasets: [{
+                                                label: 'Stock Transfer Quantity',
+                                                data: quantities,
+                                                borderColor: 'rgba(75, 192, 192, 1)',
+                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                x: {
+                                                    ticks: {
+                                                        color: 'white' // Set x-axis ticks color to white
                                                     }
                                                 },
-                                                scales: { 
-                                                    x: { 
-                                                        title: { 
-                                                            display: true, 
-                                                            text: 'Date', 
-                                                            color: 'white' // Title color for x-axis
-                                                        },
-                                                        ticks: { 
-                                                            color: 'white' // Tick labels color for x-axis
-                                                        }
-                                                    },
-                                                    y: { 
-                                                        ticks: { 
-                                                            color: 'white' // Tick labels color for y-axis
-                                                        }
+                                                y: {
+                                                    beginAtZero: true,
+                                                    ticks: {
+                                                        color: 'white' // Set y-axis ticks color to white
                                                     }
                                                 }
+                                            },
+                                            responsive: true,
+                                            plugins: {
+                                                legend: {
+                                                        position: 'top',
+                                                        labels: { color: 'white' } // Change label color for the legend
+                                                    },
                                             }
-                                        });
-                                    }
+                                        }
+                                    });
 
                                     const inventoryRestockCtx = document.getElementById('inventoryRestock')?.getContext('2d');
                                     if (inventoryRestockCtx) {

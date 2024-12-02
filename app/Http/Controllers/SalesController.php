@@ -123,143 +123,148 @@ class SalesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-{
-    // Validate the array input for multiple products
-    $validatedData = $request->validate([
-        'product_id' => 'required|array',
-        'product_id.*' => 'required|integer|exists:product,product_id',
-        'quantity' => 'required|array',
-        'quantity.*' => 'required|integer|min:1',
-        'grand_total_amount' => 'required|numeric',
-    ]);
-
-    // Get the user ID (assuming the user is logged in)
-    $userId = Auth::id();
-
-    // Start a transaction to ensure consistency between sales and inventory updates
-    DB::transaction(function () use ($userId, $validatedData) {
-        // Insert a single sale record with current timestamp
-        $salesId = $this->generateId('sales');
-        DB::table('sales')->insert([
-            'sales_id' => $salesId,
-            'user_id' => $userId,
-            'total_amount' => $validatedData['grand_total_amount'],
-            'sales_date' => now(),
+    {
+        // Validate the array input for multiple products
+        $validatedData = $request->validate([
+            'product_id' => 'required|array',
+            'product_id.*' => 'required|integer|exists:product,product_id',
+            'quantity' => 'required|array',
+            'quantity.*' => 'required|integer|min:1',
+            'total_amount' => 'required|array',
+            'total_amount.*' => 'required|numeric',
+            'grand_total_amount' => 'required|numeric',
         ]);
 
-        $salesDetails = [];
+        // Get the user ID (assuming the user is logged in)
+        $userId = Auth::id();
 
-        foreach ($validatedData['product_id'] as $index => $productId) {
-            $quantity = $validatedData['quantity'][$index];
-
-            // Retrieve inventory data for the product
-            $inventory = DB::table('inventory')
-                ->join('product', 'inventory.product_id', '=', 'product.product_id')
-                ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
-                ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
-                ->select('inventory.*', 'product.*', 'stockroom.*', 'stock_transfer.*')
-                ->where('inventory.product_id', $productId)
-                ->first();
-
-            if (!$inventory || $inventory->in_stock < $quantity) {
-                throw new \Exception("Not enough stock available for product ID: {$productId}");
-            }
-
-            $storeStock = $inventory->in_stock - $inventory->product_quantity;
-
-            // Check if additional stock transfer is needed
-            if ($storeStock < $quantity) {
-                $transferQuantity = $quantity - abs($storeStock); //abs() will make negative number absolute
-
-                // Insert into stock_transfer
-                DB::table('stock_transfer')->insert([
-                    'stock_transfer_id' => $this->generateId('stock_transfer'),
-                    'transfer_quantity' => $transferQuantity,
-                    'transfer_date' => now(),
-                    'product_id' => $productId,
-                    'user_id' => $userId,
-                    'from_stockroom_id' => $inventory->stockroom_id,
-                ]);
-
-                // Update stockroom product quantity
-                DB::table('stockroom')
-                    ->where('stockroom_id', $inventory->stockroom_id)
-                    ->decrement('product_quantity', $transferQuantity);
-
-                // Adjust store stock back to zero after transfer
-                $storeStock = 0;
-            }
-
-            // Generate a unique sales_details_id for this product
-            $salesDetailsId = $this->generateId('sales_details');
-
-            // Prepare data for sales_details
-            $salesDetails[] = [
-                'sales_details_id' => $salesDetailsId,
+        // Start a transaction to ensure consistency between sales and inventory updates
+        DB::transaction(function () use ($userId, $validatedData) {
+            // Insert a single sale record with current timestamp
+            $salesId = $this->generateId('sales');
+            DB::table('sales')->insert([
                 'sales_id' => $salesId,
-                'product_id' => $productId,
-                'inventory_id' => $inventory->inventory_id,
-                'sales_quantity' => $quantity,
-            ];
+                'user_id' => $userId,
+                'total_amount' => $validatedData['grand_total_amount'],
+                'sales_date' => now(),
+            ]);
 
-            // Update inventory for each product
-            DB::table('inventory')
-                ->where('product_id', $productId)
-                ->decrement('in_stock', $quantity);
-        }
+            $salesDetails = [];
 
-        // Bulk insert into sales_details
-        DB::table('sales_details')->insert($salesDetails);
-    });
+            foreach ($validatedData['product_id'] as $index => $productId) {
+                $quantity = $validatedData['quantity'][$index];
+                $amount = $validatedData['total_amount'][$index];
 
-    return redirect()->route('sales_table')->with('success', 'Sale completed successfully');
-}
+                // Retrieve inventory data for the product
+                $inventory = DB::table('inventory')
+                    ->join('product', 'inventory.product_id', '=', 'product.product_id')
+                    ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+                    ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+                    ->select('inventory.*', 'product.*', 'stockroom.*', 'stock_transfer.*')
+                    ->where('inventory.product_id', $productId)
+                    ->first();
 
+                if (!$inventory || $inventory->in_stock < $quantity) {
+                    throw new \Exception("Not enough stock available for product ID: {$productId}");
+                }
 
-public function search(Request $request)
-{
-    if ($request->ajax()) {
-        // Get the search input from the request
-        $search = $request->get('query');
-        //Log::info('Search Query:', ['query' => $search]);
+                $storeStock = $inventory->in_stock - $inventory->product_quantity;
 
-        // Query the sales table with necessary joins
-        $salesQuery = DB::table('sales_details')
-            ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
-            ->join('user', 'sales.user_id', '=', 'user.user_id')
-            ->join('product', 'sales_details.product_id', '=', 'product.product_id')
-            ->join('category', 'product.category_id', '=', 'category.category_id')
-            ->select('sales_details.*', 'sales.*', 'user.*', 'product.*', 'category.*');
+                // Check if additional stock transfer is needed
+                if ($storeStock < $quantity) {
+                    $transferQuantity = $quantity - abs($storeStock); //abs() will make negative number absolute
 
-        // Apply search filter if search query is present
-        if (!empty($search)) {
-            $salesQuery->where(function($query) use ($search) {
-                $query->where('sales_details.sales_details_id', 'LIKE', "%{$search}%")
-                      ->orWhere('sales.sales_id', 'LIKE', "%{$search}%")
-                      ->orWhere('user.first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('user.last_name', 'LIKE', "%{$search}%")
-                      ->orWhere('product.product_name', 'LIKE', "%{$search}%")
-                      ->orWhere('category.category_name', 'LIKE', "%{$search}%");
-            });
-        }
+                    // Insert into stock_transfer
+                    DB::table('stock_transfer')->insert([
+                        'stock_transfer_id' => $this->generateId('stock_transfer'),
+                        'transfer_quantity' => $transferQuantity,
+                        'transfer_date' => now(),
+                        'product_id' => $productId,
+                        'user_id' => $userId,
+                        'from_stockroom_id' => $inventory->stockroom_id,
+                    ]);
 
-        // Execute the query and get the results
-        $sales = $salesQuery->get();
+                    // Update stockroom product quantity
+                    DB::table('stockroom')
+                        ->where('stockroom_id', $inventory->stockroom_id)
+                        ->decrement('product_quantity', $transferQuantity);
 
-        // Log the sales query results
-        //Log::info('Sales Query Result:', ['result' => $sales]);
+                    // Adjust store stock back to zero after transfer
+                    $storeStock = 0;
+                }
 
-        // Decode the description JSON for each product
-        foreach ($sales as $sale) {
-            $sale->descriptionArray = json_decode($sale->description, true);
-        }
+                // Generate a unique sales_details_id for this product
+                $salesDetailsId = $this->generateId('sales_details');
 
-        // Return the results as a JSON response
-        return response()->json($sales);
+                // Prepare data for sales_details
+                $salesDetails[] = [
+                    'sales_details_id' => $salesDetailsId,
+                    'sales_id' => $salesId,
+                    'product_id' => $productId,
+                    'inventory_id' => $inventory->inventory_id,
+                    'sales_quantity' => $quantity,
+                    'amount' => $amount,
+                ];
+
+                // Update inventory for each product
+                DB::table('inventory')
+                    ->where('product_id', $productId)
+                    ->decrement('in_stock', $quantity);
+            }
+
+            // Bulk insert into sales_details
+            DB::table('sales_details')->insert($salesDetails);
+        });
+
+        return redirect()->route('sales_table')->with('success', 'Sale completed successfully');
     }
 
-    return view('sales_table');
-}
+
+    public function search(Request $request)
+    {
+        if ($request->ajax()) {
+            // Get the search input from the request
+            $search = $request->get('query');
+            //Log::info('Search Query:', ['query' => $search]);
+
+            // Query the sales table with necessary joins
+            $salesQuery = DB::table('sales_details')
+                ->join('sales', 'sales_details.sales_id', '=', 'sales.sales_id')
+                ->join('user', 'sales.user_id', '=', 'user.user_id')
+                ->join('product', 'sales_details.product_id', '=', 'product.product_id')
+                ->join('inventory', 'sales_details.inventory_id', '=', 'inventory.inventory_id')
+                ->join('category', 'product.category_id', '=', 'category.category_id')
+                ->select('sales_details.*', 'sales.*', 'user.*', 'product.*', 'category.*', 'inventory.*');
+
+            // Apply search filter if search query is present
+            if (!empty($search)) {
+                $salesQuery->where(function($query) use ($search) {
+                    $query->where('sales_details.sales_details_id', 'LIKE', "%{$search}%")
+                        ->orWhere('sales.sales_id', 'LIKE', "%{$search}%")
+                        ->orWhere('user.first_name', 'LIKE', "%{$search}%")
+                        ->orWhere('user.last_name', 'LIKE', "%{$search}%")
+                        ->orWhere('product.product_name', 'LIKE', "%{$search}%")
+                        ->orWhere('category.category_name', 'LIKE', "%{$search}%");
+                });
+            }
+
+            // Execute the query and get the results
+            $sales = $salesQuery->get();
+
+            // Log the sales query results
+            //Log::info('Sales Query Result:', ['result' => $sales]);
+
+            // Decode the description JSON for each product
+            foreach ($sales as $sale) {
+                $sale->descriptionArray = json_decode($sale->description, true);
+            }
+
+            // Return the results as a JSON response
+            return response()->json($sales);
+        }
+
+        return view('sales_table');
+    }
 
 
 

@@ -42,7 +42,13 @@ class PurchaseController extends Controller
             ->join('category', 'product.category_id', '=', 'category.category_id')
             ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
             ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
-            ->orderBy('updated_at', 'desc')
+            // Prioritize products that need restocking (either store or stockroom)
+            ->orderByRaw('
+            CASE 
+                WHEN inventory.in_stock - stockroom.product_quantity <= inventory.reorder_level THEN 1 
+                WHEN stockroom.product_quantity <= inventory.reorder_level THEN 2 
+                ELSE 3 
+            END, updated_at DESC')
             ->get();
 
         // Filter duplicates based on a unique key (e.g., product_id)
@@ -190,6 +196,7 @@ class PurchaseController extends Controller
         'purchase_price_per_unit' => ['required', 'numeric'],
         'sale_price_per_unit' => ['required', 'numeric'],
         'unit_of_measure' => ['required', 'string', 'max:15'],
+        'previous_quantity' => ['required', 'numeric', 'min:1'],
         'quantity' => ['required', 'numeric', 'min:1'],
         'update_supplier' => ['nullable', 'boolean'],
         'supplier_id' => 'required|exists:supplier,supplier_id',
@@ -208,6 +215,7 @@ class PurchaseController extends Controller
             'sale_price_per_unit' => $validatedData['sale_price_per_unit'],
             'unit_of_measure' => $validatedData['unit_of_measure'],
             'in_stock' => $inventory->in_stock + $validatedData['quantity'], // Increment stock
+            'updated_at' => now(),
         ]);
 
         $userId = Auth::id();
@@ -226,7 +234,7 @@ class PurchaseController extends Controller
         $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
         // Update stockroom details
         $stockroom->update([
-            'product_quantity' => $validatedData['quantity'],
+            'product_quantity' => $validatedData['previous_quantity'] + $validatedData['quantity'],
         ]);
 
         // Check if the supplier details need to be updated
