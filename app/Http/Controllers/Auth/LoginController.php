@@ -18,71 +18,81 @@ class LoginController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function login(Request $request)
-    {
-        // Validate the form data
-        $credentials = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    // Validate the form data
+    $credentials = $request->validate([
+        'username' => 'nullable|string',
+        'email' => 'nullable|string',
+        'password' => 'required|string',
+    ]);
 
-        // Fetch the user by username
-        $credential = User::where('username', $credentials['username'])->first();
+    // Fetch the user by email or username
+    $credential = User::where('email', $credentials['email'])
+        ->orWhere('username', $credentials['username'])
+        ->first();
 
-        // Check if user exists and if password is not null (i.e., default password exists)
-        if ($credential) {
+    // Check if user exists
+    if ($credential) {
+        if (Hash::check($credentials['password'], $credential->password)) {
+
             // Fetch the user and check if the user has valid email verification or is an administrator
             $user = User::where('user_id', $credential->user_id)->first();
             $userFKey = DB::table('user')
                 ->select('user.*')
                 ->where('user_id', '=',  $credential->user_id)
                 ->first();
-            if ($credential->role === 'Administrator' || $userFKey->email_verified_at !== null) {
-                // Check if the user has not updated their default password
-                if ($credential->password === null && $credential->default_password !== null) {
-                    // Check if the user entered the default password
-                    if (Hash::check($credentials['password'], $credential->default_password)) {
 
-                        // Fetch the user and check if the user has valid email verification or is an administrator
-                        $user = User::where('user_id', $credential->user_id)->first();
+            if ($userFKey) {
+                // Check if the email is verified
+                if ($credential->email_verified_at || $credential->user_roles === 'Administrator') {
+                    if ($credential->user_roles) {
                         // Log the user in
                         Auth::login($user);
+                        
+                        // Get all roles associated with the user
+                        $roles = explode(', ', $user->user_roles); // Converts the comma-separated string back into an array
 
-                        // After login, redirect to password change page
-                        return redirect()->route('password.change')->with('info', 'Please change your default password.');
-                    }
-                }
-            }else {
-                return back()->with('error', 'Your email is not verified. Please check your inbox.');
-            }
+                        // If the user has only one role, log them in directly
+                        if (count($roles) === 1) {
 
-            // Now, check if the password entered by the user matches the stored password
-            if (Hash::check($credentials['password'], $credential->password)) {
-                // Fetch the user and check if the user has valid email verification or is an administrator
-                $user = User::where('user_id', $credential->user_id)->first();
-                $userFKey = DB::table('user')
-                    ->select('user.*')
-                    ->where('user_id', '=',  $credential->user_id)
-                    ->first();
+                            // Perform the role update within a transaction
+                            DB::transaction(function () use ($user, $roles) {
+                                // Prepare the update data
+                                $updateData = [
+                                    'role' => $roles[0], //update the role fieild if the user's user_role is only 1
+                                ];
+                        
+                                // Update the user's role
+                                User::where('user_id', $user->user_id)->update($updateData);
+                            });
 
-                // Make sure the user exists and handle email verification or admin check
-                if ($userFKey) {
-                    if ($credential->role === 'Administrator' || 
-                        ($userFKey->email_verified_at !== null && $userFKey->email_verified_at !== '0000-00-00 00:00:00')) {
-                        // Log the user in
-                        Auth::login($user);
-
-                        return redirect()->intended('/dashboard')->with('success', 'You have successfully logged in.');
+                            Auth::login($user);
+                            return redirect('/dashboard')->with('success', "Successfully logged in as {$roles[0]}.");
+                        }
+                        
+                        // Pass roles to the view for selection
+                        return view('auth.login', [
+                            'roles' => $roles,
+                            'user' => $credential,
+                        ]);
                     } else {
-                        // Redirect if the email is not verified
-                        return back()->with('error', 'Your email is not verified. Please check your inbox.');
+                        return back()->with('error', 'Your account is not verified yet.');
                     }
+                } else {
+                    return back()->with('error', 'Your email is not verified. Please check your inbox.');
                 }
+            } else {
+                return back()->with('error', 'The provided credentials do not match our records.');
             }
+        } else {
+            return back()->with('error', 'Incorrect Entered Password. Please login again.');
         }
-
+    } else {
         // If login fails, redirect back with an error message
-        return back()->with('error', 'The provided credentials do not match our records.');
+        return back()->with('error', 'Incorrect Entered Email. Please login again.');
     }
+}
+
 
 
 
@@ -93,6 +103,19 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        // Perform the role update within a transaction
+        DB::transaction(function () use ($user) {
+            // Prepare the update data
+            $updateData = [
+                'role' => null,
+            ];
+    
+            // Update the user's role
+            User::where('user_id', $user->user_id)->update($updateData);
+        });
+
         Auth::logout(); // Log out the user
 
         $request->session()->invalidate(); // Invalidate the session
@@ -100,4 +123,45 @@ class LoginController extends Controller
 
         return redirect('/login'); // Redirect to login or any desired route
     }
+
+    public function selectRole(Request $request)
+{
+    $request->validate([
+        'role' => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    $user = Auth::user();
+
+    if ($user) {
+        // Check if password matches
+        if (Hash::check($request->password, $user->password)) {
+            // Verify the selected role is part of the user's roles
+            $roles = explode(', ', $user->user_roles); // Convert stored roles into an array
+            if (in_array($request->role, $roles)) {
+
+                // Perform the role update within a transaction
+                DB::transaction(function () use ($request, $user) {
+                    // Prepare the update data
+                    $updateData = [
+                        'role' => $request->role,
+                    ];
+            
+                    // Update the user's role
+                    User::where('user_id', $user->user_id)->update($updateData);
+                });
+
+                //session(['selected_role' => $request->role]); // Store the role in the session
+                return redirect('/dashboard')->with('success', "Successfully Logged in.");
+            } else {
+                return back()->with('error', 'Invalid role selection.');
+            }
+        } else {
+            return back()->with('error', 'Incorrect password. Please try again.');
+        }
+    } else {
+        return redirect()->route('login')->with('error', 'Invalid session. Please login again.');
+    }
+}
+
 }

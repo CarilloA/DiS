@@ -33,6 +33,7 @@ Route::post('password/reset', 'App\Http\Controllers\Auth\ResetPasswordController
 
 Auth::routes();
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/select-role', [App\Http\Controllers\Auth\LoginController::class, 'selectRole'])->name('select-role');
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'login'])->name('login');
 Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index']);
@@ -50,10 +51,15 @@ Route::middleware(['auth', 'check.default_password'])->group(function () {
 // Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 // // // Route::delete('/dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'destroy']);
 
+use App\Http\Controllers\RegisterAccountController;
+Route::resource('register_account', RegisterAccountController::class);
+Route::get('create', [RegisterAccountController::class, 'create'])->name('createAccount');
+
 use App\Http\Controllers\AccountManagementController;
 Route::resource('account_management', AccountManagementController::class);
 Route::get('confirm-email/{id}', [AccountManagementController::class, 'confirmEmail'])->name('confirm.email');
 Route::post('/resend-confirmation/{id}', [AccountManagementController::class, 'resendConfirmationEmail'])->name('resend_confirmation_email');
+Route::post('confirm_account/{id}', [AccountManagementController::class, 'confirmAccount'])->name('confirm_account');
 Route::get('accounts_table', [AccountManagementController::class, 'index'])->name('accounts_table');
 Route::get('create', [AccountManagementController::class, 'create'])->name('create_account');
 Route::delete('delete/{id}', [AccountManagementController::class, 'destroy'])->name('delete_account');

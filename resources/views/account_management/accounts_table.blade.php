@@ -112,7 +112,9 @@
                                 <th>Mobile Number</th>
                                 <th>User Role</th>
                                 <th>Email Verified At</th>
-                                <th colspan="2">Action</th>
+                                <th>Resend Link</th>
+                                <th>Confirm User Login</th>
+                                <th>Delete Account</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,7 +126,7 @@
                                         <td>{{ $data->username }}</td>
                                         <td>{{ $data->email }}</td>
                                         <td>{{ $data->mobile_number }}</td>
-                                        <td>{{ $data->role }}</td>
+                                        <td>{{ $data->user_roles }}</td>
                                         @if($data->email_verified_at !=null)
                                             <td>{{ $data->email_verified_at }}</td>
                                             <td><button type="button" class="btn btn-primary" disabled>Resend Link</button></td>
@@ -137,6 +139,11 @@
                                                 </form>
                                             </td>
                                         @endif
+                                        @if($data->user_roles ===null)
+                                            <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmModal{{ $data->user_id }}">Confirm Login</button></td>
+                                        @else
+                                            <td><button type="button" class="btn btn-primary" disabled>Confirm Login</button></td>
+                                        @endif
                                         <td>
                                             <!-- Trigger the modal with a button -->
                                             <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">
@@ -146,7 +153,69 @@
                                             </button>
                                         </td>
 
-                                        <!-- Modal -->
+                                        <div id="confirmModal{{ $data->user_id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Confirm User Account</h4>
+                                                        <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="{{ route('confirm_account', $data->user_id) }}" method="POST">
+                                                            @csrf
+                                        
+                                                            {{-- Identify which modal to open to display error alert --}}
+                                                            <input type="hidden" name="user_id" value="{{ $data->user_id }}">
+                                        
+                                                            <div class="below">
+                                                                <div class="row mb-3">
+                                                                    <label class="text" for="roles" class="col-md-4 col-form-label text-md-end">{{ __('Select User Roles:') }}</label>
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-check">
+                                                                            <input id="inventory_manager" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" name="roles[]" value="Inventory Manager">
+                                                                            <label for="inventory_manager" class="form-check-label">{{ __('Inventory Manager') }}</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input id="auditor" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" name="roles[]" value="Auditor">
+                                                                            <label for="auditor" class="form-check-label">{{ __('Auditor') }}</label>
+                                                                        </div>
+                                                                        @error('roles')
+                                                                            <span class="invalid-feedback" role="alert">
+                                                                                <strong>{{ $message }}</strong>
+                                                                            </span>
+                                                                        @enderror
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                        
+                                                            <!-- Modal Validation Error Alert Message -->
+                                                            @if ($errors->any() && old('user_id') == $data->user_id)
+                                                                <div class="alert alert-danger">
+                                                                    <ul>
+                                                                        @foreach ($errors->all() as $error)
+                                                                            <li>{{ $error }}</li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                </div>
+                                                                <script>
+                                                                    $(document).ready(function() {
+                                                                        $('#confirmModal{{ $data->user_id }}').modal('show');
+                                                                    });
+                                                                </script>
+                                                            @endif
+                                        
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                <button type="submit" class="btn btn-primary">Confirm User Account</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+
+                                        <!-- Delete Modal -->
                                         <div id="deleteModal{{ $data->user_id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <!-- Modal content-->

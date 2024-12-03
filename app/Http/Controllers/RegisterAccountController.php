@@ -13,52 +13,8 @@ use Illuminate\Support\Facades\Mail;
  use Illuminate\Support\Facades\Log;
  use Exception;
 
-class AccountManagementController extends Controller
+class RegisterAccountController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index() 
-    {
-        // Check if the user is logged in
-        if (!Auth::check()) {
-            // If the user is not logged in, redirect to login
-            return redirect('/login')->withErrors('You must be logged in.');
-        }
-    
-        // Fetch the logged-in user's credentials
-        $user = Auth::user();
-        
-        // Check if the user has credentials
-        if ($user) {
-            
-            // Check if the logged-in user is an Administrator
-            if ($user->role === "Administrator") {
-                // Join `user`, `credentials`, and `contact_details` to get user details
-                $userSQL = DB::table('user')
-                    ->select('user.*')
-                    ->where('role', '!=', 'Administrator')
-                    ->orwhere('role', '=', null)
-                    ->get();
-    
-                // Pass the user details to the view
-                return view('account_management.accounts_table', [
-                    'userSQL' => $userSQL,
-                ]);
-            } else {
-                // If the user is not an Administrator, redirect with an error
-                return redirect('/login')->withErrors('Unauthorized access.');
-            }
-        }
-    
-        // If credentials are not found, redirect with an error
-        return redirect('/login')->withErrors('Unauthorized access or missing credentials.');
-    }
-    
-    
-
     /**
      * Show the form for creating a new resource.
      *
@@ -66,7 +22,7 @@ class AccountManagementController extends Controller
      */
     public function create()
     {
-        return view('account_management.create_account');
+        return view('register_user_account.register_account');
     }
 
     /**
@@ -79,39 +35,26 @@ class AccountManagementController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'image_url' => ['nullable', 'image'],
             'first_name' => ['required', 'string', 'max:15'],
             'last_name' => ['required', 'string', 'max:15'],
-            'mobile_number' => ['required', 'digits:11', 'unique:user'],
             'email' => ['required', 'string', 'email', 'max:30', 'unique:user'],
-            'role' => ['required'],
-            'username' => ['required', 'string', 'max:15', 'unique:user'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // Handle file upload with a default image if no file is provided
-        $fileNameToStore = 'noimage.jpg'; 
-        if ($request->hasFile('image_url')) {
-            $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
-        }
 
         // Generate a custom user ID
         $userId = $this->generateUserId();
 
         // Use a transaction to ensure data integrity
-        $user = DB::transaction(function () use ($validatedData, $fileNameToStore, $userId) {
+        $user = DB::transaction(function () use ($validatedData, $userId) {
 
             // Create the user
             $user = User::create([
                 'user_id' => $userId,
                 'first_name' => $validatedData['first_name'],
                 'last_name' => $validatedData['last_name'],
-                'image_url' => $fileNameToStore,
-                'mobile_number' => $validatedData['mobile_number'],
                 'email' => $validatedData['email'],
-                'username' => $validatedData['username'],
                 'password' => Hash::make($validatedData['password']),
-                'role' => $validatedData['role'],
             ]);
 
             Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
@@ -122,24 +65,7 @@ class AccountManagementController extends Controller
         Mail::to($validatedData['email'])->send(new ConfirmRegistration($user));
         Log::info('Sending confirmation email for user: ', $user->toArray()); // Log email sending
 
-        return redirect()->route('accounts_table')->with('success', 'User registered successfully! A confirmation email has been sent.');
-    }
-
-    /**
-     * Handle file upload and return the filename.
-     *
-     * @param  \Illuminate\Http\UploadedFile  $file
-     * @return string
-     */
-    private function handleFileUpload($file)
-    {
-        $fileNameWithExt = $file->getClientOriginalName();
-        $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
-        $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
-        $file->storeAs('public/userImage', $fileNameToStore);
-
-        return $fileNameToStore;
+        return redirect('/login')->with('success', 'User registered successfully! A confirmation email has been sent to your email address.');
     }
 
     /**
@@ -238,73 +164,6 @@ class AccountManagementController extends Controller
             return redirect()->route('accounts_table')->with('error', 'Failed to resend confirmation email.');
         }
     }
-
-    public function confirmAccount(Request $request, $id)
-    {
-        // Find the user by their ID
-        $user = User::find($id);
-
-        if (!$user) {
-            return redirect()->route('accounts_table')->with('error', 'User not found.');
-        }
-
-        // Validate the input
-        $request->validate([
-            'roles' => 'required|array|min:1',
-            'roles.*' => 'in:Inventory Manager,Auditor',
-        ]);
-
-        // Perform the role update within a transaction
-        DB::transaction(function () use ($request, $user) {
-            // Prepare the update data
-            $updateData = [
-                'user_roles' => implode(', ', $request->roles), // Join the roles into a comma-separated string
-            ];
     
-            // Update the user's role
-            User::where('user_id', $user->user_id)->update($updateData);
-        });
-
-        return redirect()->route('accounts_table')->with('success', 'User account confirmed with roles: ' . implode(', ', $request->roles));
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request, $id)
-    {
-        // Validate admin credentials
-        $request->validate([
-            'admin_username' => 'required|string',
-            'admin_password' => 'required|string',
-        ]);
-
-        // Get the authenticated admin user
-        $admin = auth()->user();
-
-        // Check if the admin credentials are correct
-        if ($admin->username !== $request->admin_username || 
-            !Hash::check($request->admin_password, $admin->password)) {
-            // return redirect()->route('accounts_table')->with('error', 'Invalid admin credentials.');
-            return back()->withErrors(['confirm_password' => 'Invalid username or password'])->withInput(); //can be use for modal errors
-        }
-
-        // Find the user to be deleted
-        $user = User::find($id);
-
-        // Check if the user exists
-        if (!$user) {
-            return redirect()->route('accounts_table')->with('error', 'User not found.');
-        }
-
-        // Finally, delete the user
-        $user->delete();
-
-        return redirect()->route('accounts_table')->with('success', 'User deleted successfully.');
-    }
-
+    
 }

@@ -172,16 +172,31 @@
                         <!-- Login Form -->
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-                            
-                            <!-- Username Input -->
-                            <div class="mb-3">
+
+                             <!-- Username Input -->
+                             <div class="mb-3">
                                 <div class="input-group">
-                                    <input id="username" type="text" placeholder="Username" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username">
+                                    <input id="username" type="text" placeholder="Username" class="form-control @error('username') is-invalid @enderror" name="username">
                                     <span class="input-group-text" id="basic-addon1">
                                         <i class="fa fa-user fa-lg"></i>
                                     </span>
                                 </div>
                                 @error('username')
+                                    <span class="invalid-feedback" role="alert" style="color: #dc3545;">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            
+                            <!-- Email Input -->
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email">
+                                    <span class="input-group-text" id="basic-addon1">
+                                        <i class="fa fa-user fa-lg"></i>
+                                    </span>
+                                </div>
+                                @error('email')
                                     <span class="invalid-feedback" role="alert" style="color: #dc3545;">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -207,30 +222,55 @@
                             <div class="mb-4 d-flex justify-content-between align-items-center">
                                 <div class="ms-auto"> 
                                     @if (Route::has('password.request'))
-                                        <a class="forgot-password btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
-                                            {{ __('Forgot Password?') }}
+                                        <a class="forgot-password btn btn-link" href="{{ route('register_account.create') }}" style="color: #fff;">
+                                            {{ __('Register') }}
                                         </a>
                                     @endif
+                                </div>
+                                <div class="ms-auto"> 
+                                    <a class="createAccount btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
+                                        {{ __('Forgot Password?') }}
+                                    </a>
                                 </div>
                             </div>
 
                             <!-- Login Button -->
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-login">
+                                <button type="submit" class="btn btn-login mb-4">
                                     {{ __('Login') }}
                                 </button>
                             </div>
-
-                            <!-- Register Button with Gap -->
-                            <!--
-                            <div class="d-grid gap-2" style="margin-top: 10px;"> 
-                                <a class="btn btn-register" href="{{ route('register') }}">
-                                    {{ __('Register') }}
-                                </a>
-                            </div>
-                            -->
                         </form>
-                    </div> <!-- End of Login Form -->
+                        <form method="POST" action="{{ route('select-role') }}">
+                            @csrf
+                        
+                            {{-- Only display if user has roles --}}
+                            @if (!empty($roles))
+                                <!-- Confirm Password Input -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <input id="password" type="password" placeholder="Confirm Password" class="form-control" name="password" required>
+                                    </div>
+                                </div>
+                        
+                                <div class="mb-3">
+                                    <label for="role" style="color: #fff;">Choose a role to login:</label>
+                                    <select name="role" id="role" class="form-control" required>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role }}">{{ ucfirst($role) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                        
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-login mb-4">
+                                        {{ __('Login with Role') }}
+                                    </button>
+                                </div>
+                            @endif
+                        </form>
+                        
+                    </div>
                 </div>
             </div>
         </div>
