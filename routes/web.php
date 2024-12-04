@@ -54,6 +54,8 @@ Route::middleware(['auth', 'check.default_password'])->group(function () {
 use App\Http\Controllers\RegisterAccountController;
 Route::resource('register_account', RegisterAccountController::class);
 Route::get('create', [RegisterAccountController::class, 'create'])->name('createAccount');
+Route::get('/admin/register', [RegisterAccountController::class, 'showRegistrationForm'])->name('admin.register');
+Route::post('/admin/register', [RegisterAccountController::class, 'adminRegister'])->name('admin.register.submit');
 
 use App\Http\Controllers\AccountManagementController;
 Route::resource('account_management', AccountManagementController::class);

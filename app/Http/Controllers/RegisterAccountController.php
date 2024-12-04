@@ -15,6 +15,57 @@ use Illuminate\Support\Facades\Mail;
 
 class RegisterAccountController extends Controller
 {
+
+    // Show the registration form for admin users only
+    public function showRegistrationForm()
+    {
+        // Optionally, add logic to restrict access
+        if (env('ALLOW_ADMIN_REGISTRATION', false)) {
+            return view('register_user_account.admin_register');
+        }
+
+        abort(403, 'Unauthorized action.');
+    }
+
+    // Handle form submission for admin users only
+    public function adminRegister(Request $request)
+    {
+        $validator = $request->validate([
+            'first_name' => 'required|string|max:15',
+            'last_name' => 'required|string|max:15',
+            'email' => 'required|string|email|max:30|unique:user,email',
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'in:Administrator,Inventory Manager,Auditor',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Generate a custom user ID
+        $userId = $this->generateUserId();
+
+        // Use a transaction to ensure data integrity
+        $user = DB::transaction(function () use ($validator, $userId) {
+
+            // Create the user
+            $user = User::create([
+                'user_id' => $userId,
+                'first_name' => $validator['first_name'],
+                'last_name' => $validator['last_name'],
+                'email' => $validator['email'],
+                'user_roles' => implode(', ', $validator['roles']),
+                'password' => Hash::make($validator['password']),
+            ]);
+
+            Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
+            return $user; // Return the user object
+        });
+
+        // Send confirmation email
+        Mail::to($validator['email'])->send(new ConfirmRegistration($user));
+        Log::info('Sending confirmation email for user: ', $user->toArray()); // Log email sending
+
+        return redirect('/login')->with('success', 'User registered successfully! A confirmation email has been sent to your email address.');
+    }
+
     /**
      * Show the form for creating a new resource.
      *

@@ -172,26 +172,11 @@
                         <!-- Login Form -->
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-
-                             <!-- Username Input -->
-                             <div class="mb-3">
-                                <div class="input-group">
-                                    <input id="username" type="text" placeholder="Username" class="form-control @error('username') is-invalid @enderror" name="username">
-                                    <span class="input-group-text" id="basic-addon1">
-                                        <i class="fa fa-user fa-lg"></i>
-                                    </span>
-                                </div>
-                                @error('username')
-                                    <span class="invalid-feedback" role="alert" style="color: #dc3545;">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
                             
                             <!-- Email Input -->
                             <div class="mb-3">
                                 <div class="input-group">
-                                    <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email">
+                                    <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
                                     <span class="input-group-text" id="basic-addon1">
                                         <i class="fa fa-user fa-lg"></i>
                                     </span>

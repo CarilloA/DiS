@@ -39,8 +39,7 @@ class AccountManagementController extends Controller
                 // Join `user`, `credentials`, and `contact_details` to get user details
                 $userSQL = DB::table('user')
                     ->select('user.*')
-                    ->where('role', '!=', 'Administrator')
-                    ->orwhere('role', '=', null)
+                    ->whereRaw("user_roles NOT LIKE ?", ['%Administrator%'])  // Check that user_roles does not contain 'Administrator'
                     ->get();
     
                 // Pass the user details to the view

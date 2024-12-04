@@ -21,21 +21,18 @@ class LoginController extends Controller
 {
     // Validate the form data
     $credentials = $request->validate([
-        'username' => 'nullable|string',
-        'email' => 'nullable|string',
+        'email' => 'required|string',
         'password' => 'required|string',
     ]);
 
-    // Fetch the user by email or username
-    $credential = User::where('email', $credentials['email'])
-        ->orWhere('username', $credentials['username'])
-        ->first();
+    // Fetch the user by email
+    $credential = User::where('email', $credentials['email'])->first();
 
     // Check if user exists
     if ($credential) {
         if (Hash::check($credentials['password'], $credential->password)) {
 
-            // Fetch the user and check if the user has valid email verification or is an administrator
+            // Fetch the user and check if the user has valid email verification
             $user = User::where('user_id', $credential->user_id)->first();
             $userFKey = DB::table('user')
                 ->select('user.*')
@@ -43,9 +40,10 @@ class LoginController extends Controller
                 ->first();
 
             if ($userFKey) {
+                
                 // Check if the email is verified
-                if ($credential->email_verified_at || $credential->user_roles === 'Administrator') {
-                    if ($credential->user_roles) {
+                if ($credential->email_verified_at !== null) {
+                    if ($credential->user_roles !== null) {
                         // Log the user in
                         Auth::login($user);
                         
@@ -79,7 +77,7 @@ class LoginController extends Controller
                         return back()->with('error', 'Your account is not verified yet.');
                     }
                 } else {
-                    return back()->with('error', 'Your email is not verified. Please check your inbox.');
+                    return back()->with('error', 'Your email is not verified yet. Please check your inbox.');
                 }
             } else {
                 return back()->with('error', 'The provided credentials do not match our records.');
@@ -89,7 +87,7 @@ class LoginController extends Controller
         }
     } else {
         // If login fails, redirect back with an error message
-        return back()->with('error', 'Incorrect Entered Email. Please login again.');
+        return back()->with('error', 'Incorrect Entered Email. The user does not exist.');
     }
 }
 
