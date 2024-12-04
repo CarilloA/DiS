@@ -73,9 +73,11 @@ Route::post('/change-password', [AccountManagementController::class, 'updatePass
 
 use App\Http\Controllers\ProfileController;
 Route::resource('profile', ProfileController::class);
+Route::put('/profile/update/{field}', [ProfileController::class, 'update'])->name('profile.update'); //new
+
 Route::get('show_profile', [ProfileController::class, 'show'])->name('show_profile');
 Route::get('edit_profile/{id}', [ProfileController::class, 'edit'])->name('edit_profile');
-Route::put('update_profile/{id}', [ProfileController::class, 'update'])->name('update_profile');
+// Route::put('update_profile/{id}', [ProfileController::class, 'update'])->name('update_profile');
 
 use App\Http\Controllers\InventoryController;
 Route::resource('inventory', InventoryController::class);

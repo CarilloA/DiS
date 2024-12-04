@@ -31,11 +31,15 @@ class User extends Authenticatable
         'image_url', 
         'mobile_number',
         'email',
-        'username',
         'password',
         'role',
         'user_roles',
+        'permanent_address',
+        'current_address',
+        'emergency_contact',
+        'emergency_contact_number',
         'email_verified_at',
+        'email_verification_sent_at',
         'updated_at'
     ];
 

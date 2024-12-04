@@ -194,10 +194,10 @@ class AccountManagementController extends Controller
             }
 
             // Check if the registration time is within one hour
-            $createdAt = $user->created_at;
+            $createdAt = $user->email_verification_sent_at;
             $currentTime = now();
 
-            if ($currentTime->diffInHours($createdAt) > 1) {
+            if ($currentTime->diffInHours($createdAt) > 24) {
                 return redirect()->route('login')->with('error', 'This confirmation link has expired. Please request a new one.');
             }
 
@@ -227,9 +227,14 @@ class AccountManagementController extends Controller
         }
 
         try {
+
+            // Update the email
+            $user->update([
+                'email_verification_sent_at' => now(),
+            ]);
+
             // Send the confirmation email again
             Mail::to($user->email)->send(new ConfirmRegistration($user));
-            Log::info('Confirmation email resent to user: ' . $user->user_id);
 
             return redirect()->route('accounts_table')->with('success', 'Confirmation email resent.');
         } catch (\Exception $e) {

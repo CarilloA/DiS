@@ -107,7 +107,6 @@
                             <tr>
                                 <th>First Name</th>
                                 <th>Last Name</th>
-                                <th>Username</th>
                                 <th>Email</th>
                                 <th>Mobile Number</th>
                                 <th>User Role</th>
@@ -123,7 +122,6 @@
                                     <tr>
                                         <td>{{ $data->first_name }}</td>
                                         <td>{{ $data->last_name }}</td>
-                                        <td>{{ $data->username }}</td>
                                         <td>{{ $data->email }}</td>
                                         <td>{{ $data->mobile_number }}</td>
                                         <td>{{ $data->user_roles }}</td>
@@ -231,12 +229,6 @@
 
                                                             {{-- to identofy which modal to open to display error alert --}}
                                                             <input type="hidden" name="user_id" value="{{ $data->user_id }}">
-
-                                                            <!-- Admin Username Input -->
-                                                            <div class="form-group">
-                                                                <label for="admin_username">Admin Username</label>
-                                                                <input type="text" class="form-control" id="admin_username_{{ $data->user_id }}" name="admin_username" required>
-                                                            </div>
 
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group">

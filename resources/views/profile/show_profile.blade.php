@@ -6,115 +6,345 @@
 <style>
     body {
         background-image: url('/storage/images/bg-photo.jpeg');
-        background-size: cover; /* Cover the entire viewport */
-        background-position: center; /* Center the background image */
-        background-repeat: no-repeat; /* Prevent the image from repeating */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
-    /* Main content styling */
     .main-content {
-        padding: 20px; /* Add padding for inner spacing */
-        margin: 0 20px; /* Add left and right margin */
-        background-color: #565656; /* Light background for contrast */
-        border-radius: 5px; /* Slightly rounded corners */
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+        background: #565656;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        color: #fff;
     }
 
     h1.h2 {
-        color: #fff; /* Change this to your desired color */
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .card {
+        background-color: #3a3a3a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
     }
 
     .card-header {
-        background-color: #3a8f66; /* Blue background for headers */
-        color: white; /* White text for headers */
-        font-weight: bold; /* Bold text for headers */
+        background-color: #1abc9c;
+        color: #fff;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
     }
 
     .card-body {
-        padding: 1.5rem; /* Padding inside the card body */
-    }
-
-    .text-center {
-        text-align: center; /* Center text in the header and body */
-    }
-
-    /* Responsive image styling */
-    .profile-pic {
-        width: 100%; /* Full width */
-        height: auto; /* Maintain aspect ratio */
-        max-height: 150px; /* Maximum height for uniformity */
-        object-fit: cover; /* Cover the space without distortion */
-        border-radius: 5px; /* Optional: rounded corners for the image */
+        padding: 1.5rem;
     }
 
     .profile-pic {
-        width: 100px; /* Fixed width for the circular image */
-        height: 100px; /* Fixed height for the circular image */
-        object-fit: cover; /* Cover the space without distortion */
-        border-radius: 50%; /* Make the image circular */
-        border: 2px solid #1abc9c; /* Optional: add a border to the circle */
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #1abc9c;
+        margin-bottom: 15px;
+    }
+
+    .list-group-item {
+        background-color: transparent;
+        color: #fff;
+        border: none;
+    }
+
+    .iconBtn {
+        margin-left: 10px;
+        color: #1abc9c;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+    .iconBtn:hover {
+        color: #16a085;
     }
 
     @media (max-width: 768px) {
-        .container {
-            padding: 0 15px; /* Responsive padding on smaller screens */
+        .main-content {
+            padding: 15px;
         }
-        .col-md-4, .col-md-8 {
-            margin-bottom: 15px; /* Add spacing between cards on small screens */
+        .profile-pic {
+            width: 100px;
+            height: 100px;
         }
     }
 </style>
 
 <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
     <div class="main-content">
-        
         @include('common.alert')
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-            <h1 class="h2 mb-4 mt-2">Profile Management</h1>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+            <h1 class="h2">Profile Management</h1>
         </div>
+
         <div class="row">
+            <!-- User Profile Section -->
             <div class="col-md-4">
-                <!-- User Profile Card -->
-                <div class="card mb-4 shadow-sm" style="height: 15rem; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div class="text-center mt-3">
-                        <img src="{{ asset('storage/userImage/' . Auth::user()->image_url) }}" 
-                            alt="Profile Picture" 
-                            class="img-fluid profile-pic">
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title font-weight-bold">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h5>
-                        <a href="{{ url('edit_profile/'. Auth::user()->user_id) }}" class="btn" style="background-color: #3a8f66; color: #fff;">Edit Profile</a>
+                <div class="card text-center mb-4">
+                    <div class="card-body">
+                        <img src="{{ asset('storage/userImage/' . Auth::user()->image_url) }}" alt="Profile Picture" class="profile-pic">
+                        <h5 class="mt-3">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h5>
+                        <!-- Hidden Form for Editing -->
+                        <form id="image_url-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'image_url']) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <input type="file" name="image_url" class="form-control" accept="image/*">
+                            <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                            <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('image_url')">Cancel</button>
+                        </form>
+
+                        <button class="iconBtn" id="image_url-edit-btn" onclick="toggleEdit('image_url')">
+                            <i class="fa-solid fa-pen-to-square"></i> Update Profile Picture
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <!-- Credentials Card -->
-                <div class="card mb-4 shadow-sm" style="height: 15rem;">
-                    <h5 class="card-header text-center">My Credentials</h5>
-                    <div class="card-body text-center">
-                        <ul class="list-group list-group-flush text-center">
-                            <li class="list-group-item">Role: <strong>{{ Auth::user()->role }}</strong></li>
-                            <li class="list-group-item">Username: <strong>{{ Auth::user()->username }}</strong></li>
-                            <li class="list-group-item">Password: <strong>********</strong></li>
+            <!-- Credentials and Contact Details -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">My Credentials</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Role: <strong>{{ Auth::user()->user_roles }}</strong></li>
+                            <li class="list-group-item">Email: <strong>{{ Auth::user()->email }}</strong>
+                                <!-- Hidden Form for Editing -->
+                                <form id="email-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'email']) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="email" name="email" class="form-control" value="{{ Auth::user()->email }}">
+                                    <small class="text form-text text-light mt-2">
+                                        <p class="text">
+                                            Note: Please enter a verified email address.
+                                        </p>
+                                    </small>
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('email')">Cancel</button>
+                                </form>
+
+                                <button class="iconBtn" id="email-edit-btn" onclick="toggleEdit('email')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>
+                            <li class="list-group-item">Password: <strong>********</strong>
+                                <button class="iconBtn" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>                            
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="color: #000;">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('profile.update', ['field' => 'password']) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+
+                                    @if (isset($errors->getMessages()['current_password']) || isset($errors->getMessages()['new_password']) || isset($errors->getMessages()['new_password_confirmation']))
+                                        <div class="alert alert-danger">
+                                            <ul>
+                                                 @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                         </div>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#changePasswordModal').modal('show');
+                                            });
+                                        </script>
+                                    @endif
+
+                                    <!-- Current Password -->
+                                    <div class="mb-3">
+                                        <label for="current_password" class="form-label">Current Password *required</label>
+                                        <input type="password" name="current_password" class="form-control" id="current_password" required>
+                                        <small class="form-text text-danger mt-2" style="color: red">
+                                            <p class="text">
+                                                Note: Please enter yur current password for validation.
+                                            </p>
+                                        </small>
+                                    </div>
+
+                                    <!-- New Password -->
+                                    <div class="mb-3">
+                                        <label for="new_password" class="form-label">New Password *required</label>
+                                        <input type="password" name="new_password" class="form-control" id="new_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
+                                        <small class="form-text text-danger mt-2" style="color: red">
+                                            <p class="text">
+                                                Note: Please enter at least 8 characters with a number, symbol, capital letter, and small letter.
+                                            </p>
+                                        </small>
+                                    </div>
+
+                                    <!-- Confirm New Password -->
+                                    <div class="mb-3">
+                                        <label for="new_password_confirmation" class="form-label">Confirm New Password *required</label>
+                                        <input type="password" name="new_password_confirmation" class="form-control" id="new_password_confirmation" required>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Change Password</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card mb-4">
+                    <div class="card-header">Contact Details</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Mobile Number: <strong>{{ Auth::user()->mobile_number ?? 'Not yet set' }}</strong>
+                                 <!-- Hidden Form for Editing -->
+                                 <form id="mobile-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'mobile_number']) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="text" name="mobile_number" class="form-control" value="{{ Auth::user()->mobile_number }}" pattern="^09\d{9}$">
+                                    <small class="text form-text text-light mt-2">
+                                        <p class="text">
+                                            Note: Please enter a PH mobile number starting with '09' followed by 9 digits.
+                                        </p>
+                                    </small>
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('mobile')">Cancel</button>
+                                </form>
+
+                                <button class="iconBtn" id="mobile-edit-btn" onclick="toggleEdit('mobile')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>
+                            <li class="list-group-item">Permanent Address: <strong>{{ Auth::user()->permanent_address ?? 'Not yet set' }}</strong>
+                                <!-- Hidden Form for Editing -->
+                                <form id="permanent_address-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'permanent_address']) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="text" name="permanent_address" class="form-control" value="{{ Auth::user()->permanent_address }}">
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('permanent_address')">Cancel</button>
+                                </form>
+
+                                <button class="iconBtn" id="permanent_address-edit-btn" onclick="toggleEdit('permanent_address')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>
+                            <li class="list-group-item">Current Address: <strong>{{ Auth::user()->current_address ?? 'Not yet set' }}</strong>
+                                <!-- Hidden Form for Editing -->
+                                <form id="current_address-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'current_address']) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="text" name="current_address" class="form-control" value="{{ Auth::user()->current_address }}">
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('current_address')">Cancel</button>
+                                </form>
+
+                                <button class="iconBtn" id="current_address-edit-btn" onclick="toggleEdit('current_address')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Emergency Contact</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Contact Person: <strong>{{ Auth::user()->emergency_contact ?? 'Not yet set' }}</strong>
+                                <!-- Hidden Form for Editing -->
+                                <form id="emergency_contact-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'emergency_contact']) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="text" name="emergency_contact" class="form-control" value="{{ Auth::user()->emergency_contact }}" pattern="^[A-Z][a-z]+ [A-Z][a-z]+$">
+                                    <small class="text form-text text-light mt-2">
+                                        <p class="text">
+                                            Note: Please enter in a format of: Firstname Lastname (e.g. John Doe).
+                                        </p>
+                                    </small>
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('emergency_contact')">Cancel</button>
+                                </form>
+
+                                <button class="iconBtn" id="emergency_contact-edit-btn" onclick="toggleEdit('emergency_contact')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>
+                            <li class="list-group-item">Number: <strong>{{ Auth::user()->emergency_contact_number ?? 'Not yet set' }}</strong>
+                                <!-- Hidden Form for Editing -->
+                                <form id="emergency_contact_number-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'emergency_contact_number']) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="text" name="emergency_contact_number" class="form-control" value="{{ Auth::user()->emergency_contact_number }}" pattern="^09\d{9}$">
+                                    <small class="text form-text text-light mt-2">
+                                        <p class="text">
+                                            Note: Please enter a PH mobile number starting with '09' followed by 9 digits.
+                                        </p>
+                                    </small>
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('emergency_contact_number')">Cancel</button>
+                                </form>
+
+                                <button class="iconBtn" id="emergency_contact_number-edit-btn" onclick="toggleEdit('emergency_contact_number')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <!-- Contact Details Card -->
-                <div class="card mb-4 shadow-sm" style="height: 15rem;">
-                    <h5 class="card-header text-center">My Contact Details</h5>
-                    <ul class="list-group list-group-flush text-center">
-                        <li class="list-group-item">Mobile Number: <strong>{{ Auth::user()->mobile_number }}</strong></li>
-                        <li class="list-group-item">Email: <strong>{{ Auth::user()->email }}</strong></li>
-                    </ul>
-                </div>
-            </div>
         </div>
-    </div>   
+    </div>
 </div>
 
+<script>
+   function toggleEdit(field) {
+        const displayElement = document.querySelector(`#${field}-display`);
+        const formElement = document.querySelector(`#${field}-form`);
+        const editButton = document.querySelector(`#${field}-edit-btn`);
+
+        if (formElement.style.display === "none") {
+            formElement.style.display = "block";
+            if (displayElement) displayElement.style.display = "none";
+            if (editButton) editButton.style.display = "none"; // Hide the edit button
+        } else {
+            formElement.style.display = "none";
+            if (displayElement) displayElement.style.display = "block";
+            if (editButton) editButton.style.display = "inline-block"; // Show the edit button again
+        }
+    }
+
+</script>
+
+{{-- <a href="{{ url('edit_profile/'. Auth::user()->user_id) }}" class="btn" style="background-color: #3a8f66; color: #fff;">Edit Profile</a> --}}
 @endsection

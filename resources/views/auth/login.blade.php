@@ -37,7 +37,6 @@
         border: 2px solid white; 
         font-family: Arial, sans-serif;
         border: none !important; /* Remove border */
-
     }
 
     input:focus {
@@ -161,83 +160,88 @@
                     <img src="/storage/images/loginIMG.png" class="loginIMG img-fluid" alt="login.jpg">
 
                     <!-- Right Side: Login Form -->
-                    <div class="login-form w-50" style="color: white; margin-top: 20px;"> <!-- Added margin-top here -->
+                    <div class="login-form w-50" style="color: white; margin-top: 20px;">
                         <!-- Alert Messages -->
                         @include('common.alert')
                         <!-- Logo Image -->
                         <div class="text-center mb-4">
                             <img src="/storage/images/DiS_Logo.png" class="img-fluid" alt="logo" style="width: 25vw; height: auto; background: transparent;">
                         </div>
-                        <p class="mt-8" style="color: #fff">Login to your account</p>
-                        <!-- Login Form -->
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-                            
-                            <!-- Email Input -->
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
-                                    <span class="input-group-text" id="basic-addon1">
-                                        <i class="fa fa-user fa-lg"></i>
-                                    </span>
-                                </div>
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert" style="color: #dc3545;">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-
-                            <!-- Password Input -->
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <input id="password" type="password" placeholder="Password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-                                    <span class="input-group-text" id="basic-addon2">
-                                        <i class="fa fa-key fa-lg"></i>
-                                    </span>
-                                </div>
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert" style="color: #dc3545;">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-
-                            <!-- Remember Me & Forgot Password -->
-                            <div class="mb-4 d-flex justify-content-between align-items-center">
-                                <div class="ms-auto"> 
-                                    @if (Route::has('password.request'))
-                                        <a class="forgot-password btn btn-link" href="{{ route('register_account.create') }}" style="color: #fff;">
-                                            {{ __('Register') }}
-                                        </a>
-                                    @endif
-                                </div>
-                                <div class="ms-auto"> 
-                                    <a class="createAccount btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
-                                        {{ __('Forgot Password?') }}
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Login Button -->
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-login mb-4">
-                                    {{ __('Login') }}
-                                </button>
-                            </div>
-                        </form>
-                        <form method="POST" action="{{ route('select-role') }}">
-                            @csrf
+                        <div style="">
+                            <p class="mt-8" style="color: #fff">Login to your account</p>
                         
-                            {{-- Only display if user has roles --}}
+                            <!-- Only show login form if no roles are available -->
+                            @if (empty($roles))
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
+                                
+                                <!-- Email Input -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+                                        <span class="input-group-text" id="basic-addon1">
+                                            <i class="fa fa-user fa-lg"></i>
+                                        </span>
+                                    </div>
+                                    @error('email')
+                                        <span class="invalid-feedback" role="alert" style="color: #dc3545;">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <!-- Password Input -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <input id="password" type="password" placeholder="Password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                        <span class="input-group-text" id="basic-addon2">
+                                            <i class="fa fa-key fa-lg"></i>
+                                        </span>
+                                    </div>
+                                    @error('password')
+                                        <span class="invalid-feedback" role="alert" style="color: #dc3545;">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <!-- Remember Me & Forgot Password -->
+                                <div class="mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="ms-auto"> 
+                                        @if (Route::has('password.request'))
+                                            <a class="forgot-password btn btn-link" href="{{ route('register_account.create') }}" style="color: #fff;">
+                                                {{ __('Register') }}
+                                            </a>
+                                        @endif
+                                    </div>
+                                    <div class="ms-auto"> 
+                                        <a class="createAccount btn btn-link" href="{{ route('password.request') }}" style="color: #fff;">
+                                            {{ __('Forgot Password?') }}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Login Button -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-login mb-4">
+                                        {{ __('Login') }}
+                                    </button>
+                                </div>
+                            </form>
+                            @endif
+                        
+                            <!-- Only show role selection form if roles are available -->
                             @if (!empty($roles))
+                            <form method="POST" action="{{ route('select-role') }}">
+                                @csrf
+                                
                                 <!-- Confirm Password Input -->
                                 <div class="mb-3">
                                     <div class="input-group">
                                         <input id="password" type="password" placeholder="Confirm Password" class="form-control" name="password" required>
                                     </div>
                                 </div>
-                        
+                                
                                 <div class="mb-3">
                                     <label for="role" style="color: #fff;">Choose a role to login:</label>
                                     <select name="role" id="role" class="form-control" required>
@@ -246,15 +250,16 @@
                                         @endforeach
                                     </select>
                                 </div>
-                        
+                                
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-login mb-4">
                                         {{ __('Login with Role') }}
                                     </button>
                                 </div>
+                            </form>
                             @endif
-                        </form>
                         
+                        </div>
                     </div>
                 </div>
             </div>

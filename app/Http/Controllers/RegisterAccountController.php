@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\ConfirmRegistration;
 use Illuminate\Support\Facades\Mail;
- use Illuminate\Support\Facades\Log;
- use Exception;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class RegisterAccountController extends Controller
 {
@@ -53,6 +53,7 @@ class RegisterAccountController extends Controller
                 'email' => $validator['email'],
                 'user_roles' => implode(', ', $validator['roles']),
                 'password' => Hash::make($validator['password']),
+                'email_verification_sent_at' => now(),
             ]);
 
             Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
@@ -106,6 +107,7 @@ class RegisterAccountController extends Controller
                 'last_name' => $validatedData['last_name'],
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
+                'email_verification_sent_at' => now(),
             ]);
 
             Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
@@ -153,68 +155,65 @@ class RegisterAccountController extends Controller
         return $generatedUserId; // Return the new User ID
     }
 
-    public function confirmEmail($id)
-    {
-        Log::info('Email confirmation called for user ID: ' . $id); // Log the incoming ID
+    // public function confirmEmail($id)
+    // {
+    //     Log::info('Email confirmation called for user ID: ' . $id); // Log the incoming ID
 
-        try {
-            // Find the user by ID
-            $user = User::find($id);
-            Log::info('User found: ', ['user' => $user]); // Log the found user details
+    //     try {
+    //         // Find the user by ID
+    //         $user = User::find($id);
+    //         Log::info('User found: ', ['user' => $user]); // Log the found user details
 
-            if (!$user) {
-                return redirect()->route('login')->with('error', 'User not found.');
-            }
+    //         if (!$user) {
+    //             return redirect()->route('login')->with('error', 'User not found.');
+    //         }
 
-            // Check if the email is already verified
-            if ($user->email_verified_at) {
-                return redirect()->route('login')->with('error', 'Email has already been confirmed.');
-            }
+    //         // Check if the email is already verified
+    //         if ($user->email_verified_at) {
+    //             return redirect()->route('login')->with('error', 'Email has already been confirmed.');
+    //         }
 
-            // Check if the registration time is within one hour
-            $createdAt = $user->created_at;
-            $currentTime = now();
+    //         // Check if the email verification timestamp is within one hour
+    //         if ($user->email_verification_sent_at && $user->email_verification_sent_at->diffInHours(now()) > 1) {
+    //             return redirect()->route('login')->with('error', 'This confirmation link has expired. Please request a new one.');
+    //         }
 
-            if ($currentTime->diffInHours($createdAt) > 1) {
-                return redirect()->route('login')->with('error', 'This confirmation link has expired. Please request a new one.');
-            }
+    //         // If within an hour, proceed with the email confirmation
+    //         $user->email_verified_at = now(); // Set the email_verified_at timestamp
+    //         $user->save(); // Save the changes
 
-            // If within an hour, proceed with the email confirmation
-            $user->email_verified_at = now(); // Set the email_verified_at timestamp
-            $user->save(); // Save the changes
+    //         return redirect()->route('login')->with('success', 'Email has been confirmed!');
+    //     } catch (Exception $e) {
+    //         Log::error('Email confirmation error: ' . $e->getMessage());
+    //         return redirect()->route('login')->with('error', 'There was an error confirming your email.');
+    //     }
+    // }
 
-            return redirect()->route('login')->with('success', 'Email has been confirmed!');
-        } catch (Exception $e) {
-            Log::error('Email confirmation error: ' . $e->getMessage());
-            return redirect()->route('login')->with('error', 'There was an error confirming your email.');
-        }
-    }
+    // public function resendConfirmationEmail($id)
+    // {
+    //     // Find the user by their ID
+    //     $user = User::find($id);
 
-    public function resendConfirmationEmail($id)
-    {
-        // Find the user by their ID
-        $user = User::find($id);
+    //     if (!$user) {
+    //         return redirect()->route('accounts_table')->with('error', 'User not found.');
+    //     }
 
-        if (!$user) {
-            return redirect()->route('accounts_table')->with('error', 'User not found.');
-        }
+    //     // Check if the user has already verified their email
+    //     if ($user->email_verified_at != null) {
+    //         return redirect()->route('accounts_table')->with('error', 'Email already verified.');
+    //     }
 
-        // Check if the user has already verified their email
-        if ($user->email_verified_at != null) {
-            return redirect()->route('accounts_table')->with('error', 'Email already verified.');
-        }
+    //     try {
+    //         // Send the confirmation email again
+    //         Mail::to($user->email)->send(new ConfirmRegistration($user));
+    //         Log::info('Confirmation email resent to user: ' . $user->user_id);
 
-        try {
-            // Send the confirmation email again
-            Mail::to($user->email)->send(new ConfirmRegistration($user));
-            Log::info('Confirmation email resent to user: ' . $user->user_id);
-
-            return redirect()->route('accounts_table')->with('success', 'Confirmation email resent.');
-        } catch (\Exception $e) {
-            Log::error('Failed to resend confirmation email for user ' . $user->user_id . ': ' . $e->getMessage());
-            return redirect()->route('accounts_table')->with('error', 'Failed to resend confirmation email.');
-        }
-    }
+    //         return redirect()->route('accounts_table')->with('success', 'Confirmation email resent.');
+    //     } catch (\Exception $e) {
+    //         Log::error('Failed to resend confirmation email for user ' . $user->user_id . ': ' . $e->getMessage());
+    //         return redirect()->route('accounts_table')->with('error', 'Failed to resend confirmation email.');
+    //     }
+    // }
     
     
 }
