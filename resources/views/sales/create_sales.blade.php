@@ -67,7 +67,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="text card-header text-center" style="background-color: #3a8f66; color: #fff; font-weight: bold;">{{ __('Create Sales') }}</div>
+                <div class="text card-header text-center" style="background-color: #3a8f66; color: #fff; font-weight: bold;">{{ __('Sale Transaction') }}</div>
                 <div class="card-body">
                     @include('common.alert')
 

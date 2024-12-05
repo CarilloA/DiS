@@ -62,9 +62,15 @@ Route::resource('account_management', AccountManagementController::class);
 Route::get('confirm-email/{id}', [AccountManagementController::class, 'confirmEmail'])->name('confirm.email');
 Route::post('/resend-confirmation/{id}', [AccountManagementController::class, 'resendConfirmationEmail'])->name('resend_confirmation_email');
 Route::post('confirm_account/{id}', [AccountManagementController::class, 'confirmAccount'])->name('confirm_account');
+Route::post('reject_account/{id}', [AccountManagementController::class, 'rejectAccount'])->name('reject_account');
 Route::get('accounts_table', [AccountManagementController::class, 'index'])->name('accounts_table');
 Route::get('create', [AccountManagementController::class, 'create'])->name('create_account');
 Route::delete('delete/{id}', [AccountManagementController::class, 'destroy'])->name('delete_account');
+
+//filter accounts
+Route::get('/account-management/confirm_reject_filter', [AccountManagementController::class, 'confirmRejectFilter'])->name('accounts_table.confirm_reject_filter');
+Route::get('/account-management/resend_link_filter', [AccountManagementController::class, 'resendLinkFilter'])->name('accounts_table.resend_link_filter');
+
 
 // for change default password
 Route::get('/change-password', [AccountManagementController::class, 'changePassword'])->name('password.change');
@@ -82,11 +88,12 @@ Route::get('edit_profile/{id}', [ProfileController::class, 'edit'])->name('edit_
 use App\Http\Controllers\InventoryController;
 Route::resource('inventory', InventoryController::class);
 Route::get('inventory_table', [InventoryController::class, 'index'])->name('inventory_table');
-// Route::get('show/{id}', [InventoryController::class, 'show'])->name('show_product');
-// Route::get('create', [InventoryController::class, 'create'])->name('create_product');
-// Route::get('edit_product/{id}', [InventoryController::class, 'edit'])->name('edit_product');
-// Route::put('update_product/{id}', [InventoryController::class, 'update'])->name('update_product');
 Route::delete('delete/{id}', [InventoryController::class, 'destroy'])->name('delete_product');
+
+//filter inventory
+Route::get('product_name_filter', [InventoryController::class, 'productNameFilter'])->name('product_name_filter');
+Route::get('category_filter', [InventoryController::class, 'CategoryFilter'])->name('category_filter');
+Route::get('supplier_filter', [InventoryController::class, 'supplierFilter'])->name('supplier_filter');
 
 use App\Http\Controllers\PurchaseController;
 Route::resource('purchase', PurchaseController::class);
@@ -94,6 +101,13 @@ Route::get('purchase_table', [PurchaseController::class, 'index'])->name('purcha
 Route::get('create', [PurchaseController::class, 'create'])->name('create_product');
 Route::post('restock', [PurchaseController::class, 'restock'])->name('restock_product');
 Route::post('restock_store_product', [PurchaseController::class, 'restockStoreProduct'])->name('restock_store_product');
+
+//filter products table
+Route::get('filter_product_name', [PurchaseController::class, 'productNameFilter'])->name('filter_product_name');
+Route::get('filter_category', [PurchaseController::class, 'CategoryFilter'])->name('filter_category');
+Route::get('filter_supplier', [PurchaseController::class, 'supplierFilter'])->name('filter_supplier');
+Route::get('filter_store_restock', [PurchaseController::class, 'storeRestockFilter'])->name('filter_store_restock');
+Route::get('filter_stockroom_restock', [PurchaseController::class, 'stockroomRestockFilter'])->name('filter_stockroom_restock');
 
 
 use App\Http\Controllers\SalesController;
@@ -124,6 +138,7 @@ Route::post('/submit/step4', [InventoryAuditController::class, 'submitStep4'])->
 
 use App\Http\Controllers\ReportController;
 Route::post('inventory_report', [ReportController::class, 'generateReport'])->name('report.generate');
+Route::post('generate_filter_report', [ReportController::class, 'generateFilteredReport'])->name('generate_filter_report');
 Route::post('audit_inventory_report', [ReportController::class, 'generateAuditReport'])->name('audit.report.generate');
 
 use App\Http\Controllers\ScrapController;

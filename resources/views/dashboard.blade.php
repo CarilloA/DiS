@@ -20,16 +20,6 @@
         z-index: 1; /* Ensure content is above background */
     }
 
-    /* Ensure that the card does not overflow horizontally 
-    .card {
-        max-width: 100%;
-        overflow: hidden;
-        color: #fff !important;
-        background-color: #565656 !important; 
-        border-radius: 8px; 
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
-    }*/
-
     .main-content {
         padding: 20px; /* Add padding for inner spacing */
         margin: 0 20px; /* Add left and right margin */
@@ -44,26 +34,53 @@
             margin-right: 0; /* Remove margin on smaller screens */
         }
     }
+
+    /* Styling for the notification bell and restock buttons */
+    .notification-bell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 20px; /* Space between the buttons */
+    }
+
+    /* Styling for each restock button */
+    .restock-button {
+        position: relative; /* This allows absolute positioning for the notification circle */
+        background-color: #3a8f66; /* Button background color */
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+    }
+
+    .restock-button:hover {
+        background-color: #64edbd; /* Darker shade on hover */
+        color: #000;
+    }
+
+    /* Styling for the notification circle */
+    .notification-circle {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        background-color: #64edbd; /* Red background for the notification */
+        color: #000;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 12px;
+        line-height: 20px; /* Center the number inside the circle */
+    }
+
 </style>
 
 @section('content')
     <div class="content"> <!-- Add the content class to prevent overlap -->
-        {{-- @if(Auth::user()->role == "Administrator")
-            <div class="container">
-                <!-- Alert Messages -->
-                @include('common.alert')
-                <div class="row justify-content-center">
-                    <div class="col">
-                        <div class="main-content">
-                            <!--<div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
-                                {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
-                            </div>-->
-                            <h1 class="text-center mt-4 mb-4">Admin Dashboard</h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif --}}
 
         @if(Auth::user()->role == "Inventory Manager")
             <div class="container">
@@ -72,46 +89,31 @@
                 <div class="row justify-content-center">
                     <div class="col">
                         <div class="main-content">
-                            <!--<div class="text card-header text-center text-light fw-bold" style="background-color: #3a8f66">
-                                {{ __("DASHBOARD: EMPLOYEE ACCOUNT LIST") }}
-                            </div>-->
-                            <!-- Check and display low stock messages -->
-                            {{-- @if(!empty($lowStockMessages))
-                                <div class="alert alert-warning">
-                                    <strong>Low Stock Alerts:</strong>
-                                    <ul>
-                                        @foreach($lowStockMessages as $message)
-                                            <li>{{ $message }}
-                                                <button type="button" class="btn btn-warning" onclick="window.location.href='{{ route('purchase_table') }}'">click here</button>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif --}}
-                            @if(!empty($lowStoreStockMessages))
-                                <div class="alert alert-warning" style="height: 6em">
-                                    <strong>Low Store Product Stock Alerts:</strong>
-                                    <ul>
-                                        @foreach($lowStoreStockMessages as $message)
-                                            <li>{{ $message }}
-                                                <button type="button" class="btn btn-warning" onclick="window.location.href='{{ route('purchase_table') }}'">click here</button>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                            @if(!empty($lowStockroomStockMessages))
-                                <div class="alert alert-warning" style="height: 6em">
-                                    <strong>Low Stockroom Product Stock Alerts:</strong>
-                                    <ul>
-                                        @foreach($lowStockroomStockMessages as $message)
-                                            <li>{{ $message }}
-                                                <button type="button" class="btn btn-warning" onclick="window.location.href='{{ route('purchase_table') }}'">click here</button>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
+
+                            <!-- Notification Bell with Restock Buttons -->
+                            <div class="notification-bell">
+                                <!-- Restock Store Button with Notification -->
+                                <button class="restock-button" onclick="window.location.href='{{ route('filter_store_restock') }}'">
+                                    <i class="fas fa-bell"></i> Restock Store
+                                    @if($lowStoreStockCount > 0)
+                                        <span class="notification-circle">
+                                            {{ $lowStoreStockCount }}
+                                        </span>
+                                    @endif
+                                </button>
+
+                                <!-- Restock Stockroom Button with Notification -->
+                                <button class="restock-button" onclick="window.location.href='{{ route('filter_stockroom_restock') }}'">
+                                    <i class="fas fa-bell"></i> Restock Stockroom
+                                    @if($lowStockroomStockCount > 0)
+                                        <span class="notification-circle">
+                                            {{ $lowStockroomStockCount }}
+                                        </span>
+                                    @endif
+                                </button>
+                            </div>
+
+
 
                             {{-- start graphs --}}
                             <div class="container">
@@ -121,21 +123,10 @@
                                         <h3>Stocks in Stockroom vs Store</h3>
                                         <canvas id="inventoryOverview"></canvas>
                                     </div>
-                                    <div class="col">
-                                        <h3>Low Stocks</h3>
-                                        <canvas id="inventoryRestock" width="400" height="200"></canvas>
-                                    </div>
-                                </div>
-
-                                <div class="row">
                                     <div class="col-md-6">
                                         <h3>Stock Transfer Tracking</h3>
                                         <canvas id="stockTransferChart" width="400" height="200"></canvas>
                                         {{-- <canvas id="stockTransferTracking"></canvas> --}}
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h3>Total Stock vs Total Sales Quantity</h3>
-                                        <canvas id="stockSalesChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -183,47 +174,7 @@
                                             }
                                         });
                                     }
-
-                                    const stockSalesCtx = document.getElementById('stockSalesChart')?.getContext('2d');
-                                    if (stockSalesCtx) {
-                                        const totalStock = {{ $totalStock }};
-                                        const totalSalesQuantity = {{ $totalSalesQuantity }};  // Total sales quantity
-
-                                        new Chart(stockSalesCtx, {
-                                            type: 'doughnut',
-                                            data: {
-                                                labels: [
-                                                    `Quantity on Hand: ${totalStock}`, // Display label and value
-                                                    `Sales Quantity: ${totalSalesQuantity}` // Display label and value
-                                                ],
-                                                datasets: [{
-                                                    data: [totalStock, totalSalesQuantity], // Data points
-                                                    backgroundColor: ['#3a8f66', '#64edbd'] // Colors
-                                                }]
-                                            },
-                                            options: {
-                                                responsive: true,
-                                                cutout: '75%', // Set this to control the size of the hole in the center
-                                                aspectRatio: 2.2,
-                                                plugins: { 
-                                                    legend: { 
-                                                        position: 'top',
-                                                        labels: { color: 'white' } // Legend label color
-                                                    },
-                                                    tooltip: {
-                                                        callbacks: {
-                                                            // Format tooltip to show the value in addition to the label
-                                                            label: function(tooltipItem) {
-                                                                const value = tooltipItem.raw;
-                                                                return `${tooltipItem.label}: ${value}`; // Show the label with value
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
-                            
+                                    
                                     // Stock Transfer Tracking
                                     const ctx = document.getElementById('stockTransferChart').getContext('2d');
                                     const transferData = @json($transferData); // Pass the data from the controller to JS
@@ -247,12 +198,28 @@
                                                 x: {
                                                     ticks: {
                                                         color: 'white' // Set x-axis ticks color to white
+                                                    },
+                                                    title: {
+                                                        display: true,  // Enable the title to be displayed on the y-axis
+                                                        text: 'Date Transferred',  // Set the y-axis label
+                                                        color: 'white',  // Color of the y-axis title
+                                                        font: {
+                                                            size: 14,  // Font size for the label
+                                                        }
                                                     }
                                                 },
                                                 y: {
                                                     beginAtZero: true,
                                                     ticks: {
                                                         color: 'white' // Set y-axis ticks color to white
+                                                    },
+                                                    title: {
+                                                        display: true,  // Enable the title to be displayed on the y-axis
+                                                        text: 'Product Quantity',  // Set the y-axis label
+                                                        color: 'white',  // Color of the y-axis title
+                                                        font: {
+                                                            size: 14,  // Font size for the label
+                                                        }
                                                     }
                                                 }
                                             },
@@ -265,66 +232,6 @@
                                             }
                                         }
                                     });
-
-                                    const inventoryRestockCtx = document.getElementById('inventoryRestock')?.getContext('2d');
-                                    if (inventoryRestockCtx) {
-                                        const productNames = {!! json_encode($productNames) !!};
-                                        const storeStock = {!! json_encode($storeStock) !!};
-                                        const stockroomStock = {!! json_encode($stockroomStock) !!};
-
-                                        new Chart(inventoryRestockCtx, {
-                                            type: 'bar',
-                                            data: {
-                                                labels: productNames, // Array of product names
-                                                datasets: [{
-                                                    label: 'Store Stock',
-                                                    data: storeStock, // Store stock values
-                                                    backgroundColor: '#3a8f66', // Green color for store stock
-                                                }, {
-                                                    label: 'Stockroom Stock',
-                                                    data: stockroomStock, // Stockroom stock values
-                                                    backgroundColor: '#64edbd', // blue green color for stockroom stock
-                                                }]
-                                            },
-                                            options: {
-                                                responsive: true,
-                                                plugins: { 
-                                                    legend: {
-                                                        position: 'top',
-                                                        labels: { color: 'white' } // Change label color for the legend
-                                                    },
-                                                    tooltip: {
-                                                        callbacks: {
-                                                            label: function(tooltipItem) {
-                                                                const value = tooltipItem.raw;
-                                                                return `${tooltipItem.label}: ${value}`; // Display product and its value
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                scales: {
-                                                    x: { 
-                                                        title: { 
-                                                            display: true, 
-                                                            text: 'Products', 
-                                                            color: 'white' 
-                                                        }
-                                                    },
-                                                    y: {
-                                                        title: { 
-                                                            display: true, 
-                                                            text: 'Stock Level', 
-                                                            color: 'white' 
-                                                        },
-                                                        ticks: {
-                                                            beginAtZero: true,
-                                                            color: 'white' // Color the y-axis ticks white
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
                                 });
                             </script>
                             

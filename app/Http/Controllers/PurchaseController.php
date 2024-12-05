@@ -59,10 +59,47 @@ class PurchaseController extends Controller
             $item->descriptionArray = json_decode($item->description, true); // Decode the JSON description into an array
         }
 
+        // low stocks
+        $lowStoreStockMessages = [];
+        $lowStockroomStockMessages = [];
+        $processedProducts = [];  // Array to track products that have been processed
+
+        // stockroom restock
+        foreach ($productJoined as $data) {
+            $restockStore = $data->in_stock - $data->product_quantity;
+        
+            // Check if the product is low on stock for either the store or the stockroom
+            if (!in_array($data->product_id, $processedProducts)) {
+                if ($restockStore <= $data->reorder_level) {
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+        
+                if ($data->product_quantity <= $data->reorder_level) {
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+            }
+        }    
+            
+        // Pass the counts to the view
+        $lowStoreStockCount = count($lowStoreStockMessages);
+        $lowStockroomStockCount = count($lowStockroomStockMessages);
+
+        // Fetch all categories for filtering or display purposes
+        $categories = Category::all();
+
+        // Fetch all categories for filtering or display purposes
+        $suppliers = Supplier::all();
+
         // Pass the inventory managers and user role to the view
         return view('purchase.purchase_table', [
             'userSQL' => $userSQL,
             'productJoined' => $productJoined,
+            'categories' => $categories,
+            'suppliers' => $suppliers,
+            'lowStoreStockCount' => $lowStoreStockCount,
+            'lowStockroomStockCount' => $lowStockroomStockCount,
         ]);
     }
 
@@ -300,9 +337,403 @@ public function restockStoreProduct(Request $request)
     return redirect()->route('purchase_table')->with('success', 'Restock successful.');
 }
 
+    // filter
+    public function productNameFilter(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect('/login')->withErrors('You must be logged in.');
+        }
+    
+        // SQL `user` to get Inventory Manager details
+        $userSQL = DB::table('user')
+            ->select('user.*')
+            ->where('role', '=', 'Inventory Manager')
+            ->get();
+    
+        $selectedLetters = $request->get('letters', []); // Get selected letters from the request
+    
+        // Build the query with a letter filter
+        $inventoryQuery = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->orderBy('product.product_name', 'asc')
+            ->distinct();
+    
+        // Apply filtering by letters if any letters are selected
+        if (!empty($selectedLetters)) {
+            $inventoryQuery->where(function ($query) use ($selectedLetters) {
+                foreach ($selectedLetters as $letter) {
+                    $query->orWhere('product.product_name', 'like', $letter . '%');
+                }
+            });
+        }
+    
+        $productJoined = $inventoryQuery->get();
+        $productJoined = $productJoined->unique('product_id');
+    
+        // Decode description for each inventory item
+        foreach ($productJoined as $item) {
+            $item->descriptionArray = json_decode($item->description, true);
+        }
 
+        // low stocks
+        $lowStoreStockMessages = [];
+        $lowStockroomStockMessages = [];
+        $processedProducts = [];  // Array to track products that have been processed
+
+        // stockroom restock
+        foreach ($productJoined as $data) {
+            $restockStore = $data->in_stock - $data->product_quantity;
+        
+            // Check if the product is low on stock for either the store or the stockroom
+            if (!in_array($data->product_id, $processedProducts)) {
+                if ($restockStore <= $data->reorder_level) {
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+        
+                if ($data->product_quantity <= $data->reorder_level) {
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+            }
+        }    
+            
+        // Pass the counts to the view
+        $lowStoreStockCount = count($lowStoreStockMessages);
+        $lowStockroomStockCount = count($lowStockroomStockMessages);
+    
+        // Fetch categories and suppliers for filtering or display purposes
+        $categories = Category::all();
+        $suppliers = Supplier::all();
+    
+        return view('purchase.purchase_table', [
+            'userSQL' => $userSQL,
+            'productJoined' => $productJoined,
+            'categories' => $categories,
+            'suppliers' => $suppliers,
+            'lowStoreStockCount' => $lowStoreStockCount,
+            'lowStockroomStockCount' => $lowStockroomStockCount,
+        ]);
+    }
     
 
+
+    public function CategoryFilter(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect('/login')->withErrors('You must be logged in.');
+        }
+
+        // Fetch Inventory Manager details
+        $userSQL = DB::table('user')
+            ->select('user.*')
+            ->where('role', '=', 'Inventory Manager')
+            ->get();
+
+        // Get the selected category IDs
+        $categoryIds = $request->get('category_ids', []);
+
+        // If no categories are selected, show all products
+        $productJoined = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->orderBy('product.product_name', 'asc');
+
+        if (!empty($categoryIds)) {
+            $productJoined = $productJoined->whereIn('category.category_id', $categoryIds);
+        }
+
+        $productJoined = $productJoined->distinct()->get();
+
+        // Filter unique products
+        $productJoined = $productJoined->unique('product_id');
+
+        // Decode the description for each inventory item
+        foreach ($productJoined as $item) {
+            $item->descriptionArray = json_decode($item->description, true);
+        }
+
+        // low stocks
+        $lowStoreStockMessages = [];
+        $lowStockroomStockMessages = [];
+        $processedProducts = [];  // Array to track products that have been processed
+
+        // stockroom restock
+        foreach ($productJoined as $data) {
+            $restockStore = $data->in_stock - $data->product_quantity;
+        
+            // Check if the product is low on stock for either the store or the stockroom
+            if (!in_array($data->product_id, $processedProducts)) {
+                if ($restockStore <= $data->reorder_level) {
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+        
+                if ($data->product_quantity <= $data->reorder_level) {
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+            }
+        }    
+            
+        // Pass the counts to the view
+        $lowStoreStockCount = count($lowStoreStockMessages);
+        $lowStockroomStockCount = count($lowStockroomStockMessages);
+
+        // Fetch all for filtering or display purposes
+        $categories = Category::all();
+        $suppliers = Supplier::all();
+
+        return view('purchase.purchase_table', [
+            'userSQL' => $userSQL,
+            'productJoined' => $productJoined,
+            'categories' => $categories,
+            'suppliers' => $suppliers,
+            'lowStoreStockCount' => $lowStoreStockCount,
+            'lowStockroomStockCount' => $lowStockroomStockCount,
+        ]);
+    }
+
+
+
+    public function supplierFilter(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect('/login')->withErrors('You must be logged in.');
+        }
+
+        // Fetch Inventory Manager details
+        $userSQL = DB::table('user')
+            ->select('user.*')
+            ->where('role', '=', 'Inventory Manager')
+            ->get();
+
+        // Get the selected category IDs
+        $supplierIds = $request->get('supplier_ids', []);
+
+        // If no categories are selected, show all products
+        $productJoined = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->orderBy('product.product_name', 'asc');
+
+        if (!empty($supplierIds)) {
+            $productJoined = $productJoined->whereIn('supplier.supplier_id', $supplierIds);
+        }
+
+        $productJoined = $productJoined->distinct()->get();
+
+        // Filter unique products
+        $productJoined = $productJoined->unique('product_id');
+
+        // Decode the description for each inventory item
+        foreach ($productJoined as $item) {
+            $item->descriptionArray = json_decode($item->description, true);
+        }
+
+        // low stocks
+        $lowStoreStockMessages = [];
+        $lowStockroomStockMessages = [];
+        $processedProducts = [];  // Array to track products that have been processed
+
+        // stockroom restock
+        foreach ($productJoined as $data) {
+            $restockStore = $data->in_stock - $data->product_quantity;
+
+            // Check if the product is low on stock for either the store or the stockroom
+            if (!in_array($data->product_id, $processedProducts)) {
+                if ($restockStore <= $data->reorder_level) {
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+
+                if ($data->product_quantity <= $data->reorder_level) {
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+            }
+        }    
+            
+        // Pass the counts to the view
+        $lowStoreStockCount = count($lowStoreStockMessages);
+        $lowStockroomStockCount = count($lowStockroomStockMessages);
+
+        // Fetch all for filtering or display purposes
+        $categories = Category::all();
+        $suppliers = Supplier::all();
+
+        return view('purchase.purchase_table', [
+            'userSQL' => $userSQL,
+            'productJoined' => $productJoined,
+            'categories' => $categories,
+            'suppliers' => $suppliers,
+            'lowStoreStockCount' => $lowStoreStockCount,
+            'lowStockroomStockCount' => $lowStockroomStockCount,
+        ]);
+    }
+    
+    // store restock filter
+    public function storeRestockFilter()
+    {
+        // Check if the user is logged in
+         if (!Auth::check()) {
+            // If the user is not logged in, redirect to login
+            return redirect('/login')->withErrors('You must be logged in.');
+        }
+
+        // SQL `user` to get Inventory Manager details
+        $userSQL = DB::table('user')
+        ->select('user.*')
+        ->where('role', '=', 'Inventory Manager')
+        ->get();
+
+        $productJoined = Inventory::with('product')
+        ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+        ->select('inventory.*', 'product.*', 'stock_transfer.*', 'stockroom.*')
+        ->where(DB::raw('inventory.in_stock - stockroom.product_quantity'), '<=', DB::raw('reorder_level'))  // For store products that need restocking
+        ->get();
+
+        // Filter duplicates based on a unique key (e.g., product_id)
+        $productJoined = $productJoined->unique('product_id');
+
+        // Decode the description for each inventory item
+        foreach ($productJoined as $item) {
+            $item->descriptionArray = json_decode($item->description, true); // Decode the JSON description into an array
+        }
+
+        // low stocks
+        $lowStoreStockMessages = [];
+        $lowStockroomStockMessages = [];
+        $processedProducts = [];  // Array to track products that have been processed
+
+        // stockroom restock
+        foreach ($productJoined as $data) {
+            $restockStore = $data->in_stock - $data->product_quantity;
+        
+            // Check if the product is low on stock for either the store or the stockroom
+            if (!in_array($data->product_id, $processedProducts)) {
+                if ($restockStore <= $data->reorder_level) {
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+        
+                if ($data->product_quantity <= $data->reorder_level) {
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+            }
+        }    
+            
+        // Pass the counts to the view
+        $lowStoreStockCount = count($lowStoreStockMessages);
+        $lowStockroomStockCount = count($lowStockroomStockMessages);
+
+        // Fetch all categories for filtering or display purposes
+        $categories = Category::all();
+
+        // Fetch all categories for filtering or display purposes
+        $suppliers = Supplier::all();
+
+        // Pass the inventory managers and user role to the view
+        return view('purchase.purchase_table', [
+            'userSQL' => $userSQL,
+            'productJoined' => $productJoined,
+            'categories' => $categories,
+            'suppliers' => $suppliers,
+            'lowStoreStockCount' => $lowStoreStockCount,
+            'lowStockroomStockCount' => $lowStockroomStockCount,
+        ]);
+    }
+
+    // stockroom restock filter
+    public function stockroomRestockFilter()
+    {
+        // Check if the user is logged in
+        if (!Auth::check()) {
+            // If the user is not logged in, redirect to login
+            return redirect('/login')->withErrors('You must be logged in.');
+        }
+
+        // SQL `user` to get Inventory Manager details
+        $userSQL = DB::table('user')
+        ->select('user.*')
+        ->where('role', '=', 'Inventory Manager')
+        ->get();
+
+        $productJoined = Inventory::with('product')
+        ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+        ->select('inventory.*', 'product.*', 'stock_transfer.*', 'stockroom.*')
+        ->where('stockroom.product_quantity', '<=', DB::raw('reorder_level')) // For stockroom products that need restocking
+        ->get();
+
+        // Filter duplicates based on a unique key (e.g., product_id)
+        $productJoined = $productJoined->unique('product_id');
+
+        // Decode the description for each inventory item
+        foreach ($productJoined as $item) {
+            $item->descriptionArray = json_decode($item->description, true); // Decode the JSON description into an array
+        }
+
+        // low stocks
+        $lowStoreStockMessages = [];
+        $lowStockroomStockMessages = [];
+        $processedProducts = [];  // Array to track products that have been processed
+
+        // stockroom restock
+        foreach ($productJoined as $data) {
+            $restockStore = $data->in_stock - $data->product_quantity;
+        
+            // Check if the product is low on stock for either the store or the stockroom
+            if (!in_array($data->product_id, $processedProducts)) {
+                if ($restockStore <= $data->reorder_level) {
+                    $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+        
+                if ($data->product_quantity <= $data->reorder_level) {
+                    $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
+                    $processedProducts[] = $data->product_id; // Mark as processed
+                }
+            }
+        }    
+            
+        // Pass the counts to the view
+        $lowStoreStockCount = count($lowStoreStockMessages);
+        $lowStockroomStockCount = count($lowStockroomStockMessages);
+
+        // Fetch all categories for filtering or display purposes
+        $categories = Category::all();
+
+        // Fetch all categories for filtering or display purposes
+        $suppliers = Supplier::all();
+
+        // Pass the inventory managers and user role to the view
+        return view('purchase.purchase_table', [
+            'userSQL' => $userSQL,
+            'productJoined' => $productJoined,
+            'categories' => $categories,
+            'suppliers' => $suppliers,
+            'lowStoreStockCount' => $lowStoreStockCount,
+            'lowStockroomStockCount' => $lowStockroomStockCount,
+        ]);
+    }
 
 
 

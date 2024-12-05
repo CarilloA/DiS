@@ -140,11 +140,6 @@ class ProfileController extends Controller
             return redirect('/login')->with('success', 'Password updated successfully!');
         }
 
-        // Validate the input based on the field being updated
-        // $request->validate([
-        //     $field => 'required|string|max:255',
-        // ]);
-
         // Handle the image field separately
         if ($field === 'image_url' && $request->hasFile('image_url')) {
 

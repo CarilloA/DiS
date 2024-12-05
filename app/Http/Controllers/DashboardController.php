@@ -39,19 +39,6 @@ class DashboardController extends Controller
             $user = auth()->user();
             $user_id = $user->user_id;
 
-            // Fetch products and their inventory details
-            // $inventoryJoined = Inventory::with('product')->get();
-
-            // Prepare an array to hold low stock messages
-            // $lowStockMessages = [];
-
-            // stockroom restock
-            // foreach ($inventoryJoined as $data) {
-            //     if ($data->in_stock <= $data->reorder_level) {
-            //         $lowStockMessages[] = "Product ID {$data->product_id} ({$data->product->product_name}) is low on stock. Please restock.";
-            //     }
-            // }
-
             $productJoined = DB::table('inventory')
             ->join('product', 'inventory.product_id', '=', 'product.product_id')
             ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
@@ -68,22 +55,24 @@ class DashboardController extends Controller
             // stockroom restock
             foreach ($productJoined as $data) {
                 $restockStore = $data->in_stock - $data->product_quantity;
-                
+            
                 // Check if the product is low on stock for either the store or the stockroom
                 if (!in_array($data->product_id, $processedProducts)) {
                     if ($restockStore <= $data->reorder_level) {
-                        // Add product to low store stock messages
                         $lowStoreStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the store.";
                         $processedProducts[] = $data->product_id; // Mark as processed
                     }
-
+            
                     if ($data->product_quantity <= $data->reorder_level) {
-                        // Add product to low stockroom stock messages
                         $lowStockroomStockMessages[] = "Product ID {$data->product_id} ({$data->product_name}) is low on stock. Please restock the stockroom.";
                         $processedProducts[] = $data->product_id; // Mark as processed
                     }
                 }
             }
+            
+            // Pass the counts to the view
+            $lowStoreStockCount = count($lowStoreStockMessages);
+            $lowStockroomStockCount = count($lowStockroomStockMessages);
 
         
 
@@ -214,7 +203,8 @@ class DashboardController extends Controller
                 // Pass the inventory managers and user role to the view
                 return view('dashboard', [
                     'userSQL' => $userSQL,
-                    //'lowStockMessages' => $lowStockMessages,
+                    'lowStoreStockCount' => $lowStoreStockCount,
+                    'lowStockroomStockCount' => $lowStockroomStockCount,
                     'lowStoreStockMessages' => $lowStoreStockMessages,
                     'lowStockroomStockMessages' => $lowStockroomStockMessages,
                     'totalProducts' => $totalProducts,

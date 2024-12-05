@@ -51,6 +51,41 @@
         border-color: #28a745; /* Border color */
     }
 
+    /* Styling for each restock button */
+    .restock-button {
+        position: relative; /* This allows absolute positioning for the notification circle */
+        background-color: #198754; /* Button background color */
+        color: white;
+        padding: 7px 12px;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+    }
+
+    .restock-button:hover {
+        background-color: #64edbd; /* Darker shade on hover */
+        color: #000;
+    }
+
+    /* Styling for the notification circle */
+    .notification-circle {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        background-color: #64edbd; /* Red background for the notification */
+        color: #000;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 12px;
+        line-height: 20px; /* Center the number inside the circle */
+    }
+
     
 </style>
 
@@ -65,6 +100,108 @@
                     <h1 class="h2">Product Management</h1>
                     <a class="btn btn-success" href="{{ route('purchase.create') }}">+ Add Product</a>
                 </div>
+
+                <!-- Dropdown with Buttons -->
+            <div class="row d-flex justify-content-end">
+                <div class="col-auto">
+                    <div class="dropdown">
+
+                        <!-- Display all -->
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success mb-2" href="{{ route('purchase_table') }}">Display All</a>
+                        </div>
+
+                       <!-- Product Name Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="productNameDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Product Name
+                            </button>
+                            <ul class="dropdown-menu p-3" aria-labelledby="productNameDropdown" style="min-width: 250px;">
+                                <form id="letterFilterForm" method="GET" action="{{ route('filter_product_name') }}">
+                                    <div class="row">
+                                        @foreach(range('A', 'Z') as $letter)
+                                            <div class="col-4">
+                                                <label class="dropdown-item">
+                                                    <input type="checkbox" name="letters[]" value="{{ $letter }}"> {{ $letter }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </div>
+                                </form>
+                            </ul>
+                        </div>
+
+                        <!-- Category Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Category
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                                <form id="filterForm" method="GET" action="{{ route('filter_category') }}">
+                                    @foreach($categories as $category)
+                                        <li>
+                                            <label class="dropdown-item">
+                                                <input type="checkbox" name="category_ids[]" value="{{ $category->category_id }}"> 
+                                                {{ $category->category_name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                    <li class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+
+                        <!-- Supplier Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="supplierDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Supplier
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="supplierDropdown">
+                                <form id="filterForm" method="GET" action="{{ route('filter_supplier') }}">
+                                    @foreach($suppliers as $supplier)
+                                        <li>
+                                            <label class="dropdown-item">
+                                                <input type="checkbox" name="supplier_ids[]" value="{{ $supplier->supplier_id }}"> 
+                                                {{ $supplier->company_name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                    <li class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group">
+                            <!-- Restock Store Button with Notification -->
+                            <button class="restock-button mb-2" style="margin-right: 1em;" onclick="window.location.href='{{ route('filter_store_restock') }}'">
+                                <i class="fas fa-bell"></i> Restock Store
+                                @if($lowStoreStockCount > 0)
+                                    <span class="notification-circle">
+                                        {{ $lowStoreStockCount }}
+                                    </span>
+                                @endif
+                            </button>
+
+                            <!-- Restock Stockroom Button with Notification -->
+                            <button class="restock-button mb-2" onclick="window.location.href='{{ route('filter_stockroom_restock') }}'">
+                                <i class="fas fa-bell"></i> Restock Stockroom
+                                @if($lowStockroomStockCount > 0)
+                                    <span class="notification-circle">
+                                        {{ $lowStockroomStockCount }}
+                                    </span>
+                                @endif
+                            </button>                    
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                 <table class="table table-responsive mt-4">
                     <thead>

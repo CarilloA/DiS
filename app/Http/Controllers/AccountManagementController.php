@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\ConfirmRegistration;
+use App\Mail\RejectRegistration;
 use Illuminate\Support\Facades\Mail;
  use Illuminate\Support\Facades\Log;
  use Exception;
@@ -36,15 +37,31 @@ class AccountManagementController extends Controller
             
             // Check if the logged-in user is an Administrator
             if ($user->role === "Administrator") {
+
+                // Get the total number of users that need to be confirmed/rejected
+                $pendingConfirmRejectCount = DB::table('user')
+                ->whereNull('user_roles')
+                ->count();
+
+                // Get the total number of users that need to be confirmed/rejected
+                $pendingResendLinkCount = DB::table('user')
+                ->whereNull('email_verified_at')
+                ->where('user_roles', 'NOT LIKE', '%Administrator%')
+                ->count();
+
                 // Join `user`, `credentials`, and `contact_details` to get user details
                 $userSQL = DB::table('user')
-                    ->select('user.*')
-                    ->whereRaw("user_roles NOT LIKE ?", ['%Administrator%'])  // Check that user_roles does not contain 'Administrator'
-                    ->get();
+                ->select('user.*')
+                ->whereNotNull('created_at')
+                ->where('user_roles', 'NOT LIKE', '%Administrator%') // Exclude Administrators
+                ->orWhere('user_roles', '=', null)
+                ->get();
     
                 // Pass the user details to the view
                 return view('account_management.accounts_table', [
                     'userSQL' => $userSQL,
+                    'pendingConfirmRejectCount' => $pendingConfirmRejectCount,
+                    'pendingResendLinkCount' => $pendingResendLinkCount,
                 ]);
             } else {
                 // If the user is not an Administrator, redirect with an error
@@ -55,6 +72,55 @@ class AccountManagementController extends Controller
         // If credentials are not found, redirect with an error
         return redirect('/login')->withErrors('Unauthorized access or missing credentials.');
     }
+
+    public function confirmRejectFilter()
+{
+    // Fetch users with 'user_roles' as null
+    $userSQL = DB::table('user')
+        ->select('user.*')
+        ->whereNull('user_roles')
+        ->get();
+
+    // Count users with 'user_roles' as null
+    $pendingConfirmRejectCount = $userSQL->count();
+
+    // Get the total number of users that need to be confirmed/rejected
+    $pendingResendLinkCount = DB::table('user')
+        ->whereNull('email_verified_at')
+        ->count();
+
+    // Pass the data to the view
+    return view('account_management.accounts_table', [
+        'userSQL' => $userSQL,
+        'pendingConfirmRejectCount' => $pendingConfirmRejectCount,
+        'pendingResendLinkCount' => $pendingResendLinkCount, // Pass the count here
+    ]);
+}
+
+public function resendLinkFilter()
+{
+    // Fetch users with 'user_roles' as null
+    $userSQL = DB::table('user')
+        ->whereNull('email_verified_at')
+        ->get();
+
+    // Count users with 'email_verified_at' as null
+    $pendingResendLinkCount = $userSQL->count();
+
+    // Get the total number of users that need to be confirmed/rejected
+    $pendingConfirmRejectCount = DB::table('user')
+        ->whereNull('user_roles')
+        ->count();
+
+    // Pass the data to the view
+    return view('account_management.accounts_table', [
+        'userSQL' => $userSQL,
+        'pendingResendLinkCount' => $pendingResendLinkCount,
+        'pendingConfirmRejectCount' => $pendingConfirmRejectCount, // Pass the count here
+    ]);
+}
+
+
     
     
 
@@ -254,9 +320,15 @@ class AccountManagementController extends Controller
 
         // Validate the input
         $request->validate([
+            'admin_password' => 'required|string',
             'roles' => 'required|array|min:1',
             'roles.*' => 'in:Inventory Manager,Auditor',
         ]);
+
+        // Check if the admin's current password is correct
+        if (!Hash::check($request->admin_password, auth()->user()->password)) {
+            return back()->withErrors(['admin_password' => 'Error: Admin password is incorrect.'])->withInput();
+        }
 
         // Perform the role update within a transaction
         DB::transaction(function () use ($request, $user) {
@@ -272,6 +344,39 @@ class AccountManagementController extends Controller
         return redirect()->route('accounts_table')->with('success', 'User account confirmed with roles: ' . implode(', ', $request->roles));
     }
 
+    public function rejectAccount(Request $request, $id)
+    {
+        // Find the user by their ID
+        $user = User::find($id);
+
+        if (!$user) {
+            return redirect()->route('accounts_table')->with('error', 'User not found.');
+        }
+
+        // Validate the input
+        $request->validate([
+            'admin_password' => 'required|string',
+        ]);
+
+        // Check if the admin's current password is correct
+        if (!Hash::check($request->admin_password, auth()->user()->password)) {
+            return back()->withErrors(['admin_password' => 'Error: Admin password is incorrect.'])->withInput();
+        }
+
+        try {
+            // Send the rejection email
+            Mail::to($user->email)->send(new RejectRegistration($user));
+
+            // Finally, delete the user
+            $user->delete();
+
+            return redirect()->route('accounts_table')->with('success', 'Rejection email sent. The account will be remove from our records');
+        } catch (\Exception $e) {
+            Log::error('Failed to send rejection email for user ' . $user->id . ': ' . $e->getMessage());
+            return redirect()->route('accounts_table')->with('error', 'Failed to send rejection email.');
+        }
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -283,18 +388,12 @@ class AccountManagementController extends Controller
     {
         // Validate admin credentials
         $request->validate([
-            'admin_username' => 'required|string',
             'admin_password' => 'required|string',
         ]);
 
-        // Get the authenticated admin user
-        $admin = auth()->user();
-
-        // Check if the admin credentials are correct
-        if ($admin->username !== $request->admin_username || 
-            !Hash::check($request->admin_password, $admin->password)) {
-            // return redirect()->route('accounts_table')->with('error', 'Invalid admin credentials.');
-            return back()->withErrors(['confirm_password' => 'Invalid username or password'])->withInput(); //can be use for modal errors
+        // Check if the admin's current password is correct
+        if (!Hash::check($request->admin_password, auth()->user()->password)) {
+            return back()->withErrors(['admin_password' => 'Error: Admin password is incorrect.'])->withInput();
         }
 
         // Find the user to be deleted

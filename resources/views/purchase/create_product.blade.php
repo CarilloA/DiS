@@ -238,18 +238,6 @@
                                     </span>
                                 @enderror
                             </div>
-
-                            {{-- <div class="col-md-4">
-                                <label class="input-group-text" for="unit_of_measure">
-                                    <i class="fa-solid fa-scale-balanced" style="margin-right: 5px;"></i> Unit of Measure
-                                </label>
-                                <input id="unit_of_measure" type="text" class="form-control @error('unit_of_measure') is-invalid @enderror" name="unit_of_measure" value="{{ old('unit_of_measure') }}" pattern="^[a-zA-Z\s]{1,15}$" required>
-                                @error('unit_of_measure')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div> --}}
                         </div>
 
                         <div class="row mb-3">
@@ -335,7 +323,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="input-group-text" for="company_name">
-                                    <i class="fa-solid fa-industry" style="margin-right: 5px;"></i> Company
+                                    <i class="fa-solid fa-industry" style="margin-right: 5px;"></i> Supplier
                                 </label>
                                 <input id="company_name" type="text" class="form-control @error('company_name') is-invalid @enderror" name="company_name" value="{{ old('company_name') }}" pattern="^[a-zA-Z0-9\s\-]{1,30}$" required>
                                 @error('company_name')

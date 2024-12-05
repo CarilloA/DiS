@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\InventoryAudit;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\DB;
+use App\Models\Inventory;
 
 class ReportController extends Controller
 {
@@ -54,6 +55,87 @@ class ReportController extends Controller
         // Return the view with the report data
         return view('report.inventory_report', compact('inventoryJoined', 'startDate', 'endDate', 'stockTransferJoined'));
     }
+
+    public function generateFilteredReport(Request $request)
+{
+    // $letters = $request->input('letters');
+    // $categoryIds = $request->input('category_ids');
+    // $supplierIds = $request->input('supplier_ids');
+    
+
+    // Retrieve inputs and ensure they are arrays if provided as comma-separated strings
+    $letters = $this->parseArrayInput($request->input('letters'));
+    $categoryIds = $this->parseArrayInput($request->input('category_ids'));
+    $supplierIds = $this->parseArrayInput($request->input('supplier_ids'));
+
+
+    // Validate and filter data accordingly
+    $inventoryJoined = DB::table('inventory')
+    ->join('product', 'inventory.product_id', '=', 'product.product_id')
+    ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+    ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
+    ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+    ->join('category', 'product.category_id', '=', 'category.category_id')
+    ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+    ->select(
+        'inventory.*',
+        'inventory.updated_at as inventory_updated_at',
+        'product.*',
+        'category.*',
+        'supplier.*',
+        'stock_transfer.*',
+        'stockroom.*',
+        'user.*'
+    )
+    ->distinct()
+    ->orderBy('inventory.updated_at', 'desc');
+
+    if ($letters) {
+
+        $inventoryJoined->where(function ($query) use ($letters) {
+            foreach ($letters as $letterName) {
+                $query->orWhere('product.product_name', 'like', $letterName . '%');
+            }
+        });
+    }
+    
+    if ($categoryIds) {
+        $inventoryJoined->whereIn('category.category_id', $categoryIds);
+    }
+
+    if ($supplierIds) {
+        $inventoryJoined->whereIn('supplier.supplier_id', $supplierIds);
+    }
+
+    $inventoryJoined = $inventoryJoined->get();
+
+    $inventoryItems = $inventoryJoined->unique('product_id');
+
+    $productIds = $inventoryItems->pluck('product_id')->toArray();
+
+    // Get the stock transfer data filtered by the product_ids
+    $stockTransferQuery = DB::table('stock_transfer')
+        ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
+        ->select('stock_transfer.*', 'user.*')
+        ->whereIn('product_id', $productIds)  // Use the extracted product_ids here
+        ->orderBy('transfer_date', 'desc');
+
+        // Execute the query for stock transfer data
+    $stockTransferJoined = $stockTransferQuery->get();
+
+
+    return view('report.filtered_report', compact('inventoryItems', 'stockTransferJoined'));
+}
+
+private function parseArrayInput($input)
+{
+    // If the input is a string, convert it to an array
+    return is_array($input) ? $input : ($input ? explode(',', $input) : []);
+}
+
+
+
+
     /**
      * Display the audit inventory report.
      */

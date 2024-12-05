@@ -115,6 +115,16 @@
         transform: translateY(-50%);
         pointer-events: none; /* Makes the icon non-clickable but allows the input's functionality */
     }
+
+     /* for filter */
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -5px;
+        display: none;
+        position: absolute;
+    }
+
 </style>
 
 @section('content')
@@ -142,6 +152,102 @@
                     </button>
                 </div>
             </form>
+            <form method="POST" action="{{ route('generate_filter_report') }}" enctype="multipart/form-data" class="mb-4 report-form" id="reportForm">
+                @csrf
+                <div class="input-group mb-3">
+                    <input type="hidden" name="letters" value="{{ implode(',', request('letters', [])) }}">
+                    <input type="hidden" name="category_ids" value="{{ implode(',', request('category_ids', [])) }}">
+                    <input type="hidden" name="supplier_ids" value="{{ implode(',', request('supplier_ids', [])) }}">
+                    
+                    <!-- Wrap the button inside a div and apply a CSS class for alignment -->
+                    <div class="ms-auto">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-print"></i> Generate Filter Report
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Dropdown with Buttons -->
+            <div class="row d-flex justify-content-end">
+                <div class="col-auto">
+                    <div class="dropdown">
+
+                        <!-- Display all -->
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success mb-2" href="{{ route('inventory_table') }}">Display All</a>
+                        </div>
+
+                       <!-- Product Name Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="productNameDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Product Name
+                            </button>
+                            <ul class="dropdown-menu p-3" aria-labelledby="productNameDropdown" style="min-width: 250px;">
+                                <form id="letterFilterForm" method="GET" action="{{ route('product_name_filter') }}">
+                                    <div class="row">
+                                        @foreach(range('A', 'Z') as $letter)
+                                            <div class="col-4">
+                                                <label class="dropdown-item">
+                                                    <input type="checkbox" name="letters[]" value="{{ $letter }}"> {{ $letter }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </div>
+                                </form>
+                            </ul>
+                        </div>
+
+
+                        <!-- Category Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Category
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                                <form id="filterForm" method="GET" action="{{ route('category_filter') }}">
+                                    @foreach($categories as $category)
+                                        <li>
+                                            <label class="dropdown-item">
+                                                <input type="checkbox" name="category_ids[]" value="{{ $category->category_id }}"> 
+                                                {{ $category->category_name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                    <li class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+                        
+                        <!-- Supplier Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="supplierDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Supplier
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="supplierDropdown">
+                                <form id="filterForm" method="GET" action="{{ route('supplier_filter') }}">
+                                    @foreach($suppliers as $supplier)
+                                        <li>
+                                            <label class="dropdown-item">
+                                                <input type="checkbox" name="supplier_ids[]" value="{{ $supplier->supplier_id }}"> 
+                                                {{ $supplier->company_name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                    <li class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Table Section -->
             <table class="table table-responsive">
@@ -149,44 +255,31 @@
                     <tr>
                         <th>Product No.</th>
                         <th>Name</th>
-                        <th>Category</th>
-                        <th>Purchased Price</th>
-                        <th>Sale Price</th>
-                        <th>Unit of Measure</th>
-                        <th>In Stock</th>
+                        <th>Store Stock</th>
+                        <th>Stockroom Stock</th>
                         <th>Reorder Level</th>
-                        <th>Timestamp</th>
+                        <th>Date Updated</th>
                         <th>Description</th>
                         <th>Supplier Details</th>
-                        <th>Location</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="inventoryTableBody">
                     @forelse($inventoryJoined as $data)
                         <tr>
                             <td>{{ $data->product_id }}</td>
                             <td>{{ $data->product_name }}</td>
-                            <td>{{ $data->category_name }}</td>
-                            <td>{{ number_format($data->purchase_price_per_unit, 2) }}</td>
-                            <td>{{ number_format($data->sale_price_per_unit, 2) }}</td>
-                            <td>{{ $data->unit_of_measure }}</td>
-                            <td>{{ $data->in_stock }}</td>
+                            <td>{{ $data->in_stock - $data->product_quantity }}</td>
+                            <td>{{ $data->product_quantity }}</td>
                             <td>{{ $data->reorder_level }}</td>
                             <td>{{ $data->updated_at }}</td>
                             <td>
-                                <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
-                                    <strong style="color: white; text-decoration: none; font-weight: normal;" >more info.</strong>
+                                <button type="button" class="btn btn-light" onclick="showDescriptionDetail('{{ $data->category_name }}', '{{ number_format($data->purchase_price_per_unit, 2) }}', '{{ number_format($data->sale_price_per_unit, 2) }}', '{{ $data->unit_of_measure }}', '{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
+                                    <strong>more info.</strong>
                                 </button>
                             </td>
                             <td>
-                                <button type="button" class="btn" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
-                                    <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
-                                </button>
-                            </td>
-                            <?php $storeStock = $data->in_stock - $data->product_quantity; ?>
-                            <td>
-                                <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
-                                    <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
+                                <button type="button" class="btn btn-light" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
+                                    <strong>more info.</strong>
                                 </button>
                             </td>
                         </tr>
@@ -202,10 +295,10 @@
         </main>
     </div>
 @endif
-@endsection
 
 <!-- JavaScript for Supplier Details -->
 <script>
+    
     // error handling for generate report
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('reportForm');
@@ -244,15 +337,19 @@
     });
 
     // sweetalerts for product description
-    function showDescriptionDetail(color, size, description) {
+    function showDescriptionDetail(category, purchasedPrice, salePrice, UoM, color, size, description) {
         const descriptionDetails = `
-            <strong>Company Name:</strong> ${color}<br>
-            <strong>Contact Person:</strong> ${size}<br>
-            <strong>Mobile Number:</strong> ${description}<br>
+        <strong>Category:</strong> ${category}<br>
+        <strong>Purchased Price:</strong> ${purchasedPrice}<br>
+        <strong>Sale Price:</strong> ${salePrice}<br>
+        <strong>Unit of Measurement:</strong> ${UoM}<br>
+            <strong>Color:</strong> ${color}<br>
+            <strong>Size:</strong> ${size}<br>
+            <strong>Description:</strong> ${description}<br>
         `;
 
         Swal.fire({
-            title: 'Highlights',
+            title: 'Description',
             html: descriptionDetails,
             icon: 'info',
             confirmButtonText: 'Close'
@@ -277,25 +374,6 @@
         });
     }
 
-    // sweetalerts for stockroom details
-    function showStockroomDetail(storeStock, aisleNumber, cabinetLevel, productQuantity, categoryName) {
-        const stockroomDetails = `
-            <strong>Store Stock:</strong> ${storeStock}<br><br>
-            <strong>Stockroom Details</strong><br>
-            <strong>Aisle Number:</strong> ${aisleNumber}<br>
-            <strong>Cabinet Level:</strong> ${cabinetLevel}<br>
-            <strong>Stored Product Quantity:</strong> ${productQuantity}<br>
-            <strong>Category Name:</strong> ${categoryName}<br>
-        `;
-
-        Swal.fire({
-            title: 'Location Details',
-            html: stockroomDetails,
-            icon: 'info',
-            confirmButtonText: 'Close'
-        });
-    }
-
     $(document).ready(function(){
         // Loop through each delete modal
         @foreach($userSQL as $data)
@@ -306,10 +384,7 @@
         });
         @endforeach
     });
-
-    // Transfer dates to hidden PDF form fields when generating a PDF report
-    // document.querySelector('.report-form').addEventListener('submit', function(e) {
-    //     document.getElementById('pdf_start_date').value = document.getElementById('start_date').value;
-    //     document.getElementById('pdf_end_date').value = document.getElementById('end_date').value;
-    // });
 </script>
+
+@endsection
+
