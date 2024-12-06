@@ -24,6 +24,7 @@ class Product extends Authenticatable
     public $primaryKey = 'product_id';
     protected $fillable = [
         'product_id',
+        'image_url',
         'product_name', 
         'description',
         'category_id',

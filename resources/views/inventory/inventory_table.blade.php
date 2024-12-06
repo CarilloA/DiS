@@ -254,6 +254,7 @@
                 <thead>
                     <tr>
                         <th>Product No.</th>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Store Stock</th>
                         <th>Stockroom Stock</th>
@@ -267,6 +268,21 @@
                     @forelse($inventoryJoined as $data)
                         <tr>
                             <td>{{ $data->product_id }}</td>
+                            <td>
+                                @if ($data->image_url)
+                                    <img 
+                                        src="{{ asset('storage/userImage/' . $data->image_url) }}" 
+                                        alt="Product Image" 
+                                        class="img-thumbnail" 
+                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                @else
+                                    <div 
+                                        class="img-thumbnail d-flex justify-content-center align-items-center" 
+                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                        <i class="fa-solid fa-box text-muted" style="font-size: 24px;"></i>
+                                    </div>
+                                @endif
+                            </td>
                             <td>{{ $data->product_name }}</td>
                             <td>{{ $data->in_stock - $data->product_quantity }}</td>
                             <td>{{ $data->product_quantity }}</td>
@@ -285,7 +301,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center">No inventory found.</td>
+                            <td colspan="9" class="text-center">No inventory found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -343,9 +359,9 @@
         <strong>Purchased Price:</strong> ${purchasedPrice}<br>
         <strong>Sale Price:</strong> ${salePrice}<br>
         <strong>Unit of Measurement:</strong> ${UoM}<br>
-            <strong>Color:</strong> ${color}<br>
-            <strong>Size:</strong> ${size}<br>
-            <strong>Description:</strong> ${description}<br>
+        <strong>Color:</strong> ${color}<br>
+        <strong>Size:</strong> ${size}<br>
+        <strong>Description:</strong> ${description}<br>
         `;
 
         Swal.fire({

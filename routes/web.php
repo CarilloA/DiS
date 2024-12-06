@@ -88,7 +88,7 @@ Route::get('edit_profile/{id}', [ProfileController::class, 'edit'])->name('edit_
 use App\Http\Controllers\InventoryController;
 Route::resource('inventory', InventoryController::class);
 Route::get('inventory_table', [InventoryController::class, 'index'])->name('inventory_table');
-Route::delete('delete/{id}', [InventoryController::class, 'destroy'])->name('delete_product');
+// Route::delete('delete/{id}', [InventoryController::class, 'destroy'])->name('delete_product');
 
 //filter inventory
 Route::get('product_name_filter', [InventoryController::class, 'productNameFilter'])->name('product_name_filter');
@@ -98,9 +98,11 @@ Route::get('supplier_filter', [InventoryController::class, 'supplierFilter'])->n
 use App\Http\Controllers\PurchaseController;
 Route::resource('purchase', PurchaseController::class);
 Route::get('purchase_table', [PurchaseController::class, 'index'])->name('purchase_table');
+Route::post('details', [PurchaseController::class, 'getSupplierDetails']);
 Route::get('create', [PurchaseController::class, 'create'])->name('create_product');
 Route::post('restock', [PurchaseController::class, 'restock'])->name('restock_product');
 Route::post('restock_store_product', [PurchaseController::class, 'restockStoreProduct'])->name('restock_store_product');
+Route::delete('delete/{id}', [PurchaseController::class, 'destroy'])->name('delete_product');
 
 //filter products table
 Route::get('filter_product_name', [PurchaseController::class, 'productNameFilter'])->name('filter_product_name');

@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use App\Models\Stockroom;
 use App\Models\StockTransfer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -110,8 +111,11 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        return view('purchase.create_product');
+        $suppliers = Supplier::all(); // Fetch all suppliers
+        $categories = Category::all(); // Fetch all categories
+        return view('purchase.create_product', compact('suppliers', 'categories')); // Pass to the view
     }
+
 
     /**
      * Generate a unique 8-digit ID for the given table.
@@ -129,6 +133,13 @@ class PurchaseController extends Controller
         return $id;
     }
 
+    public function getSupplierDetails(Request $request)
+    {
+        $supplier = Supplier::find($request->supplier_id);
+        return response()->json($supplier);
+    }
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -139,8 +150,10 @@ class PurchaseController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
+            'image_url' => ['image'],
             'product_name' => ['required', 'string', 'max:30'],
-            'category_name' => ['required', 'string', 'max:30'],
+            'category_dropdown' => ['required'],
+            'category_name' => ['nullable', 'string', 'max:30', 'unique:category,category_name',],
             'purchase_price_per_unit' => ['required', 'numeric'],
             'sale_price_per_unit' => ['required', 'numeric'],
             'unit_of_measure' => ['required', 'string', 'max:15'],
@@ -149,36 +162,54 @@ class PurchaseController extends Controller
             'color' => ['max:50'],
             'size' => ['max:50'],
             'description' => ['max:255'],
-            'company_name' => ['string', 'max:30'],
-            'contact_person' => ['string', 'max:30'],
-            'mobile_number' => ['numeric'],
-            'email' => ['string', 'max:30'],
-            'address' => ['required', 'string', 'max:50'],
+            'supplier_dropdown' => ['required'],
+            'company_name' => ['nullable', 'string', 'max:30'],
+            'contact_person' => ['nullable', 'string', 'max:30'],
+            'mobile_number' => ['nullable', 'numeric'],
+            'email' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:50'],
             'aisle_number' => ['numeric'],
             'cabinet_level' => ['numeric'],
             'product_quantity' => ['numeric'],
         ]);
 
-        // Use a transaction to ensure data integrity
-        DB::transaction(function () use ($validatedData) {
-            // Create the Category first
-            $category = Category::create([
-                'category_id' => $this->generateId('category'), // Generate custom ID for category
-                'category_name' => $validatedData['category_name'],
-            ]);
+         // Handle file upload with a default image if no file is provided
+         $fileNameToStore = 'noimage.jpg'; 
+         if ($request->hasFile('image_url')) {
+             $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
+         }
 
-            // Create the Supplier
-            $supplier = Supplier::create([
-                'supplier_id' => $this->generateId('supplier'), // Generate custom ID for supplier
-                'company_name' => $validatedData['company_name'],
-                'contact_person' => $validatedData['contact_person'],
-                'mobile_number' => $validatedData['mobile_number'],
-                'email' => $validatedData['email'],
-                'address' => $validatedData['address'],
-            ]);
+        // Use a transaction to ensure data integrity
+        DB::transaction(function () use ($validatedData, $fileNameToStore ) {
+            // Handle category logic
+            $categoryId = $validatedData['category_dropdown'];
+            if ($categoryId === 'add-new-category') {
+                // Create a new Category
+                $category = Category::create([
+                    'category_id' => $this->generateId('category'), // Generate custom ID for category
+                    'category_name' => $validatedData['category_name'],
+                ]);
+                $categoryId = $category->category_id; // Get the new supplier's ID
+            }
+
+             // Handle supplier logic
+            $supplierId = $validatedData['supplier_dropdown'];
+            if ($supplierId === 'add-new') {
+                // Create a new supplier
+                $supplier = Supplier::create([
+                    'supplier_id' => $this->generateId('supplier'), // Generate custom ID for supplier
+                    'company_name' => $validatedData['company_name'],
+                    'contact_person' => $validatedData['contact_person'],
+                    'mobile_number' => $validatedData['mobile_number'],
+                    'email' => $validatedData['email'],
+                    'address' => $validatedData['address'],
+                ]);
+                $supplierId = $supplier->supplier_id; // Get the new supplier's ID
+            }
 
             // Create the Product
             $product = Product::create([
+                'image_url' => $fileNameToStore,
                 'product_id' => $this->generateId('product'), // Generate custom ID for product
                 'product_name' => $validatedData['product_name'],
                 'description' => json_encode([ // Encode the array as JSON
@@ -186,8 +217,8 @@ class PurchaseController extends Controller
                     'size' => $validatedData['size'],
                     'description' => $validatedData['description'],
                 ]),
-                'category_id' => $category->category_id, // Use the generated category_id
-                'supplier_id' => $supplier->supplier_id, // Use the generated supplier_id
+                'category_id' => $categoryId, // Use the existing or newly created category ID
+                'supplier_id' => $supplierId, // Use the existing or newly created supplier ID
             ]);
 
             // Create the Stockroom
@@ -196,7 +227,7 @@ class PurchaseController extends Controller
                 'aisle_number' => $validatedData['aisle_number'],
                 'cabinet_level' => $validatedData['cabinet_level'],
                 'product_quantity' => $validatedData['product_quantity'],
-                'category_id' => $category->category_id, // Use the generated category_id
+                'category_id' => $categoryId, // Use the existing or newly created category ID
             ]);
 
             // Create the StockTransfer
@@ -225,117 +256,129 @@ class PurchaseController extends Controller
         return redirect()->route('purchase_table')->with('success', 'Product added successfully.');
     }
 
+    private function handleFileUpload($file)
+    {
+        $fileNameWithExt = $file->getClientOriginalName();
+        $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
+        $file->storeAs('public/userImage', $fileNameToStore);
+
+        return $fileNameToStore;
+    }
+
+
     public function restock(Request $request) 
-{
-    // Validate incoming request data
-    $validatedData = $request->validate([
-        'product_id' => ['required', 'exists:product,product_id'],
-        'purchase_price_per_unit' => ['required', 'numeric'],
-        'sale_price_per_unit' => ['required', 'numeric'],
-        'unit_of_measure' => ['required', 'string', 'max:15'],
-        'previous_quantity' => ['required', 'numeric', 'min:1'],
-        'quantity' => ['required', 'numeric', 'min:1'],
-        'update_supplier' => ['nullable', 'boolean'],
-        'supplier_id' => 'required|exists:supplier,supplier_id',
-        'stockroom_id' => ['required', 'exists:stockroom,stockroom_id'],
-    ]);
-
-    // Use DB transaction to ensure data integrity
-    DB::transaction(function () use ($validatedData, $request) {
-        
-        // Update Inventory
-        $inventory = Inventory::where('product_id', $validatedData['product_id'])->firstOrFail();
-
-        // Update inventory details
-        $inventory->update([
-            'purchase_price_per_unit' => $validatedData['purchase_price_per_unit'],
-            'sale_price_per_unit' => $validatedData['sale_price_per_unit'],
-            'unit_of_measure' => $validatedData['unit_of_measure'],
-            'in_stock' => $inventory->in_stock + $validatedData['quantity'], // Increment stock
-            'updated_at' => now(),
+    {
+        // Validate incoming request data
+        $validatedData = $request->validate([
+            'product_id' => ['required', 'exists:product,product_id'],
+            'purchase_price_per_unit' => ['required', 'numeric'],
+            'sale_price_per_unit' => ['required', 'numeric'],
+            'unit_of_measure' => ['required', 'string', 'max:15'],
+            'previous_quantity' => ['required', 'numeric', 'min:1'],
+            'quantity' => ['required', 'numeric', 'min:1'],
+            'update_supplier' => ['nullable', 'boolean'],
+            'supplier_id' => 'required|exists:supplier,supplier_id',
+            'stockroom_id' => ['required', 'exists:stockroom,stockroom_id'],
         ]);
 
-        $userId = Auth::id();
+        // Use DB transaction to ensure data integrity
+        DB::transaction(function () use ($validatedData, $request) {
+            
+            // Update Inventory
+            $inventory = Inventory::where('product_id', $validatedData['product_id'])->firstOrFail();
 
-        // Insert into stock_transfer
-        DB::table('stock_transfer')->insert([
-            'stock_transfer_id' => $this->generateId('stock_transfer'),
-            'transfer_quantity' => $validatedData['quantity'],
-            'transfer_date' => now(),
-            'product_id' => $validatedData['product_id'],
-            'user_id' => $userId,
-            'to_stockroom_id' => $validatedData['stockroom_id'],
-        ]);
-
-        // Update Stockroom
-        $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
-        // Update stockroom details
-        $stockroom->update([
-            'product_quantity' => $validatedData['previous_quantity'] + $validatedData['quantity'],
-        ]);
-
-        // Check if the supplier details need to be updated
-        if ($validatedData['update_supplier'] == true) {
-            // Validate supplier data
-            $suppliervalidatedData = $request->validate([
-                'company_name' => 'required|string',
-                'contact_person' => 'required|string',
-                'mobile_number' => 'required|numeric',
-                'email' => 'required|email',
-                'address' => 'required|string',
+            // Update inventory details
+            $inventory->update([
+                'purchase_price_per_unit' => $validatedData['purchase_price_per_unit'],
+                'sale_price_per_unit' => $validatedData['sale_price_per_unit'],
+                'unit_of_measure' => $validatedData['unit_of_measure'],
+                'in_stock' => $inventory->in_stock + $validatedData['quantity'], // Increment stock
+                'updated_at' => now(),
             ]);
 
-            // Update supplier information if requested
-            Supplier::where('supplier_id', $validatedData['supplier_id'])->update($suppliervalidatedData);
-        }
-    });
+            $userId = Auth::id();
 
-    // Return success response
-    return redirect()->route('purchase_table')->with('success', 'Restock successful.');
-}
+            // Insert into stock_transfer
+            DB::table('stock_transfer')->insert([
+                'stock_transfer_id' => $this->generateId('stock_transfer'),
+                'transfer_quantity' => $validatedData['quantity'],
+                'transfer_date' => now(),
+                'product_id' => $validatedData['product_id'],
+                'user_id' => $userId,
+                'to_stockroom_id' => $validatedData['stockroom_id'],
+            ]);
 
-public function restockStoreProduct(Request $request) 
-{
-    // Validate incoming request data
-    $validatedData = $request->validate([
-        'product_id' => ['required', 'exists:product,product_id'],
-        'stockroom_id' => ['required', 'exists:stockroom,stockroom_id'],
-        'transfer_quantity' => ['required', 'numeric', 'min:1'],
-        'product_quantity' => ['required', 'numeric', 'min:1'],
-    ]);
+            // Update Stockroom
+            $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
+            // Update stockroom details
+            $stockroom->update([
+                'product_quantity' => $validatedData['previous_quantity'] + $validatedData['quantity'],
+            ]);
 
-    // Use DB transaction to ensure data integrity
-    DB::transaction(function () use ($validatedData, $request) {
+            // Check if the supplier details need to be updated
+            if ($validatedData['update_supplier'] == true) {
+                // Validate supplier data
+                $suppliervalidatedData = $request->validate([
+                    'company_name' => 'required|string',
+                    'contact_person' => 'required|string',
+                    'mobile_number' => 'required|numeric',
+                    'email' => 'required|email',
+                    'address' => 'required|string',
+                ]);
 
-        // Get the user ID (assuming the user is logged in)
-        $userId = Auth::id();
+                // Update supplier information if requested
+                Supplier::where('supplier_id', $validatedData['supplier_id'])->update($suppliervalidatedData);
+            }
+        });
 
-        // Insert into stock_transfer
-        DB::table('stock_transfer')->insert([
-            'stock_transfer_id' => $this->generateId('stock_transfer'),
-            'transfer_quantity' => $validatedData['transfer_quantity'],
-            'transfer_date' => now(),
-            'product_id' => $validatedData['product_id'],
-            'user_id' => $userId,
-            'from_stockroom_id' => $validatedData['stockroom_id'],
+        // Return success response
+        return redirect()->route('purchase_table')->with('success', 'Restock successful.');
+    }
+
+    public function restockStoreProduct(Request $request) 
+    {
+        // Validate incoming request data
+        $validatedData = $request->validate([
+            'product_id' => ['required', 'exists:product,product_id'],
+            'stockroom_id' => ['required', 'exists:stockroom,stockroom_id'],
+            'transfer_quantity' => ['required', 'numeric', 'min:1'],
+            'product_quantity' => ['required', 'numeric', 'min:1'],
         ]);
 
-        // Update Stockroom
-        $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
+        // Use DB transaction to ensure data integrity
+        DB::transaction(function () use ($validatedData, $request) {
 
-        $productQuantity = $validatedData['product_quantity'] - $validatedData['transfer_quantity'];
+            // Get the user ID (assuming the user is logged in)
+            $userId = Auth::id();
 
-        // Update inventory details
-        $stockroom->update([
-            'product_quantity' => $productQuantity,
-        ]);
+            // Insert into stock_transfer
+            DB::table('stock_transfer')->insert([
+                'stock_transfer_id' => $this->generateId('stock_transfer'),
+                'transfer_quantity' => $validatedData['transfer_quantity'],
+                'transfer_date' => now(),
+                'product_id' => $validatedData['product_id'],
+                'user_id' => $userId,
+                'from_stockroom_id' => $validatedData['stockroom_id'],
+            ]);
 
-        
-    });
+            // Update Stockroom
+            $stockroom = Stockroom::where('stockroom_id', $validatedData['stockroom_id'])->firstOrFail();
 
-    // Return success response
-    return redirect()->route('purchase_table')->with('success', 'Restock successful.');
-}
+            $productQuantity = $validatedData['product_quantity'] - $validatedData['transfer_quantity'];
+
+            // Update inventory details
+            $stockroom->update([
+                'product_quantity' => $productQuantity,
+            ]);
+
+            
+        });
+
+        // Return success response
+        return redirect()->route('purchase_table')->with('success', 'Restock successful.');
+    }
 
     // filter
     public function productNameFilter(Request $request)
@@ -778,8 +821,29 @@ public function restockStoreProduct(Request $request)
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        //
+    public function destroy(Request $request, $id)
+{
+    // Validate the provided password
+    $validatedData = $request->validate([
+        'password' => 'required|string',
+    ]);
+
+    // Check if the current password matches
+    if (!Hash::check($validatedData['password'], Auth::user()->password)) {
+        // If password is incorrect, redirect back with error
+        return back()->withErrors(['password' => 'The password you entered is incorrect.']);
     }
+
+    // Find and delete the product
+    $product = Product::find($id);
+
+    if ($product) {
+        $product->delete();
+        // Redirect with success message
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+    }
+
+    // If product not found
+    return back()->withErrors(['error' => 'Product not found.']);
+}
 }
