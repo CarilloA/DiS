@@ -129,7 +129,48 @@
                     <div class="card-header">My Credentials</div>
                     <div class="card-body">
                         <ul class="list-group">
-                            <li class="list-group-item">Role: <strong>{{ Auth::user()->user_roles }}</strong></li>
+                            <li class="list-group-item">
+                                Role: <strong>{{ Auth::user()->user_roles }}</strong>
+
+                                @if(str_contains(Auth::user()->user_roles, 'Administrator'))
+                                    <!-- Hidden Form for Editing -->
+                                    <form id="roles-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'roles[]']) }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="form-group mb-4">
+                                            <label>Select User Roles <i>*Required</i>: </label>
+                                            <div class="form-check">
+                                                <input id="Administrator" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                    name="roles[]" value="Administrator">
+                                                <label for="Administrator" class="form-check-label">Administrator</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="inventory_manager" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                    name="roles[]" value="Inventory Manager">
+                                                <label for="inventory_manager" class="form-check-label">Inventory Manager</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="auditor" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                    name="roles[]" value="Auditor">
+                                                <label for="auditor" class="form-check-label">Auditor</label>
+                                            </div>
+                                            @error('roles')
+                                                <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                            <small class="form-text text-light mt-2">
+                                                Note: You can select single or multiple roles.
+                                            </small>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-success mt-2">Update</button>
+                                        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="toggleEdit('roles')">Cancel</button>
+                                    </form>
+                                    <button class="iconBtn" id="roles-edit-btn" onclick="toggleEdit('roles')">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                @endif
+                            </li>
+
+
                             <li class="list-group-item">Email: <strong>{{ Auth::user()->email }}</strong>
                                 <!-- Hidden Form for Editing -->
                                 <form id="email-form" style="display: none;" method="POST" action="{{ route('profile.update', ['field' => 'email']) }}">
@@ -188,7 +229,7 @@
 
                                     <!-- Current Password -->
                                     <div class="mb-3">
-                                        <label for="current_password" class="form-label">Current Password *required</label>
+                                        <label for="current_password" class="form-label">Current Password <i>*Required</i></label>
                                         <input type="password" name="current_password" class="form-control" id="current_password" required>
                                         <small class="form-text text-danger mt-2" style="color: red">
                                             <p class="text">
@@ -199,7 +240,7 @@
 
                                     <!-- New Password -->
                                     <div class="mb-3">
-                                        <label for="new_password" class="form-label">New Password *required</label>
+                                        <label for="new_password" class="form-label">New Password <i>*Required</i></label>
                                         <input type="password" name="new_password" class="form-control" id="new_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                                         <small class="form-text text-danger mt-2" style="color: red">
                                             <p class="text">
@@ -210,7 +251,7 @@
 
                                     <!-- Confirm New Password -->
                                     <div class="mb-3">
-                                        <label for="new_password_confirmation" class="form-label">Confirm New Password *required</label>
+                                        <label for="new_password_confirmation" class="form-label">Confirm New Password <i>*Required</i></label>
                                         <input type="password" name="new_password_confirmation" class="form-control" id="new_password_confirmation" required>
                                     </div>
 

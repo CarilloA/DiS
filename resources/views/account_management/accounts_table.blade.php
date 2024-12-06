@@ -262,7 +262,7 @@
                                                             
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group">
-                                                                <label for="admin_password">Admin Password*</label>
+                                                                <label for="admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
                                                                        id="admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">
@@ -299,8 +299,8 @@
                                                             <input type="hidden" name="action" value="confirm">
                                                             
                                                             <!-- Admin Password Input -->
-                                                            <div class="form-group">
-                                                                <label for="admin_password">Admin Password*</label>
+                                                            <div class="form-group mb-4">
+                                                                <label for="admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
                                                                        id="admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">
@@ -312,8 +312,13 @@
                                                             </div>
                                                             
                                                             <!-- Roles Selection -->
-                                                            <div class="form-group">
-                                                                <label>Select User Roles:</label>
+                                                            <div class="form-group mb-4">
+                                                                <label>Select User Roles <i>*Required</i>: </label>
+                                                                <div class="form-check">
+                                                                    <input id="Administrator" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Administrator">
+                                                                    <label for="Administrator" class="form-check-label">Administrator</label>
+                                                                </div>
                                                                 <div class="form-check">
                                                                     <input id="inventory_manager" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Inventory Manager">
@@ -327,6 +332,9 @@
                                                                 @error('roles')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                                 @enderror
+                                                                <small class="form-text text-light mt-2">
+                                                                    Note: You can select single or multiple roles.
+                                                                </small>
                                                             </div>
                                                             
                                                             <div class="modal-footer">
@@ -359,7 +367,7 @@
                                                             
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group">
-                                                                <label for="admin_password">Admin Password*</label>
+                                                                <label for="admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
                                                                        id="admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">

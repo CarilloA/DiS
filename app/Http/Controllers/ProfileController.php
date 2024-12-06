@@ -79,6 +79,12 @@ class ProfileController extends Controller
         
         // Check if the user is logged in
         if (!Auth::check()) {
+
+            // Update roles
+            $user->update([
+                'role' => null,
+            ]);
+
             return redirect('/login')->with('error', 'Unauthorized Page');
         }
 
@@ -94,6 +100,22 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = Auth::user(); // Explicitly cast Auth::user() as an instance of the User model
 
+        // update user_roles separately
+        if ($field === 'roles[]') {
+            $request->validate([
+                'roles' => ['required', 'array'],
+                'roles.*' => ['string', 'in:Administrator,Inventory Manager,Auditor'], // Ensure valid roles
+            ]);
+    
+            // Update roles
+            $user->update([
+                'user_roles' => implode(', ', $request->roles), // Save roles as a comma-separated string
+                'role' => null,
+            ]);
+    
+            return redirect('/login')->with('success', 'Roles updated successfully!');
+        }
+
         // Handle email update separately
         if ($field === 'email') {
             // Validate the email
@@ -106,6 +128,7 @@ class ProfileController extends Controller
                 'email' => $request['email'], // Hash the new password before storing
                 'email_verified_at' => null,
                 'email_verification_sent_at' => now(),
+                'role' => null,
             ]);
 
             // Send confirmation email
@@ -135,6 +158,7 @@ class ProfileController extends Controller
             // Update the password
             $user->update([
                 'password' => Hash::make($request->new_password), // Hash the new password before storing
+                'role' => null,
             ]);
 
             return redirect('/login')->with('success', 'Password updated successfully!');

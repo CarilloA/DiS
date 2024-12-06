@@ -74,55 +74,51 @@ class AccountManagementController extends Controller
     }
 
     public function confirmRejectFilter()
-{
-    // Fetch users with 'user_roles' as null
-    $userSQL = DB::table('user')
-        ->select('user.*')
-        ->whereNull('user_roles')
-        ->get();
+    {
+        // Fetch users with 'user_roles' as null
+        $userSQL = DB::table('user')
+            ->select('user.*')
+            ->whereNull('user_roles')
+            ->get();
 
-    // Count users with 'user_roles' as null
-    $pendingConfirmRejectCount = $userSQL->count();
+        // Count users with 'user_roles' as null
+        $pendingConfirmRejectCount = $userSQL->count();
 
-    // Get the total number of users that need to be confirmed/rejected
-    $pendingResendLinkCount = DB::table('user')
-        ->whereNull('email_verified_at')
-        ->count();
+        // Get the total number of users that need to be confirmed/rejected
+        $pendingResendLinkCount = DB::table('user')
+            ->whereNull('email_verified_at')
+            ->count();
 
-    // Pass the data to the view
-    return view('account_management.accounts_table', [
-        'userSQL' => $userSQL,
-        'pendingConfirmRejectCount' => $pendingConfirmRejectCount,
-        'pendingResendLinkCount' => $pendingResendLinkCount, // Pass the count here
-    ]);
-}
+        // Pass the data to the view
+        return view('account_management.accounts_table', [
+            'userSQL' => $userSQL,
+            'pendingConfirmRejectCount' => $pendingConfirmRejectCount,
+            'pendingResendLinkCount' => $pendingResendLinkCount, // Pass the count here
+        ]);
+    }
 
-public function resendLinkFilter()
-{
-    // Fetch users with 'user_roles' as null
-    $userSQL = DB::table('user')
-        ->whereNull('email_verified_at')
-        ->get();
+    public function resendLinkFilter()
+    {
+        // Fetch users with 'user_roles' as null
+        $userSQL = DB::table('user')
+            ->whereNull('email_verified_at')
+            ->get();
 
-    // Count users with 'email_verified_at' as null
-    $pendingResendLinkCount = $userSQL->count();
+        // Count users with 'email_verified_at' as null
+        $pendingResendLinkCount = $userSQL->count();
 
-    // Get the total number of users that need to be confirmed/rejected
-    $pendingConfirmRejectCount = DB::table('user')
-        ->whereNull('user_roles')
-        ->count();
+        // Get the total number of users that need to be confirmed/rejected
+        $pendingConfirmRejectCount = DB::table('user')
+            ->whereNull('user_roles')
+            ->count();
 
-    // Pass the data to the view
-    return view('account_management.accounts_table', [
-        'userSQL' => $userSQL,
-        'pendingResendLinkCount' => $pendingResendLinkCount,
-        'pendingConfirmRejectCount' => $pendingConfirmRejectCount, // Pass the count here
-    ]);
-}
-
-
-    
-    
+        // Pass the data to the view
+        return view('account_management.accounts_table', [
+            'userSQL' => $userSQL,
+            'pendingResendLinkCount' => $pendingResendLinkCount,
+            'pendingConfirmRejectCount' => $pendingConfirmRejectCount, // Pass the count here
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -322,12 +318,12 @@ public function resendLinkFilter()
         $request->validate([
             'admin_password' => 'required|string',
             'roles' => 'required|array|min:1',
-            'roles.*' => 'in:Inventory Manager,Auditor',
+            'roles.*' => 'in:Administrator,Inventory Manager,Auditor',
         ]);
 
         // Check if the admin's current password is correct
         if (!Hash::check($request->admin_password, auth()->user()->password)) {
-            return back()->withErrors(['admin_password' => 'Error: Admin password is incorrect.'])->withInput();
+            return back()->withErrors(['admin_password' => 'Error: Current password is incorrect.'])->withInput();
         }
 
         // Perform the role update within a transaction

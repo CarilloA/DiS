@@ -53,22 +53,22 @@
     }
 
     /*Date Picker*/
-    .form-control {
-        background-color: #212529 !important; /* Grey background for input */
-        color: white !important; /* White text */
+    .input-group .form-control {
+        background-color: #212529; /* Grey background for input */
+        color: white; /* White text */
         border-radius: 5px; /* Rounded corners */
-        border: none !important;
+        border: none;
     }
 
-    .form-control:focus {
+    .input-group .form-control:focus {
         background-color: #212529; /* Maintain grey background on focus */
-        color: white!important; /* White text */
+        color: white; /* White text */
         outline: none; /* Remove default outline */
     }
 
     .input-group .input-group-text {
         background-color: #198754; /* Background for 'to' text */
-        color: white!important; /* Text color */
+        color: white; /* Text color */
         border-radius: 5px; /* Rounded corners */
         border: none;
     }
@@ -83,35 +83,17 @@
         color: #ffffff !important;
     }
 
-    .modal-content {
-        color: #fff !important; /* This will apply to all text in the modal */
-        margin: 20px 15px;
-    }
-
-    .modal-header, .modal-footer {
-        margin-bottom: 15px; /* Space between header/footer and body */
-    }
-
-    .modal-body {
-        margin-top: 10px; /* Space above the body content */
-    }
-
-    /* Optional: For better spacing around specific elements */
-    .form-group {
-        margin-bottom: 1rem; /* Space below each form group */
-    }
-
     .custom-date-picker {
-        appearance: none; /* Removes the default appearance */
-        -webkit-appearance: none; /* For Safari */
-        position: relative;
-        padding: 10px 40px 10px 10px; /* Adds padding to make room for the icon */
-        background-color: #000; /* Ensures the input's background matches */
-        color: #fff; /* White text color */
-        border: 1px solid #fff; /* White border */
-        border-radius: 5px;
-        width: 28em;
-        }
+    appearance: none; /* Removes the default appearance */
+    -webkit-appearance: none; /* For Safari */
+    position: relative;
+    padding: 10px 40px 10px 10px; /* Adds padding to make room for the icon */
+    background-color: #000; /* Ensures the input's background matches */
+    color: #fff; /* White text color */
+    border: 1px solid #fff; /* White border */
+    border-radius: 5px;
+    width: 28em;
+    }
 
     /* This makes the original calendar icon invisible while keeping it clickable */
     .custom-date-picker::-webkit-calendar-picker-indicator {
@@ -133,194 +115,209 @@
         transform: translateY(-50%);
         pointer-events: none; /* Makes the icon non-clickable but allows the input's functionality */
     }
+
+     /* for filter */
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -5px;
+        display: none;
+        position: absolute;
+    }
+
 </style>
 
 @section('content')
-@if(Auth::user()->role == 'Administrator' || Auth::user()->role == 'Auditor') 
+@if(Auth::user()->role == 'Auditor') 
     <div class="container-fluid">
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <div class="main-content">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                    <h1 class="h2 mb-3">Inventory Management</h1>
+                <!-- Alert Messages -->
+            @include('common.alert')
+            <div id="alertContainer"></div> <!-- Error message placeholder -->
+            
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h1 class="h2">Inventory Management</h1>
+            </div>
+
+            {{-- Generate Report --}}
+            <form method="POST" action="{{ url('inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form" id="reportForm">
+                @csrf
+                <div class="input-group mb-3">
+                    <input type="date" class="custom-date-picker" id="startDate" name="start_date" class="form-control" placeholder="Start Date" max="{{ date('Y-m-d') }}"  required>
+                    <span class="input-group-text">TO</span>
+                    <input type="date" class="custom-date-picker" id="endDate" name="end_date" class="form-control" placeholder="End Date" max="{{ date('Y-m-d') }}"  required>
+                    <button type="submit" class="btn btn-success ms-2">
+                        <i class="fa-solid fa-print"></i> Generate Report
+                    </button>
                 </div>
-                    <!-- Alert Messages -->
-                @include('common.alert')
-                <div id="alertContainer"></div> <!-- Error message placeholder -->
-                
-                <!-- Generate Report -->
-                <form method="POST" action="{{ url('inventory_report') }}" enctype="multipart/form-data" class="mb-4 report-form" id="reportForm">
-                    @csrf
-                    <div class="input-group mb-3 justify-content-between">
-                        <div class="d-flex justify-content-start">
-                            <input type="date" class="custom-date-picker" id="startDate" name="start_date" class="form-control" max="{{ date('Y-m-d') }}"  required>
-                            <span class="input-group-text">TO</span>
-                            <input type="date" class="custom-date-picker" id="endDate" name="end_date" class="form-control" max="{{ date('Y-m-d') }}"  required>
-                            <button type="submit" class="btn btn-success ms-2">
-                                <i class="fa-solid fa-print"></i> Generate Report
-                            </button>
+            </form>
+            <form method="POST" action="{{ route('generate_filter_report') }}" enctype="multipart/form-data" class="mb-4 report-form" id="reportForm">
+                @csrf
+                <div class="input-group mb-3">
+                    <input type="hidden" name="letters" value="{{ implode(',', request('letters', [])) }}">
+                    <input type="hidden" name="category_ids" value="{{ implode(',', request('category_ids', [])) }}">
+                    <input type="hidden" name="supplier_ids" value="{{ implode(',', request('supplier_ids', [])) }}">
+                    
+                    <!-- Wrap the button inside a div and apply a CSS class for alignment -->
+                    <div class="ms-auto">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-print"></i> Generate Filter Report
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="window.location.href='{{ route('step1') }}'">
+                            Start Audit
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Dropdown with Buttons -->
+            <div class="row d-flex justify-content-end">
+                <div class="col-auto">
+                    <div class="dropdown">
+
+                        <!-- Display all -->
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success mb-2" href="{{ route('audit_inventory_table') }}">Display All</a>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-success" onclick="window.location.href='{{ route('step1') }}'">
-                                Start Audit
+
+                       <!-- Product Name Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="productNameDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Product Name
                             </button>
+                            <ul class="dropdown-menu p-3" aria-labelledby="productNameDropdown" style="min-width: 250px;">
+                                <form id="letterFilterForm" method="GET" action="{{ route('filter_audit_product_name') }}">
+                                    <div class="row">
+                                        @foreach(range('A', 'Z') as $letter)
+                                            <div class="col-4">
+                                                <label class="dropdown-item">
+                                                    <input type="checkbox" name="letters[]" value="{{ $letter }}"> {{ $letter }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </div>
+                                </form>
+                            </ul>
+                        </div>
+
+
+                        <!-- Category Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Category
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                                <form id="filterForm" method="GET" action="{{ route('filter_audit_category') }}">
+                                    @foreach($categories as $category)
+                                        <li>
+                                            <label class="dropdown-item">
+                                                <input type="checkbox" name="category_ids[]" value="{{ $category->category_id }}"> 
+                                                {{ $category->category_name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                    <li class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+                        
+                        <!-- Supplier Dropdown -->
+                        <div class="btn-group">
+                            <button class="btn btn-success dropdown-toggle mb-2" type="button" id="supplierDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Supplier
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="supplierDropdown">
+                                <form id="filterForm" method="GET" action="{{ route('filter_audit_supplier') }}">
+                                    @foreach($suppliers as $supplier)
+                                        <li>
+                                            <label class="dropdown-item">
+                                                <input type="checkbox" name="supplier_ids[]" value="{{ $supplier->supplier_id }}"> 
+                                                {{ $supplier->company_name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                    <li class="text-center mt-2">
+                                        <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                    </li>
+                                </form>
+                            </ul>
                         </div>
                     </div>
-                </form>
+                </div>
+            </div>
 
-                <!-- Table Section -->
-                <table class="table table-responsive">
-                    <thead>
-                        <tr><th>Product No.</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Purchased Price</th>
-                            <th>Sale Price</th>
-                            <th>Unit of Measure</th>
-                            <th>In Stock</th>
-                            <th>Reorder Level</th>
-                            <th>Timestamp</th>
-                            <th>Description</th>
-                            <th>Supplier Details</th>
-                            <th>Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($inventoryJoined as $data)
-                            <tr>
-                                <td>{{ $data->product_id }}</td>
-                                <td>{{ $data->product_name }}</td>
-                                <td>{{ $data->category_name }}</td>
-                                <td>{{ number_format($data->purchase_price_per_unit, 2) }}</td>
-                                <td>{{ number_format($data->sale_price_per_unit, 2) }}</td>
-                                <td>{{ $data->unit_of_measure }}</td>
-                                <td>{{ $data->in_stock }}</td>
-                                <td>{{ $data->reorder_level }}</td>
-                                <td>{{ $data->updated_at }}</td>
-                                <td>
-                                    <button type="button" class="btn" onclick="showDescriptionDetail('{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
-                                        <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
-                                    </button>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
-                                        <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
-                                    </button>
-                                </td>
-                                <?php $storeStock = $data->in_stock - $data->product_quantity; ?>
-                                <td>
-                                    <button type="button" class="btn" onclick="showStockroomDetail('{{ $storeStock }}', '{{ $data->aisle_number }}', '{{ $data->cabinet_level }}', '{{ $data->product_quantity }}', '{{ $data->category_name }}')">
-                                        <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- Audit Modal for Each Product -->
-                            <div class="modal fade" id="updateModal{{ $data->inventory_id }}" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content" style="margin: 20px 15px; background-color:#565656;"> 
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="updateModalLabel">Audit Inventory</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <form action="{{ route('inventory.audit.update', $data->inventory_id) }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="inventory_id" value="{{ $data->inventory_id }}">
-                                            <input type="hidden" name="stockroom_id" value="{{ $data->stockroom_id }}">
-                                            <input type="hidden" name="previous_quantity_on_hand" value="{{ $data->in_stock }}">
-
-                                            <div class="modal-body">
-                                                <?php $storeStock = $data->in_stock - $data->product_quantity; ?>
-                                                <p><strong>Expected Quantity on Hand:</strong> <span id="expected_quantity_on_hand">{{ $data->in_stock }}</span></p>
-                                                <p><strong>Current Stock in the Store:</strong> <span id="store_stock">{{ $storeStock }}</span></p>
-                                                <p><strong>Current Stock in the Stockroom:</strong> <span id="product_quantity">{{ $data->product_quantity }}</span></p>
-                                                
-                                                <div class="form-group">
-                                                    <label for="new_store_quantity">New Stock in the Store</label>
-                                                    <input class="form-control" type="number" name="new_store_quantity" id="new_store_quantity_{{ $data->inventory_id }}" placeholder="New Quantity" pattern="^\d{1,6}$" required
-                                                        oninput="calculateVariance({{ $data->in_stock }}, {{ $data->inventory_id }})">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="new_stockroom_quantity">New Stock in the Stockroom</label>
-                                                    <input class="form-control" type="number" name="new_stockroom_quantity" id="new_stockroom_quantity_{{ $data->inventory_id }}" placeholder="New Quantity" pattern="^\d{1,6}$" required
-                                                        oninput="calculateVariance({{ $data->in_stock }}, {{ $data->inventory_id }})">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="new_quantity_on_hand">New Quantity on Hand</label>
-                                                    <input class="form-control" type="number" name="new_quantity_on_hand" id="new_quantity_on_hand_{{ $data->inventory_id }}" placeholder="New Quantity On Hand" pattern="^\d{1,6}$" required
-                                                        oninput="calculateVariance({{ $data->in_stock }}, {{ $data->inventory_id }})">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="variance">Variance</label>
-                                                    <input class="form-control" type="number" id="variance_{{ $data->inventory_id }}" name="variance" placeholder="Variance" readonly>
-                                                </div>
-                                                
-                                                <div class="form-group">
-                                                    <label for="reason">Reason for Audit</label>
-                                                    <input class="form-control" type="text" name="reason" placeholder="Reason for Audit" pattern="^[a-zA-Z0-9\s\.,\-]{1,30}$" required>
-                                                </div>
-
-                                                <div class="row mb-3">
-                                                    <div class="col-md-6">
-                                                        <span class="input-group-text">
-                                                            <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Audit</label>
-                                                        </span>
-                        
-                                                            <div class="form-group">
-                                                                <label for="username">Confirm Username</label>
-                                                                <input type="text" class="form-control" id="username_{{ $user->user_id }}" placeholder="Enter current username" name="confirm_username" pattern="^[A-Za-z0-9]*" required>
-                                                            </div>
-                        
-                                                            <div class="form-group">
-                                                                <label for="password">Confirm Password</label>
-                                                                <input type="password" class="form-control" id="password_{{ $user->user_id }}" placeholder="Enter current password" name="confirm_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
-                                                            </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Modal Validation Error Alert Message-->
-                                            @if ($errors->any() && old('inventory_id') == $data->inventory_id)
-                                                <div class="alert alert-danger">
-                                                    <ul>
-                                                        @foreach ($errors->all() as $error)
-                                                            <li>{{ $error }}</li>
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                                <script>
-                                                    $(document).ready(function() {
-                                                        $('#updateModal{{ $data->inventory_id }}').modal('show');
-                                                    });
-                                                </script>
-                                            @endif
-
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-success">Audit</button>
-                                            </div>
-                                        </form>
-                                        
+            <!-- Table Section -->
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th>Product No.</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Store Stock</th>
+                        <th>Stockroom Stock</th>
+                        <th>Reorder Level</th>
+                        <th>Description</th>
+                        <th>Supplier Details</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    @forelse($inventoryJoined as $data)
+                        <tr>
+                            <td>{{ $data->product_id }}</td>
+                            <td>
+                                @if ($data->image_url)
+                                    <img 
+                                        src="{{ asset('storage/userImage/' . $data->image_url) }}" 
+                                        alt="Product Image" 
+                                        class="img-thumbnail" 
+                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                @else
+                                    <div 
+                                        class="img-thumbnail d-flex justify-content-center align-items-center" 
+                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                        <i class="fa-solid fa-box text-muted" style="font-size: 24px;"></i>
                                     </div>
-                                </div>
-                            </div>
-                        @empty
-                            <tr>
-                                <td colspan="11" class="text-center">No inventory found.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                @endif
+                            </td>
+                            <td>{{ $data->product_name }}</td>
+                            <td>{{ $data->in_stock - $data->product_quantity }}</td>
+                            <td>{{ $data->product_quantity }}</td>
+                            <td>{{ $data->reorder_level }}</td>
+                            <td>
+                                <button type="button" class="btn btn-light" onclick="showDescriptionDetail('{{ $data->category_name }}', '{{ number_format($data->purchase_price_per_unit, 2) }}', '{{ number_format($data->sale_price_per_unit, 2) }}', '{{ $data->unit_of_measure }}', '{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}', '{{ $data->updated_at }}')">
+                                    <strong>more info.</strong>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-light" onclick="showSupplierDetail('{{ $data->company_name }}', '{{ $data->contact_person }}', '{{ $data->mobile_number }}', '{{ $data->email }}', '{{ $data->address }}')">
+                                    <strong>more info.</strong>
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">No inventory found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
             </div>
             
         </main>
     </div>
 @endif
-@endsection
 
 <!-- JavaScript for Supplier Details -->
 <script>
-     // error handling for generate report
-     document.addEventListener('DOMContentLoaded', function () {
+    
+    // error handling for generate report
+    document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('reportForm');
         const startDateInput = document.getElementById('startDate');
         const endDateInput = document.getElementById('endDate');
@@ -357,15 +354,20 @@
     });
 
     // sweetalerts for product description
-    function showDescriptionDetail(color, size, description) {
+    function showDescriptionDetail(category, purchasedPrice, salePrice, UoM, color, size, description, updatedAt) {
         const descriptionDetails = `
-            <strong>Company Name:</strong> ${color}<br>
-            <strong>Contact Person:</strong> ${size}<br>
-            <strong>Mobile Number:</strong> ${description}<br>
+        <strong>Category:</strong> ${category}<br>
+        <strong>Purchased Price:</strong> ${purchasedPrice}<br>
+        <strong>Sale Price:</strong> ${salePrice}<br>
+        <strong>Unit of Measurement:</strong> ${UoM}<br>
+        <strong>Color:</strong> ${color}<br>
+        <strong>Size:</strong> ${size}<br>
+        <strong>Description:</strong> ${description}<br>
+        <strong>Date Updated:</strong> ${updatedAt}<br>
         `;
 
         Swal.fire({
-            title: 'Highlights',
+            title: 'Description',
             html: descriptionDetails,
             icon: 'info',
             confirmButtonText: 'Close'
@@ -375,7 +377,7 @@
     // sweetalerts for product supplier
     function showSupplierDetail(companyName, contactPerson, mobileNumber, email, address) {
         const supplierDetails = `
-            <strong>Company Name:</strong> ${companyName}<br>
+            <strong>Supplier:</strong> ${companyName}<br>
             <strong>Contact Person:</strong> ${contactPerson}<br>
             <strong>Mobile Number:</strong> ${mobileNumber}<br>
             <strong>Email:</strong> ${email}<br>
@@ -389,37 +391,7 @@
             confirmButtonText: 'Close'
         });
     }
-
-    // sweetalerts for stockroom details
-    function showStockroomDetail(storeStock, aisleNumber, cabinetLevel, productQuantity, categoryName) {
-        const stockroomDetails = `
-            <strong>Store Stock:</strong> ${storeStock}<br><br>
-            <strong>Stockroom Details</strong><br>
-            <strong>Aisle Number:</strong> ${aisleNumber}<br>
-            <strong>Cabinet Level:</strong> ${cabinetLevel}<br>
-            <strong>Stored Product Quantity:</strong> ${productQuantity}<br>
-            <strong>Category Name:</strong> ${categoryName}<br>
-        `;
-
-        Swal.fire({
-            title: 'Location Details',
-            html: stockroomDetails,
-            icon: 'info',
-            confirmButtonText: 'Close'
-        });
-    }
-
-    // calculate discrepancies
-    function calculateVariance(expectedQuantity, inventoryId) {
-        // Get the values from the inputs specific to this inventory item
-        const newStoreQuantity = parseInt(document.getElementById(`new_store_quantity_${inventoryId}`).value) || 0;
-        const newStockroomQuantity = parseInt(document.getElementById(`new_stockroom_quantity_${inventoryId}`).value) || 0;
-
-        // Calculate the new quantity on hand and variance
-        const newQuantityOnHand = newStoreQuantity + newStockroomQuantity;
-        document.getElementById(`new_quantity_on_hand_${inventoryId}`).value = newQuantityOnHand;
-
-        const variance = newQuantityOnHand - expectedQuantity;
-        document.getElementById(`variance_${inventoryId}`).value = variance;
-    }
 </script>
+
+@endsection
+

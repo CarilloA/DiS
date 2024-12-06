@@ -33,7 +33,8 @@ Route::post('password/reset', 'App\Http\Controllers\Auth\ResetPasswordController
 
 Auth::routes();
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/select-role', [App\Http\Controllers\Auth\LoginController::class, 'selectRole'])->name('select-role');
+// Route::post('/select-role', [App\Http\Controllers\Auth\LoginController::class, 'selectRole'])->name('select-role');
+Route::post('/get-user-roles', [App\Http\Controllers\Auth\LoginController::class, 'getUserRoles'])->name('get-user-roles');
 Route::post('login', [App\Http\Controllers\Auth\LoginController::class, 'login'])->name('login');
 Route::post('logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index']);
@@ -54,8 +55,6 @@ Route::middleware(['auth', 'check.default_password'])->group(function () {
 use App\Http\Controllers\RegisterAccountController;
 Route::resource('register_account', RegisterAccountController::class);
 Route::get('create', [RegisterAccountController::class, 'create'])->name('createAccount');
-Route::get('/admin/register', [RegisterAccountController::class, 'showRegistrationForm'])->name('admin.register');
-Route::post('/admin/register', [RegisterAccountController::class, 'adminRegister'])->name('admin.register.submit');
 
 use App\Http\Controllers\AccountManagementController;
 Route::resource('account_management', AccountManagementController::class);
@@ -102,6 +101,8 @@ Route::post('details', [PurchaseController::class, 'getSupplierDetails']);
 Route::get('create', [PurchaseController::class, 'create'])->name('create_product');
 Route::post('restock', [PurchaseController::class, 'restock'])->name('restock_product');
 Route::post('restock_store_product', [PurchaseController::class, 'restockStoreProduct'])->name('restock_store_product');
+Route::get('edit_product/{id}', [PurchaseController::class, 'edit'])->name('edit_product');
+Route::post('update_product/{id}', [PurchaseController::class, 'update'])->name('update_product');
 Route::delete('delete/{id}', [PurchaseController::class, 'destroy'])->name('delete_product');
 
 //filter products table
@@ -138,6 +139,11 @@ Route::post('/inventory-audit/step4', [InventoryAuditController::class, 'submitS
 Route::get('/step4', [InventoryAuditController::class, 'showStep4'])->name('step4');
 Route::post('/submit/step4', [InventoryAuditController::class, 'submitStep4'])->name('submit.step4');
 
+//filter audit inventory
+Route::get('filter_audit_product_name', [InventoryAuditController::class, 'productNameFilter'])->name('filter_audit_product_name');
+Route::get('filter_audit_category', [InventoryAuditController::class, 'CategoryFilter'])->name('filter_audit_category');
+Route::get('filter_audit_supplier', [InventoryAuditController::class, 'supplierFilter'])->name('filter_audit_supplier');
+
 use App\Http\Controllers\ReportController;
 Route::post('inventory_report', [ReportController::class, 'generateReport'])->name('report.generate');
 Route::post('generate_filter_report', [ReportController::class, 'generateFilteredReport'])->name('generate_filter_report');
@@ -145,8 +151,3 @@ Route::post('audit_inventory_report', [ReportController::class, 'generateAuditRe
 
 use App\Http\Controllers\ScrapController;
 Route::post('dispose', [ScrapController::class, 'disposeProduct'])->name('dispose_product');
-
-
-
-
-

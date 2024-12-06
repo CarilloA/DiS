@@ -280,7 +280,7 @@
                                 @endif
                             </td>
                             <td>
-                                <button type="button" class="btn btn-edit p-2" title="Edit" data-toggle="modal" data-target="#editModal{{ $data->product_id }}">
+                                <button type="button" class="btn btn-edit p-2" title="Edit" onclick="window.location.href='{{ url('edit_product', ['id' => $data->product_id]) }}'">
                                     <i class="fa-solid fa-pen-to-square" style="font-size: 1.2rem; color: #007bff;"></i>
                                 </button>
                                 <button type="button" class="btn btn-delete p-2" title="Delete" data-toggle="modal" data-target="#deleteModal{{ $data->product_id }}">
@@ -290,13 +290,11 @@
                             
                         </tr>
 
-                        {{-- Edit Modal --}}
-
-
                         {{-- Delete Modal --}}
                         <div id="deleteModal{{ $data->product_id }}" class="modal fade" style="color: black" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
+                                    
                                     <div class="modal-header">
                                         <h5 class="modal-title">Confirm Deletion</h5>
                                         <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
@@ -318,9 +316,19 @@
                                                 <small class="form-text mt-2">
                                                     Note: Please enter your current password for confirmation.
                                                 </small>
-                                                @error('password')
-                                                    <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
+                                                {{-- Check for errors related to this product --}}
+                                                @if (session('delete_error') && session('error_product_id') == $data->product_id)
+                                                    <div class="alert alert-danger" style="height: 4em;">
+                                                        <ul>
+                                                            <li>{{ session('delete_error') }}</li>
+                                                        </ul>
+                                                    </div>
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                            $('#deleteModal{{ $data->product_id }}').modal('show');
+                                                        });
+                                                    </script>
+                                                @endif
                                             </div>
                                             
                                             <div class="modal-footer">
@@ -510,7 +518,7 @@
                         </div>
                         @empty
                             <tr>
-                                <td colspan="15" class="text-center">No products available currently.</td>
+                                <td colspan="13" class="text-center">No products available currently.</td>
                             </tr>
                         @endforelse
                         {{-- @endforeach --}}
@@ -549,7 +557,7 @@
 
     function showSupplierDetail(companyName, contactPerson, mobileNumber, email, address) {
         const supplierDetails = `
-            <strong>Company Name:</strong> ${companyName}<br>
+            <strong>Supplier:</strong> ${companyName}<br>
             <strong>Contact Person:</strong> ${contactPerson}<br>
             <strong>Mobile Number:</strong> ${mobileNumber}<br>
             <strong>Email:</strong> ${email}<br>

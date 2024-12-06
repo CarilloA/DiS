@@ -259,7 +259,6 @@
                         <th>Store Stock</th>
                         <th>Stockroom Stock</th>
                         <th>Reorder Level</th>
-                        <th>Date Updated</th>
                         <th>Description</th>
                         <th>Supplier Details</th>
                     </tr>
@@ -287,9 +286,8 @@
                             <td>{{ $data->in_stock - $data->product_quantity }}</td>
                             <td>{{ $data->product_quantity }}</td>
                             <td>{{ $data->reorder_level }}</td>
-                            <td>{{ $data->updated_at }}</td>
                             <td>
-                                <button type="button" class="btn btn-light" onclick="showDescriptionDetail('{{ $data->category_name }}', '{{ number_format($data->purchase_price_per_unit, 2) }}', '{{ number_format($data->sale_price_per_unit, 2) }}', '{{ $data->unit_of_measure }}', '{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}')">
+                                <button type="button" class="btn btn-light" onclick="showDescriptionDetail('{{ $data->category_name }}', '{{ number_format($data->purchase_price_per_unit, 2) }}', '{{ number_format($data->sale_price_per_unit, 2) }}', '{{ $data->unit_of_measure }}', '{{ $data->descriptionArray['color'] ?? 'N/A' }}', '{{ $data->descriptionArray['size'] ?? 'N/A' }}', '{{ $data->descriptionArray['description'] ?? 'N/A' }}', '{{ $data->updated_at }}')">
                                     <strong>more info.</strong>
                                 </button>
                             </td>
@@ -301,7 +299,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">No inventory found.</td>
+                            <td colspan="8" class="text-center">No inventory found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -353,7 +351,7 @@
     });
 
     // sweetalerts for product description
-    function showDescriptionDetail(category, purchasedPrice, salePrice, UoM, color, size, description) {
+    function showDescriptionDetail(category, purchasedPrice, salePrice, UoM, color, size, description, updatedAt) {
         const descriptionDetails = `
         <strong>Category:</strong> ${category}<br>
         <strong>Purchased Price:</strong> ${purchasedPrice}<br>
@@ -362,6 +360,7 @@
         <strong>Color:</strong> ${color}<br>
         <strong>Size:</strong> ${size}<br>
         <strong>Description:</strong> ${description}<br>
+        <strong>Date Updated:</strong> ${updatedAt}<br>
         `;
 
         Swal.fire({
@@ -375,7 +374,7 @@
     // sweetalerts for product supplier
     function showSupplierDetail(companyName, contactPerson, mobileNumber, email, address) {
         const supplierDetails = `
-            <strong>Company Name:</strong> ${companyName}<br>
+            <strong>Supplier:</strong> ${companyName}<br>
             <strong>Contact Person:</strong> ${contactPerson}<br>
             <strong>Mobile Number:</strong> ${mobileNumber}<br>
             <strong>Email:</strong> ${email}<br>

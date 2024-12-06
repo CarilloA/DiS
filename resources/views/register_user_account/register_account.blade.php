@@ -54,15 +54,11 @@
         <form method="POST" action="{{ url('register_account') }}" enctype="multipart/form-data">
             @csrf
 
-            <h6 class="text text-light mb-4">
-                <strong>Important: </strong> Complete all fields in the registration form carefully. All inputs are required for successful registration.
-            </h6>
-
             <!-- Input fields -->
-            <div class="row mb-3">
-                <div class="col">
+            <div class="row">
+                <div class="col mb-4">
                     <span class="input-group-text">
-                        <i class="fa fa-user fa-lg"></i><label class="ms-2">First Name*</label>
+                        <i class="fa fa-user fa-lg"></i><label class="ms-2">First Name <i>*Required</i></label>
                     </span>
                     <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" placeholder="Format Sample: Gabriel" value="{{ old('first_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
                     <small class="text form-text text-light mt-2">
@@ -75,9 +71,9 @@
                     @enderror
                 </div>
 
-                <div class="col">
+                <div class="col mb-4">
                     <span class="input-group-text">
-                        <i class="fa fa-user fa-lg"></i><label class="ms-2">Last Name*</label>
+                        <i class="fa fa-user fa-lg"></i><label class="ms-2">Last Name <i>*Required</i></label>
                     </span>
                     <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" placeholder="Format Sample: Madriago" value="{{ old('last_name') }}" pattern="^[A-Z]{1}[a-z]*$" required>
                     <small class="text form-text text-light mt-2">
@@ -91,10 +87,10 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col">
+            <div class="row">
+                <div class="col mb-4">
                     <span class="input-group-text">
-                        <i class="fa-solid fa-envelope fa-lg"></i><label class="ms-2">Email Address*</label>
+                        <i class="fa-solid fa-envelope fa-lg"></i><label class="ms-2">Email Address <i>*Required</i></label>
                     </span>
                     <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" placeholder="Email Address should be valid" value="{{ old('email') }}" required>
                     <small class="text form-text text-light mt-2">
@@ -107,10 +103,10 @@
                     @enderror
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col">
+                <div class="row">
+                    <div class="col mb-4">
                         <span class="input-group-text">
-                            <i class="fa fa-key fa-lg"></i><label class="ms-2">Password*</label>
+                            <i class="fa fa-key fa-lg"></i><label class="ms-2">Password <i>*Required</i></label>
                         </span>
                         <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Must be a strong password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
                         <small class="text form-text text-light mt-2">
@@ -123,9 +119,9 @@
                         @enderror
                     </div>
 
-                    <div class="col">
+                    <div class="col mb-4">
                         <span class="input-group-text">
-                            <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Password*</label>
+                            <i class="fa fa-key fa-lg"></i><label class="ms-2">Confirm Password <i>*Required</i></label>
                         </span>
                         <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="Entered password should match." required>
                     </div>

@@ -21,6 +21,7 @@ class LoginController extends Controller
 {
     // Validate the form data
     $credentials = $request->validate([
+        'role' => 'required|string',
         'email' => 'required|string',
         'password' => 'required|string',
     ]);
@@ -67,12 +68,19 @@ class LoginController extends Controller
                             Auth::login($user);
                             return redirect('/dashboard')->with('success', "Successfully logged in as {$roles[0]}.");
                         }
+
+                        //If user have multiple user_roles, update the role selected by the user in the login page
+                            DB::transaction(function () use ($request, $user) {
+                                // Prepare the update data
+                                $updateData = [
+                                    'role' => $request->role,
+                                ];
                         
-                        // Pass roles to the view for selection
-                        return view('auth.login', [
-                            'roles' => $roles,
-                            'user' => $credential,
-                        ]);
+                                // Update the user's role
+                                User::where('user_id', $user->user_id)->update($updateData);
+                            });
+
+                            return redirect('/dashboard')->with('success', "Successfully Logged in.");
                     } else {
                         return back()->with('error', 'Your account is not verified yet.');
                     }
@@ -90,13 +98,9 @@ class LoginController extends Controller
         return back()->with('error', 'Incorrect Entered Email. The user does not exist.');
     }
 }
-
-
-
-
     public function showLoginForm()
     {
-        return view('auth.login'); // Adjust the view path as necessary
+        return view('auth.login', ['roles' => []]);
     }
 
     public function logout(Request $request)
@@ -122,44 +126,22 @@ class LoginController extends Controller
         return redirect('/login'); // Redirect to login or any desired route
     }
 
-    public function selectRole(Request $request)
-{
-    $request->validate([
-        'role' => 'required|string',
-        'password' => 'required|string',
-    ]);
-
-    $user = Auth::user();
-
-    if ($user) {
-        // Check if password matches
-        if (Hash::check($request->password, $user->password)) {
-            // Verify the selected role is part of the user's roles
-            $roles = explode(', ', $user->user_roles); // Convert stored roles into an array
-            if (in_array($request->role, $roles)) {
-
-                // Perform the role update within a transaction
-                DB::transaction(function () use ($request, $user) {
-                    // Prepare the update data
-                    $updateData = [
-                        'role' => $request->role,
-                    ];
-            
-                    // Update the user's role
-                    User::where('user_id', $user->user_id)->update($updateData);
-                });
-
-                //session(['selected_role' => $request->role]); // Store the role in the session
-                return redirect('/dashboard')->with('success', "Successfully Logged in.");
-            } else {
-                return back()->with('error', 'Invalid role selection.');
-            }
-        } else {
-            return back()->with('error', 'Incorrect password. Please try again.');
+    // This fetch roles based on the entered email. This method will handle the AJAX request:
+    public function getUserRoles(Request $request)
+    {
+        $email = $request->input('email');
+    
+        // Fetch the user by email
+        $user = User::where('email', $email)->first();
+    
+        if ($user && $user->user_roles) {
+            // Convert roles to an array
+            $roles = explode(', ', $user->user_roles);
+            return response()->json(['roles' => $roles]);
         }
-    } else {
-        return redirect()->route('login')->with('error', 'Invalid session. Please login again.');
+    
+        // If no user or roles found, return an empty array
+        return response()->json(['roles' => []]);
     }
-}
 
 }

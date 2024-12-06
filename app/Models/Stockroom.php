@@ -37,6 +37,11 @@ class Stockroom extends Authenticatable
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    public function stock_transfer()
+    {
+        return $this->hasMany(StockTransfer::class, 'stockroom_id');
+    }
+
     public function updateQuantity($amount)
     {
         $this->product_quantity += $amount;

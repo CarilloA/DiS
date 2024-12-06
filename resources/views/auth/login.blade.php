@@ -170,8 +170,6 @@
                         <div style="">
                             <p class="mt-8" style="color: #fff">Login to your account</p>
                         
-                            <!-- Only show login form if no roles are available -->
-                            @if (empty($roles))
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
                                 
@@ -188,6 +186,16 @@
                                             <strong>{{ $message }}</strong>
                                         </span>
                                     @enderror
+                                </div>
+
+                                {{-- display the user_roles associated with the entered email of the user --}}
+                                <div class="mb-3" id="roles-container" style="display: none;">
+                                    <label for="role" style="color: #fff;">Choose a role to login:</label>
+                                    <select name="role" id="role" class="form-control" required>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role }}">{{ ucfirst($role) }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
                                 <!-- Password Input -->
@@ -228,37 +236,6 @@
                                     </button>
                                 </div>
                             </form>
-                            @endif
-                        
-                            <!-- Only show role selection form if roles are available -->
-                            @if (!empty($roles))
-                            <form method="POST" action="{{ route('select-role') }}">
-                                @csrf
-                                
-                                <!-- Confirm Password Input -->
-                                <div class="mb-3">
-                                    <div class="input-group">
-                                        <input id="password" type="password" placeholder="Confirm Password" class="form-control" name="password" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="role" style="color: #fff;">Choose a role to login:</label>
-                                    <select name="role" id="role" class="form-control" required>
-                                        @foreach ($roles as $role)
-                                            <option value="{{ $role }}">{{ ucfirst($role) }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-login mb-4">
-                                        {{ __('Login with Role') }}
-                                    </button>
-                                </div>
-                            </form>
-                            @endif
-                        
                         </div>
                     </div>
                 </div>
@@ -266,4 +243,63 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById("email").addEventListener("blur", function () {
+    const email = this.value.trim();
+    const roleDropdown = document.getElementById("role");
+    const rolesContainer = document.getElementById("roles-container");
+
+    // Clear existing options and hide the dropdown by default
+    roleDropdown.innerHTML = "";
+    rolesContainer.style.display = "none";
+    roleDropdown.removeAttribute("required");
+
+    if (email) {
+        // Make AJAX request to fetch roles
+        fetch("{{ route('get-user-roles') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+            },
+            body: JSON.stringify({ email: email })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.roles && data.roles.length > 0) {
+                    // Check the number of roles
+                    if (data.roles.length === 1) {
+                        // Automatically select the single role
+                        const singleRole = data.roles[0];
+                        const option = document.createElement("option");
+                        option.value = singleRole;
+                        option.textContent = singleRole.charAt(0).toUpperCase() + singleRole.slice(1);
+                        roleDropdown.appendChild(option);
+                    } else {
+                        // Populate dropdown and show it
+                        data.roles.forEach(role => {
+                            const option = document.createElement("option");
+                            option.value = role;
+                            option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+                            roleDropdown.appendChild(option);
+                        });
+                        rolesContainer.style.display = "block";
+                        roleDropdown.setAttribute("required", "true");
+                    }
+                } else {
+                    // Show a default message if no roles found
+                    const option = document.createElement("option");
+                    option.textContent = "No roles available";
+                    roleDropdown.appendChild(option);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching roles:", error);
+            });
+    }
+});
+
+</script>
+
 @endsection

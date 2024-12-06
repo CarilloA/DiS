@@ -798,10 +798,44 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        //
+    public function edit($productId)
+{
+    // Check if the user is logged in
+    if (!Auth::check()) {
+        // If the user is not logged in, redirect to login
+        return redirect('/login')->withErrors('You must be logged in.');
     }
+
+    // SQL `user` to get Inventory Manager details
+    $userSQL = DB::table('user')
+    ->select('user.*')
+    ->where('role', '=', 'Inventory Manager')
+    ->get();
+
+    $productJoined = DB::table('inventory')
+        ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+        ->join('category', 'product.category_id', '=', 'category.category_id')
+        ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+        ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+        ->where('product.product_id', '=', $productId)
+        ->first();
+
+    // Decode the description for the product
+// Decode the description for the product if it's set
+$descriptionArray = [];
+if ($productJoined && isset($productJoined->description)) {
+    $descriptionArray = json_decode($productJoined->description, true); // Decode the JSON description into an array
+}
+
+    // Fetch all categories for filtering or display purposes
+    $categories = Category::all();
+    $suppliers = Supplier::all();
+
+    return view('purchase.update_product', compact('userSQL', 'productJoined', 'categories', 'suppliers', 'descriptionArray'));
+}
+
 
     /**
      * Update the specified resource in storage.
@@ -810,10 +844,126 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(Request $request, $productId)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'image_url' => ['image', 'nullable'],
+        'product_name' => ['required', 'string', 'max:30'],
+        'category_dropdown' => ['required'],
+        'category_name' => ['nullable', 'string', 'max:30', 'unique:category,category_name',],
+        'purchase_price_per_unit' => ['required', 'numeric'],
+        'sale_price_per_unit' => ['required', 'numeric'],
+        'unit_of_measure' => ['required', 'string', 'max:15'],
+        'in_stock' => ['required', 'numeric'],
+        'reorder_level' => ['required', 'numeric'],
+        'color' => ['max:50'],
+        'size' => ['max:50'],
+        'description' => ['max:255'],
+        'supplier_dropdown' => ['required'],
+        'company_name' => ['nullable', 'string', 'max:30'],
+        'contact_person' => ['nullable', 'string', 'max:30'],
+        'mobile_number' => ['nullable', 'numeric'],
+        'email' => ['nullable', 'string', 'max:30'],
+        'address' => ['nullable', 'string', 'max:50'],
+        'aisle_number' => ['numeric'],
+        'cabinet_level' => ['numeric'],
+        'product_quantity' => ['numeric'],
+    ]);
+
+    // Find the product by its ID
+    $product = Product::findOrFail($productId);
+    $fileNameToStore = $product->image_url; // Default to the existing image
+
+    // Handle file upload if a new image is provided
+    if ($request->hasFile('image_url')) {
+        $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
     }
+
+    // Use a transaction to ensure data integrity
+    DB::transaction(function () use ($validatedData, $fileNameToStore, $product) {
+        // Handle category logic
+        $categoryId = $validatedData['category_dropdown'];
+        if ($categoryId === 'add-new-category') {
+            // Create a new Category
+            $category = Category::create([
+                'category_id' => $this->generateId('category'), // Generate custom ID for category
+                'category_name' => $validatedData['category_name'],
+            ]);
+            $categoryId = $category->category_id; // Get the new category's ID
+        }
+
+        // Handle supplier logic
+        $supplierId = $validatedData['supplier_dropdown'];
+        if ($supplierId === 'add-new') {
+            // Create a new supplier
+            $supplier = Supplier::create([
+                'supplier_id' => $this->generateId('supplier'), // Generate custom ID for supplier
+                'company_name' => $validatedData['company_name'],
+                'contact_person' => $validatedData['contact_person'],
+                'mobile_number' => $validatedData['mobile_number'],
+                'email' => $validatedData['email'],
+                'address' => $validatedData['address'],
+            ]);
+            $supplierId = $supplier->supplier_id; // Get the new supplier's ID
+        }
+
+        // Update the Product
+        $product->update([
+            'image_url' => $fileNameToStore,
+            'product_name' => $validatedData['product_name'],
+            'description' => json_encode([ // Encode the array as JSON
+                'color' => $validatedData['color'],
+                'size' => $validatedData['size'],
+                'description' => $validatedData['description'],
+            ]),
+            'category_id' => $categoryId, // Use the existing or newly created category ID
+            'supplier_id' => $supplierId, // Use the existing or newly created supplier ID
+        ]);
+
+        $productJoined = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->where('product.product_id', '=',  $product->product_id)
+            ->first();
+
+        // Retrieve the stockroom using the joined result, assuming the stockroom ID is available
+        $stockroom = Stockroom::where('stockroom_id', $productJoined->stockroom_id)->firstOrFail();
+
+        $stockroom->update([
+            'aisle_number' => $validatedData['aisle_number'],
+            'cabinet_level' => $validatedData['cabinet_level'],
+            'product_quantity' => $validatedData['product_quantity'],
+            'category_id' => $categoryId, // Use the existing or newly created category ID
+        ]);
+
+        // Update the StockTransfer if necessary
+        $stockTransfer = StockTransfer::where('product_id', $product->product_id)->firstOrFail();
+        $stockTransfer->update([
+            'transfer_quantity' => $validatedData['product_quantity'],
+            'transfer_date' => now(),
+            'to_stockroom_id' => $stockroom->stockroom_id, // Use the generated stockroom_id
+        ]);
+
+        // Update the Inventory
+        $inventory = Inventory::where('product_id', $product->product_id)->firstOrFail();
+        $inventory->update([
+            'purchase_price_per_unit' => $validatedData['purchase_price_per_unit'],
+            'sale_price_per_unit' => $validatedData['sale_price_per_unit'],
+            'unit_of_measure' => $validatedData['unit_of_measure'],
+            'in_stock' => $validatedData['in_stock'],
+            'reorder_level' => $validatedData['reorder_level'],
+        ]);
+    });
+
+    // Redirect or return response after successful update
+    return redirect()->route('purchase_table')->with('success', 'Product updated successfully.');
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -831,7 +981,10 @@ class PurchaseController extends Controller
     // Check if the current password matches
     if (!Hash::check($validatedData['password'], Auth::user()->password)) {
         // If password is incorrect, redirect back with error
-        return back()->withErrors(['password' => 'The password you entered is incorrect.']);
+        return back()->with([
+            'delete_error' => 'The password you entered is incorrect.',
+            'error_product_id' => $id, // Pass the product ID with an error
+        ]);
     }
 
     // Find and delete the product
@@ -840,7 +993,7 @@ class PurchaseController extends Controller
     if ($product) {
         $product->delete();
         // Redirect with success message
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('purchase_table')->with('success', 'Product deleted successfully.');
     }
 
     // If product not found
