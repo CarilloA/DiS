@@ -158,52 +158,169 @@
                         </button>
                     </div>
                 </form>
+                <form method="POST" action="{{ route('generate_audit_filter_report') }}" enctype="multipart/form-data" class="mb-4 report-form" id="reportForm">
+                    @csrf
+                    <div class="input-group mb-3">
+                        <!-- Pass values directly as arrays -->
+                        <input type="hidden" name="user_ids" value="{{ implode(',', request('user_ids', [])) }}">
+                        <input type="hidden" name="discrepancy_reasons" value="{{ implode(',', request('discrepancy_reasons', [])) }}">
+                        <input type="hidden" name="dates" value="{{ implode(',', request('dates', [])) }}">
+                
+                        <div class="ms-auto">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa-solid fa-print"></i> Generate Filter Report
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                
+
+
+                <!-- Dropdown with Buttons -->
+                    <div class="row d-flex justify-content-end">
+                        <div class="col-auto">
+                            <div class="dropdown">
+
+                                <!-- Display all -->
+                                <div class="btn-group">
+                                    <a type="button" class="btn btn-success mb-2" href="{{ route('inventory.audit.logs') }}">Display All</a>
+                                </div>
+
+                                <!-- Auditor Dropdown -->
+                                <div class="btn-group">
+                                    <button class="btn btn-success dropdown-toggle mb-2" type="button" id="auditorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Auditor
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="auditorDropdown">
+                                        <form id="auditorFilterForm" method="GET" action="{{ route('filter_auditor') }}">
+                                            @foreach($auditors as $auditor)
+                                                <li>
+                                                    <label class="dropdown-item">
+                                                        <input type="checkbox" name="user_ids[]" value="{{ $auditor->user_id }}"> 
+                                                        {{ $auditor->first_name }} {{ $auditor->last_name }}
+                                                    </label>
+                                                </li>
+                                            @endforeach
+                                            <li class="text-center mt-2">
+                                                <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                            </li>
+                                        </form>
+                                    </ul>
+                                </div>
+                                
+
+
+                            <!-- Discrepancy Reason Dropdown -->
+                            <div class="btn-group">
+                                <button class="btn btn-success dropdown-toggle mb-2" type="button" id="discrepancyReasonDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Discrepancy Reason
+                                </button>
+                                <ul class="dropdown-menu p-3" aria-labelledby="discrepancyReasonDropdown" style="min-width: 250px;">
+                                    <form id="discrepancyReasonFilterForm" method="GET" action="{{ route('filter_discrepancy_reason') }}">
+                                        @foreach($discrepancyReasons as $discrepancyReason)
+                                            <li>
+                                                <label class="dropdown-item">
+                                                    <input type="checkbox" name="discrepancy_reasons[]" value="{{ $discrepancyReason->discrepancy_reason }}"> 
+                                                    {{ $discrepancyReason->discrepancy_reason }}
+                                                </label>
+                                            </li>
+                                        @endforeach
+                                        <li class="text-center mt-2">
+                                            <button type="submit" class="btn btn-success btn-sm">Filter</button>
+                                        </li>
+                                    </form>
+                                </ul>
+                            </div>
+                            
+                                
+                                <!-- Date Audited Dropdown -->
+                                <div class="btn-group">
+                                    <button 
+                                        class="btn btn-success dropdown-toggle mb-2" 
+                                        type="button" 
+                                        id="dateAuditedDropdown" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                        <i class="fas fa-calendar-alt"></i> Select Date(s)
+                                    </button>
+                                    <ul class="dropdown-menu p-4 shadow" aria-labelledby="dateAuditedDropdown" style="min-width: 300px;">
+                                        <form id="dateAuditedFilterForm" method="GET" action="{{ route('filter_date_audited') }}">
+                                            
+                                            <!-- Filter Button Above the Calendar -->
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <button type="submit" class="btn btn-success btn-sm w-100">Apply Filter</button>
+                                            </div>
+                                
+                                            <!-- Date Picker Input -->
+                                            <div class="mb-3">
+                                                <label for="datePicker" class="form-label fw-bold">Select Date(s) to Filter</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="datePicker" 
+                                                    class="form-control border-success" 
+                                                    name="dates[]" 
+                                                    placeholder="Pick date(s)" 
+                                                    readonly 
+                                                    style="cursor: pointer;">
+                                            </div>
+                                        </form>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <table class="table table-responsive">
                     <thead>
                         <tr>
                             <th>Auditor</th>
                             <th>Product No.</th>
                             <th>Product Name</th>
-                            <th>previous Store Stock</th>
-                            <th>Previous Stockroom Stock</th>
-                            <th>Previous QoH</th>
-                            <th>New Store Stock</th>
-                            <th>New Stockroom Stock</th>
-                            <th>New QoH</th>
+                            <th>Store</th>
+                            <th>Stockroom</th>
                             <th>Store Stock Discrepancy</th>
                             <th>Stockroom Stock Discrepancy	</th>
                             <th>in_stock_discrepancy</th>
-                            <th>Discrepancy Reason</th>
-                            <th>Resolve Steps</th>
-                            <th>Audit Timestamp</th>
+                            <th>Resolution</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($auditLogs as $log)
+                        @forelse ($auditLogs as $log)
                             <div>
                                 <tr>
                                     <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
                                     <td>{{ $log->inventory->product->product_id }}</td>
                                     <td>{{ $log->inventory->product->product_name }}</td>
-                                    <td>{{ $log->previous_store_quantity }}</td>
-                                    <td>{{ $log->previous_stockroom_quantity }}</td>
-                                    <td>{{ $log->previous_quantity_on_hand }}</td>
-                                    <td>{{ $log->new_store_quantity }}</td>
-                                    <td>{{ $log->new_stockroom_quantity }}</td>
-                                    <td>{{ $log->new_quantity_on_hand }}</td>
+
+                                    <td>
+                                        <button type="button" class="btn btn-light" onclick="showStore('{{ $log->previous_store_quantity }}', '{{ $log->new_store_quantity }}', '{{ $log->previous_quantity_on_hand }}', '{{ $log->new_quantity_on_hand }}')">
+                                            <strong>more info.</strong>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-light" onclick="showStockroom('{{ $log->previous_stockroom_quantity }}', '{{ $log->new_stockroom_quantity }}', '{{ $log->previous_quantity_on_hand }}', '{{ $log->new_quantity_on_hand }}')">
+                                            <strong>more info.</strong>
+                                        </button>
+                                    </td>
                                     <td>{{ $log->store_stock_discrepancy }}</td>
                                     <td>{{ $log->stockroom_stock_discrepancy }}</td>
                                     <td>{{ $log->in_stock_discrepancy }}</td>
-                                    <td>{{ $log->discrepancy_reason }}</td>
                                     <td>
-                                        <button type="button" class="btn" onclick="showResolveSteps('{{ htmlspecialchars($log->resolve_steps) }}')">
-                                            <strong style="color: white; text-decoration: none; font-weight: normal;">more info.</strong>
+                                        <button type="button" class="btn btn-light" onclick="showResolution('{{ $log->discrepancy_reason }}', '{{ htmlspecialchars($log->resolve_steps) }}', '{{ $log->audit_date }}')">
+                                            <strong>more info.</strong>
                                         </button>
                                     </td>
-                                    <td>{{ $log->audit_date }}</td>
+                                    {{-- <td>{{ $log->audit_date }}</td> --}}
                                 </tr>
                             </div>
-                        @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="9" class="text-center">
+                                    <strong>There are no data currently.</strong>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -213,6 +330,56 @@
 @endsection
 
 <script>
+    // sweetalerts for store
+    function showStore(prevStock, newStock, prevInStock, newInStock) {
+        const storeDetails = `
+            <strong>Previous Store Stock:</strong> ${prevStock}<br>
+            <strong>New Store Stock:</strong> ${newStock}<br>
+            <strong>Previous Quantity on Hand:</strong> ${prevInStock}<br>
+            <strong>New Quantity on Hand:</strong> ${newInStock}<br>
+        `;
+
+        Swal.fire({
+            title: 'Store Stock Details',
+            html: storeDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+
+    // sweetalerts for stockroom
+    function showStockroom(prevStock, newStock, prevInStock, newInStock) {
+        const stockroomDetails = `
+            <strong>Previous Stockroom Stock:</strong> ${prevStock}<br>
+            <strong>New Stockroom Stock:</strong> ${newStock}<br>
+            <strong>Previous Quantity on Hand:</strong> ${prevInStock}<br>
+            <strong>New Quantity on Hand:</strong> ${newInStock}<br>
+        `;
+
+        Swal.fire({
+            title: 'Stockroom Stock Details',
+            html: stockroomDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+
+     // sweetalerts for resolve steps
+     function showResolution(reason, resolveSteps, dateAudited) {
+        const resolutionDetails = `
+            <strong>Date Audited:</strong> ${dateAudited}<br>
+            <strong>Discrepancy Reason:</strong> ${reason}<br>
+            <strong>Resolve Discrepancy Steps:</strong> ${resolveSteps}<br>
+        `;
+
+        Swal.fire({
+            title: 'Resolution Details',
+            html: resolutionDetails,
+            icon: 'info',
+            confirmButtonText: 'Close'
+        });
+    }
+
     // error handling for generate report
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('reportForm');
@@ -250,15 +417,14 @@
         });
     });
 
-    // sweetalerts for resolve steps
-    function showResolveSteps(resolveSteps) {
-        const resolveStepsDetails = `${resolveSteps}`;
+    // date filter
+    document.addEventListener('DOMContentLoaded', function () {
+    flatpickr('#datePicker', {
+        mode: 'multiple', // Allow selecting multiple dates
+        dateFormat: 'Y-m-d', // Format for the dates
+        altInput: true, // Show a user-friendly display
+        altFormat: 'F j, Y', // Display format
+    });
+});
 
-        Swal.fire({
-            title: 'Steps taken to resolve discrepancies',
-            html: resolveStepsDetails,
-            icon: 'info',
-            confirmButtonText: 'Close'
-        });
-    }
 </script>

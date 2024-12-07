@@ -25,7 +25,7 @@
                         <thead>
                             <tr>
                                 <th>Product Name</th>
-                                <th>Describe Actions Taken to Resolve Discrepancies</th>
+                                <th>Describe Actions Taken to Resolve Discrepancies <i>*Required</i></th>
                             </tr>
                         </thead>
                         <tbody>

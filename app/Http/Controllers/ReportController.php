@@ -7,6 +7,7 @@ use App\Models\InventoryAudit;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\DB;
 use App\Models\Inventory;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -37,7 +38,7 @@ class ReportController extends Controller
             ->orderBy('inventory.updated_at', 'desc')
             ->get('product.product_id');
 
-        $inventoryJoined = $inventoryJoined->unique('product_id');
+        $inventoryItems = $inventoryJoined->unique('product_id');
 
         $stockTransferJoined = DB::table('stock_transfer')
         ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
@@ -52,86 +53,105 @@ class ReportController extends Controller
             $item->descriptionArray = json_decode($item->description, true);
         }
 
+        // Set the report title
+        $reportTitle = 'Inventory Overview from ' . \Carbon\Carbon::parse($startDate)->format('F j, Y') . ' to ' . \Carbon\Carbon::parse($endDate)->format('F j, Y');
+
         // Return the view with the report data
-        return view('report.inventory_report', compact('inventoryJoined', 'startDate', 'endDate', 'stockTransferJoined'));
+        return view('report.filtered_report', compact('inventoryItems', 'startDate', 'endDate', 'stockTransferJoined', 'reportTitle'));
     }
 
     public function generateFilteredReport(Request $request)
-{
-    // $letters = $request->input('letters');
-    // $categoryIds = $request->input('category_ids');
-    // $supplierIds = $request->input('supplier_ids');
-    
+    {
+        // $letters = $request->input('letters');
+        // $categoryIds = $request->input('category_ids');
+        // $supplierIds = $request->input('supplier_ids');
+        
 
-    // Retrieve inputs and ensure they are arrays if provided as comma-separated strings
-    $letters = $this->parseArrayInput($request->input('letters'));
-    $categoryIds = $this->parseArrayInput($request->input('category_ids'));
-    $supplierIds = $this->parseArrayInput($request->input('supplier_ids'));
+        // Retrieve inputs and ensure they are arrays if provided as comma-separated strings
+        $letters = $this->parseArrayInput($request->input('letters'));
+        $categoryIds = $this->parseArrayInput($request->input('category_ids'));
+        $supplierIds = $this->parseArrayInput($request->input('supplier_ids'));
 
 
-    // Validate and filter data accordingly
-    $inventoryJoined = DB::table('inventory')
-    ->join('product', 'inventory.product_id', '=', 'product.product_id')
-    ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
-    ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
-    ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
-    ->join('category', 'product.category_id', '=', 'category.category_id')
-    ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
-    ->select(
-        'inventory.*',
-        'inventory.updated_at as inventory_updated_at',
-        'product.*',
-        'category.*',
-        'supplier.*',
-        'stock_transfer.*',
-        'stockroom.*',
-        'user.*'
-    )
-    ->distinct()
-    ->orderBy('inventory.updated_at', 'desc');
-
-    if ($letters) {
-
-        $inventoryJoined->where(function ($query) use ($letters) {
-            foreach ($letters as $letterName) {
-                $query->orWhere('product.product_name', 'like', $letterName . '%');
-            }
-        });
-    }
-    
-    if ($categoryIds) {
-        $inventoryJoined->whereIn('category.category_id', $categoryIds);
-    }
-
-    if ($supplierIds) {
-        $inventoryJoined->whereIn('supplier.supplier_id', $supplierIds);
-    }
-
-    $inventoryJoined = $inventoryJoined->get();
-
-    $inventoryItems = $inventoryJoined->unique('product_id');
-
-    $productIds = $inventoryItems->pluck('product_id')->toArray();
-
-    // Get the stock transfer data filtered by the product_ids
-    $stockTransferQuery = DB::table('stock_transfer')
+        // Validate and filter data accordingly
+        $inventoryJoined = DB::table('inventory')
+        ->join('product', 'inventory.product_id', '=', 'product.product_id')
+        ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
         ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
-        ->select('stock_transfer.*', 'user.*')
-        ->whereIn('product_id', $productIds)  // Use the extracted product_ids here
-        ->orderBy('transfer_date', 'desc');
+        ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+        ->join('category', 'product.category_id', '=', 'category.category_id')
+        ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+        ->select(
+            'inventory.*',
+            'inventory.updated_at as inventory_updated_at',
+            'product.*',
+            'category.*',
+            'supplier.*',
+            'stock_transfer.*',
+            'stockroom.*',
+            'user.*'
+        )
+        ->distinct()
+        ->orderBy('inventory.updated_at', 'desc');
 
-        // Execute the query for stock transfer data
-    $stockTransferJoined = $stockTransferQuery->get();
+        if ($letters) {
+
+            $inventoryJoined->where(function ($query) use ($letters) {
+                foreach ($letters as $letterName) {
+                    $query->orWhere('product.product_name', 'like', $letterName . '%');
+                }
+            });
+        }
+        
+        if ($categoryIds) {
+            $inventoryJoined->whereIn('category.category_id', $categoryIds);
+        }
+
+        if ($supplierIds) {
+            $inventoryJoined->whereIn('supplier.supplier_id', $supplierIds);
+        }
+
+        $inventoryJoined = $inventoryJoined->get();
+
+        $inventoryItems = $inventoryJoined->unique('product_id');
+
+        $productIds = $inventoryItems->pluck('product_id')->toArray();
+
+        // Get the stock transfer data filtered by the product_ids
+        $stockTransferQuery = DB::table('stock_transfer')
+            ->join('user', 'stock_transfer.user_id', '=', 'user.user_id')
+            ->select('stock_transfer.*', 'user.*')
+            ->whereIn('product_id', $productIds)  // Use the extracted product_ids here
+            ->orderBy('transfer_date', 'desc');
+
+            // Execute the query for stock transfer data
+        $stockTransferJoined = $stockTransferQuery->get();
+
+        // Build the report title
+        $reportTitleParts = [];
+        if ($letters) {
+            $reportTitleParts[] = 'Product Names';
+        }
+        if ($categoryIds) {
+            $reportTitleParts[] = 'Product Categories';
+        }
+        if ($supplierIds) {
+            $reportTitleParts[] = 'Product Suppliers';
+        }
+        
+        // Join the parts into a string and build the report title
+        $reportTitle = !empty($reportTitleParts) ? 
+            'Inventory Overview by ' . implode(', ', $reportTitleParts) : 'Inventory Overview';
 
 
-    return view('report.filtered_report', compact('inventoryItems', 'stockTransferJoined'));
-}
+        return view('report.filtered_report', compact('inventoryItems', 'stockTransferJoined', 'reportTitle'));
+    }
 
-private function parseArrayInput($input)
-{
-    // If the input is a string, convert it to an array
-    return is_array($input) ? $input : ($input ? explode(',', $input) : []);
-}
+    private function parseArrayInput($input)
+    {
+        // If the input is a string, convert it to an array
+        return is_array($input) ? $input : ($input ? explode(',', $input) : []);
+    }
 
 
 
@@ -169,7 +189,89 @@ private function parseArrayInput($input)
             ->whereIn('inventory.inventory_id', $inventoryIds)
             ->get();
 
+        // Set the report title
+        $reportTitle = 'Stock Discrepancy: An Audit Report from ' . \Carbon\Carbon::parse($startDate)->format('F j, Y') . ' to ' . \Carbon\Carbon::parse($endDate)->format('F j, Y');
+
         // Return the view with the report data
-        return view('report.audit_inventory_report', compact('auditLogs', 'startDate', 'endDate', 'inventoryJoined'));
+        return view('report.audit_inventory_report', compact('auditLogs', 'startDate', 'endDate', 'inventoryJoined', 'reportTitle'));
     }
+
+    public function generateAuditFilteredReport(Request $request)
+    {
+        // Get the input data (these should be arrays, but they might come in as strings)
+        $auditorIds = $this->parseArrayInput($request->input('user_ids', []));
+        $selectedReasons = $this->parseArrayInput($request->input('discrepancy_reasons', []));
+        $selectedDates = $this->parseArrayInput($request->input('dates', []));
+        
+        // Ensure selectedDates is an array (if it's null, default to empty array)
+        $selectedDates = is_array($selectedDates) ? $selectedDates : [];
+    
+        // Format the dates if needed
+        $formattedDates = [];
+        foreach ($selectedDates as $date) {
+            if (empty($date)) {
+                continue; // Skip empty values
+            }
+    
+            $datesArray = explode(',', $date); // Split the comma-separated dates
+            foreach ($datesArray as $singleDate) {
+                try {
+                    $formattedDates[] = Carbon::parse(trim($singleDate))->format('Y-m-d');
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
+    
+        // Ensure $formattedDates is always an array
+        $formattedDates = is_array($formattedDates) ? $formattedDates : [];
+    
+        // Query the audit logs based on the filters
+        $auditLogs = InventoryAudit::with(['inventory', 'user'])
+            ->when($auditorIds, function ($query) use ($auditorIds) {
+                return $query->whereIn('user_id', $auditorIds);
+            })
+            ->when($selectedReasons, function ($query) use ($selectedReasons) {
+                return $query->whereIn('discrepancy_reason', $selectedReasons);
+            })
+            ->when($formattedDates, function ($query) use ($formattedDates) {
+                return $query->whereIn(DB::raw('DATE(audit_date)'), $formattedDates);
+            })
+            ->orderBy('audit_date', 'desc')
+            ->get();
+
+        // Build the report title
+        $reportTitleParts = [];
+        if ($auditorIds) {
+            $reportTitleParts[] = 'Auditors';
+        }
+        if ($selectedReasons) {
+            $reportTitleParts[] = 'Discrepancy Reasons';
+        }
+        if ($formattedDates) {
+            $reportTitleParts[] = 'Dates';
+        }
+        
+        // Join the parts into a string and build the report title
+        $reportTitle = !empty($reportTitleParts) ? 
+            'Stock Discrepancy: An Audit Report Filtered By ' . implode(', ', $reportTitleParts) : 'Stock Discrepancy: An Audit Report';
+        
+        // Extract inventory IDs from the audit logs
+        $inventoryIds = $auditLogs->pluck('inventory_id')->unique();
+
+        // Query to get the inventory report data
+        $inventoryJoined = DB::table('inventory')
+            ->join('product', 'inventory.product_id', '=', 'product.product_id')
+            ->join('stock_transfer', 'stock_transfer.product_id', '=', 'product.product_id')
+            ->join('stockroom', 'stock_transfer.to_stockroom_id', '=', 'stockroom.stockroom_id')
+            ->join('category', 'product.category_id', '=', 'category.category_id')
+            ->join('supplier', 'product.supplier_id', '=', 'supplier.supplier_id')
+            ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
+            ->whereIn('inventory.inventory_id', $inventoryIds)
+            ->get();
+    
+        return view('report.audit_inventory_report', compact('auditLogs', 'inventoryJoined', 'reportTitle'));
+    }
+    
+    
 }

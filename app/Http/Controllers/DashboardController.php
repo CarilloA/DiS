@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\StockTransfer;
 use App\Models\Stockroom;
 use function PHPUnit\Framework\isNull;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -163,7 +164,6 @@ class DashboardController extends Controller
                 'stockroom' => 0,
                 'store' => 0,
             ];
-
             $quantityOnHand = [];
             $storeQuantities = [];
             $stockroomQuantities = [];
@@ -197,7 +197,6 @@ class DashboardController extends Controller
                 return redirect()->route('accounts_table')->with('success', 'You have successfully logged in.');
             }
 
-
             // Check if the user is an Administrator (role is in `credentials` table)
             if ($userSQL && $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
                 // Pass the inventory managers and user role to the view
@@ -210,14 +209,14 @@ class DashboardController extends Controller
                     'totalProducts' => $totalProducts,
                     'totalStockroom'=> $totalStockroom,
                     'totalStoreStock' => $totalStoreStock,
-                    // 'stockTransfers' => $stockTransfers,
                     'transferData' => $transferData,
                     'productNames' => $productNames,
                     'storeStock' => $storeStock,
                     'stockroomStock' => $stockroomStock,
                     'totalSalesQuantity' => $totalSalesQuantity,
                     'totalStock' => $totalStock,
-                    //discrepancies, audit dashboard
+
+                    //start chart data for auditor dashboard
                     'audits' => $audits,
                     'discrepancies' => $discrepancies,
                     'quantityOnHand' => $quantityOnHand,
@@ -237,6 +236,33 @@ class DashboardController extends Controller
 
         return redirect('/login')->withErrors('You must be logged in.');
     }
+
+
+    // In the controller
+    public function getChartData(Request $request)
+    {
+        $filter = $request->input('filter'); // e.g., weekly, monthly, yearly
+    
+        $data = [];
+        switch ($filter) {
+            case 'weekly':
+                $data = $this->getWeeklyData();
+                break;
+            case 'monthly':
+                $data = $this->getMonthlyData();
+                break;
+            case 'yearly':
+                $data = $this->getYearlyData();
+                break;
+            default:
+                $data = $this->getDefaultData();
+                break;
+        }
+    
+        return response()->json($data);
+    }
+    
+
 
 
 // public function destroy(int $id)

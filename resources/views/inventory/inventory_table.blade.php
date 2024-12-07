@@ -388,17 +388,6 @@
             confirmButtonText: 'Close'
         });
     }
-
-    $(document).ready(function(){
-        // Loop through each delete modal
-        @foreach($userSQL as $data)
-        $('#deleteModal{{ $data->user_id }}').on('hidden.bs.modal', function () {
-            // Clear input fields
-            $('#admin_username_{{ $data->user_id }}').val('');
-            $('#admin_password_{{ $data->user_id }}').val('');
-        });
-        @endforeach
-    });
 </script>
 
 @endsection

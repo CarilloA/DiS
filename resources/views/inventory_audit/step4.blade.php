@@ -24,8 +24,8 @@
                         <thead>
                             <tr>
                                 <th>Product Name</th>
-                                <th>Adjusted Store Stock</th>
-                                <th>Adjusted Stockroom Stock</th>
+                                <th>Adjusted Store Stock <i>*Required</i></th>
+                                <th>Adjusted Stockroom Stock <i>*Required</i></th>
                                 <th>Adjusted QoH</th>
                             </tr>
                         </thead>
@@ -57,10 +57,10 @@
                             </span>
 
                             <div class="form-group">
-                                <label for="username">Auditor Username</label>
-                                <input type="text" class="form-control @error('confirm_username') is-invalid @enderror" placeholder="Enter current username" name="confirm_username" pattern="^[A-Za-z0-9]*" required>
+                                <label>Auditor Email <i>*Required</i></label>
+                                <input type="email" class="form-control @error('confirm_email') is-invalid @enderror" placeholder="Enter current email" name="confirm_email" required>
 
-                                @error('confirm_username')
+                                @error('confirm_email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -68,8 +68,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="password">Auditor Password</label>
-                                <input type="password" class="form-control @error('confirm_password') is-invalid @enderror" placeholder="Enter current password" name="confirm_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
+                                <label for="password">Auditor Password <i>*Required</i></label>
+                                <input type="password" class="form-control @error('confirm_password') is-invalid @enderror" placeholder="Enter current password" name="confirm_password" required>
                             
                                 @error('confirm_password')
                                     <span class="invalid-feedback" role="alert">
@@ -83,10 +83,10 @@
                                 <i class="fa fa-key fa-lg"></i><label class="ms-2">Admin Confirmation</label>
                             </span>
                             <div class="form-group">
-                                <label for="username">Admin Username</label>
-                                <input type="text" class="form-control @error('confirm_admin_username') is-invalid @enderror" placeholder="Enter current username" name="confirm_admin_username" pattern="^[A-Za-z0-9]*" required>
+                                <label>Admin Email <i>*Required</i></label>
+                                <input type="email" class="form-control @error('confirm_admin_email') is-invalid @enderror" placeholder="Enter admin email" name="confirm_admin_email" required>
                             
-                                @error('confirm_admin_username')
+                                @error('confirm_admin_email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -94,8 +94,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="password">Admin Password</label>
-                                <input type="password" class="form-control @error('confirm_admin_password') is-invalid @enderror" placeholder="Enter current password" name="confirm_admin_password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_\-\\\.\+]).{8,}$" required>
+                                <label for="password">Admin Password <i>*Required</i></label>
+                                <input type="password" class="form-control @error('confirm_admin_password') is-invalid @enderror" placeholder="Enter current password" name="confirm_admin_password" required>
                             
                                 @error('confirm_admin_password')
                                     <span class="invalid-feedback" role="alert">

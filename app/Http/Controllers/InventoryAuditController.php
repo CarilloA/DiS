@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class InventoryAuditController extends Controller
 {
@@ -169,7 +170,7 @@ class InventoryAuditController extends Controller
             return redirect('/login')->withErrors('You must be logged in.');
         }
 
-        // Get the selected category IDs
+        // Get the selected supplier IDs
         $supplierIds = $request->get('supplier_ids', []);
 
         // If no categories are selected, show all products
@@ -440,9 +441,9 @@ class InventoryAuditController extends Controller
             'adjusted_quantity_on_hand.*' => 'required|numeric',
             'adjusted_store_quantity.*' => 'required|numeric',
             'adjusted_stockroom_quantity.*' => 'required|numeric',
-            'confirm_username' => 'required|string',
+            'confirm_email' => 'required|string',
             'confirm_password' => 'required|string',
-            'confirm_admin_username' => 'required|string',
+            'confirm_admin_email' => 'required|string',
             'confirm_admin_password' => 'required|string',
         ]);
 
@@ -454,14 +455,34 @@ class InventoryAuditController extends Controller
         $user = Auth::user();
 
         // Auditor verification
-        if (!Hash::check($request->confirm_password, $user->password) || $user->username !== $request->confirm_username) {
-            return back()->withErrors(['confirm_password' => 'Invalid auditor credentials']);
+        if ($user->email) {
+            if ($user->email === $request->confirm_email) {
+                if (!Hash::check($request->confirm_password, $user->password)) {
+                    return back()->withErrors(['confirm_password' => 'The password entered does not match the account associated with the provided email.']);
+                }
+            } else {
+                return back()->withErrors(['confirm_email' => 'The entered email does not match the login user account.']);
+            }
+        } else {
+            return back()->withErrors(['confirm_email' => 'The entered email does not exist in our records.']);
         }
 
         // Admin verification
-        $admin = DB::table('user')->where('role', 'Administrator')->first();
-        if (!$admin || !Hash::check($request->confirm_admin_password, $admin->password) || $admin->username !== $request->confirm_admin_username) {
-            return back()->withErrors(['confirm_admin_password' => 'Invalid admin credentials']);
+        $admin = DB::table('user')->where('email', $request->confirm_admin_email)->first();
+
+        // Get all roles associated with the user and trim spaces from each role
+        $roles = array_map('trim', explode(', ', $admin->user_roles)); // Converts the comma-separated string back into an array
+
+        if ($admin) {
+            if (in_array('Administrator', $roles)) {
+                if (!Hash::check($request->confirm_admin_password, $admin->password)) {
+                    return back()->withErrors(['confirm_admin_password' => 'The password entered does not match the account associated with the provided email.']);
+                }
+            } else{
+                return back()->withErrors(['confirm_admin_email' => 'The entered email account has no rights to make changes to the inventory']);
+            }
+        } else{
+            return back()->withErrors(['confirm_admin_email' => 'The entered email does not exist in our records.']);
         }
     
         // Process and update discrepancies in database
@@ -510,6 +531,97 @@ class InventoryAuditController extends Controller
     
     public function logs() {
         $auditLogs = InventoryAudit::with(['inventory', 'user'])->orderBy('audit_date', 'desc')->get();
-        return view('inventory_audit.logs', compact('auditLogs'));
+        
+        
+        // Fetch all for filtering or display purposes
+        $auditors = User::where('user_roles', 'like', '%Auditor%')->get();
+        $discrepancyReasons = InventoryAudit::select('discrepancy_reason')->distinct()->get();
+
+        $dateAuditeds = InventoryAudit::all();
+
+        return view('inventory_audit.logs', compact('auditLogs', 'auditors', 'discrepancyReasons', 'dateAuditeds'));
     }
+
+    // Auditor Filter
+    public function auditorFilter(Request $request)
+{
+    if (!Auth::check()) {
+        return redirect('/login')->withErrors('You must be logged in.');
+    }
+
+    $auditorIds = $request->get('user_ids', []);
+
+    $auditLogs = InventoryAudit::with(['inventory', 'user'])
+        ->when(!empty($auditorIds), function ($query) use ($auditorIds) {
+            $query->whereIn('user_id', $auditorIds);
+        })
+        ->orderBy('audit_date', 'desc')
+        ->get();
+
+    // Fetch all for dropdowns
+    $auditors = User::where('user_roles', 'like', '%Auditor%')->get();
+    $discrepancyReasons = InventoryAudit::select('discrepancy_reason')->distinct()->get();
+
+    return view('inventory_audit.logs', compact('auditLogs', 'auditors', 'discrepancyReasons'));
+}
+
+
+    // Discrepancy Reason Filter
+    public function discrepancyReasonFilter(Request $request)
+{
+    if (!Auth::check()) {
+        return redirect('/login')->withErrors('You must be logged in.');
+    }
+
+    $selectedReasons = $request->get('discrepancy_reasons', []);
+
+    $auditLogs = InventoryAudit::with(['inventory', 'user'])
+        ->when(!empty($selectedReasons), function ($query) use ($selectedReasons) {
+            $query->whereIn('discrepancy_reason', $selectedReasons);
+        })
+        ->orderBy('audit_date', 'desc')
+        ->get();
+
+    // Fetch all for dropdowns
+    $auditors = User::where('user_roles', 'like', '%Auditor%')->get();
+    $discrepancyReasons = InventoryAudit::select('discrepancy_reason')->distinct()->get();
+
+    return view('inventory_audit.logs', compact('auditLogs', 'auditors', 'discrepancyReasons'));
+}
+
+
+
+public function dateAuditedFilter(Request $request)
+{
+    if (!Auth::check()) {
+        return redirect('/login')->withErrors('You must be logged in.');
+    }
+
+    // Retrieve the selected dates
+    $selectedDates = $request->get('dates', []);
+
+    // Check if dates were selected and split if needed
+    $formattedDates = [];
+    foreach ($selectedDates as $date) {
+        $datesArray = explode(',', $date);  // Split the comma-separated dates
+        foreach ($datesArray as $singleDate) {
+            // Trim any extra spaces and parse each date individually
+            $formattedDates[] = Carbon::parse(trim($singleDate))->format('Y-m-d');
+        }
+    }
+
+    // Filter audit logs by selected dates
+    $auditLogs = InventoryAudit::with(['inventory', 'user'])
+        ->whereIn(DB::raw('DATE(audit_date)'), $formattedDates) // Compare the date part of the timestamp
+        ->orderBy('audit_date', 'desc')
+        ->get();
+
+    // Fetch data for dropdown filters
+    $auditors = User::where('user_roles', 'like', '%Auditor%')->get();
+    $discrepancyReasons = InventoryAudit::select('discrepancy_reason')->distinct()->get();
+
+    return view('inventory_audit.logs', compact('auditLogs', 'auditors', 'discrepancyReasons'));
+}
+
+
 }

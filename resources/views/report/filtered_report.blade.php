@@ -112,9 +112,13 @@
         <div class="main-content" id="main-content">
             <!-- Alert Messages -->
             @include('common.alert')
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h1>Inventory Report</h1>
+
+            <!-- Report Header -->
+            <div class="report-header">
+                <h1>{{ $reportTitle }}</h1>
+                <h5>Report generated on {{ \Carbon\Carbon::now()->format('F j, Y') }}</h5>
             </div>
+
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-primary ms-2 me-2 printButton" onclick="window.print();">
                     <i class="fa-solid fa-print"></i> Print Report
@@ -233,6 +237,14 @@
                     @endforelse
                 </tbody>
             </table>
+
+             <!-- Footer: Prepared By -->
+             <div class="prepared-by">
+                <?php 
+                    $user = auth()->user();
+                ?>
+                <h5><strong>Prepared By:</strong> {{ $user->first_name }} {{ $user->last_name }}</h5>
+            </div>
         </div>
     </main>
 </div>

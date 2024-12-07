@@ -44,6 +44,8 @@ use App\Http\Controllers\DashboardController;
 Route::middleware(['auth', 'check.default_password'])->group(function () {
     Route::resource('dashboard', DashboardController::class);
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/get-chart-data', [DashboardController::class, 'getChartData']);
+
 });
 
 
@@ -144,10 +146,18 @@ Route::get('filter_audit_product_name', [InventoryAuditController::class, 'produ
 Route::get('filter_audit_category', [InventoryAuditController::class, 'CategoryFilter'])->name('filter_audit_category');
 Route::get('filter_audit_supplier', [InventoryAuditController::class, 'supplierFilter'])->name('filter_audit_supplier');
 
+
+//filter audit logs
+Route::get('filter_auditor', [InventoryAuditController::class, 'auditorFilter'])->name('filter_auditor');
+Route::get('filter_discrepancy_reason', [InventoryAuditController::class, 'discrepancyReasonFilter'])->name('filter_discrepancy_reason');
+Route::get('filter_date_audited', [InventoryAuditController::class, 'dateAuditedFilter'])->name('filter_date_audited');
+
 use App\Http\Controllers\ReportController;
 Route::post('inventory_report', [ReportController::class, 'generateReport'])->name('report.generate');
 Route::post('generate_filter_report', [ReportController::class, 'generateFilteredReport'])->name('generate_filter_report');
 Route::post('audit_inventory_report', [ReportController::class, 'generateAuditReport'])->name('audit.report.generate');
+Route::post('generate_audit_filter_report', [ReportController::class, 'generateAuditFilteredReport'])->name('generate_audit_filter_report');
+
 
 use App\Http\Controllers\ScrapController;
 Route::post('dispose', [ScrapController::class, 'disposeProduct'])->name('dispose_product');

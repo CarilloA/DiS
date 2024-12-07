@@ -163,6 +163,18 @@
                     <div class="login-form w-50" style="color: white; margin-top: 20px;">
                         <!-- Alert Messages -->
                         @include('common.alert')
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+
                         <!-- Logo Image -->
                         <div class="text-center mb-4">
                             <img src="/storage/images/DiS_Logo.png" class="img-fluid" alt="logo" style="width: 25vw; height: auto; background: transparent;">
@@ -190,8 +202,8 @@
 
                                 {{-- display the user_roles associated with the entered email of the user --}}
                                 <div class="mb-3" id="roles-container" style="display: none;">
-                                    <label for="role" style="color: #fff;">Choose a role to login:</label>
-                                    <select name="role" id="role" class="form-control" required>
+                                    <label for="role" style="color: #fff;">Choose a role to login <i>*Required</i>: </label>
+                                    <select name="role" id="role" class="form-control">
                                         @foreach ($roles as $role)
                                             <option value="{{ $role }}">{{ ucfirst($role) }}</option>
                                         @endforeach
@@ -201,7 +213,7 @@
                                 <!-- Password Input -->
                                 <div class="mb-3">
                                     <div class="input-group">
-                                        <input id="password" type="password" placeholder="Password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                        <input id="password" type="password" placeholder="Password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" required>
                                         <span class="input-group-text" id="basic-addon2">
                                             <i class="fa fa-key fa-lg"></i>
                                         </span>
@@ -245,15 +257,14 @@
 </div>
 
 <script>
-    document.getElementById("email").addEventListener("blur", function () {
+
+document.getElementById("email").addEventListener("blur", function () {
     const email = this.value.trim();
     const roleDropdown = document.getElementById("role");
     const rolesContainer = document.getElementById("roles-container");
 
-    // Clear existing options and hide the dropdown by default
+    // Clear existing options
     roleDropdown.innerHTML = "";
-    rolesContainer.style.display = "none";
-    roleDropdown.removeAttribute("required");
 
     if (email) {
         // Make AJAX request to fetch roles
@@ -265,38 +276,67 @@
             },
             body: JSON.stringify({ email: email })
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 404) {
+                    throw new Error("The email address does not exist in our records.");
+                }
+                if (!response.ok) {
+                    throw new Error("An error occurred while processing your request.");
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.roles && data.roles.length > 0) {
-                    // Check the number of roles
                     if (data.roles.length === 1) {
-                        // Automatically select the single role
+                        // Automatically select a single role
                         const singleRole = data.roles[0];
                         const option = document.createElement("option");
                         option.value = singleRole;
                         option.textContent = singleRole.charAt(0).toUpperCase() + singleRole.slice(1);
                         roleDropdown.appendChild(option);
+                        rolesContainer.style.display = "none";
                     } else {
-                        // Populate dropdown and show it
+                        // Populate dropdown with multiple roles
+                        const defaultOption = document.createElement("option");
+                        defaultOption.value = "";
+                        defaultOption.textContent = "Select a role";
+                        defaultOption.disabled = true;
+                        defaultOption.selected = true;
+                        roleDropdown.appendChild(defaultOption);
+
                         data.roles.forEach(role => {
                             const option = document.createElement("option");
                             option.value = role;
                             option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
                             roleDropdown.appendChild(option);
                         });
+
                         rolesContainer.style.display = "block";
                         roleDropdown.setAttribute("required", "true");
                     }
                 } else {
-                    // Show a default message if no roles found
+                    // Display message if no roles found
                     const option = document.createElement("option");
+                    option.value = "";
                     option.textContent = "No roles available";
+                    option.disabled = true;
                     roleDropdown.appendChild(option);
                 }
             })
             .catch(error => {
-                console.error("Error fetching roles:", error);
+                console.error("Error:", error.message);
+                alert(error.message);
             });
+    }
+});
+
+// Remove 'required' from the role field when hidden to prevent focusable errors
+document.querySelector("form").addEventListener("submit", function () {
+    const rolesContainer = document.getElementById("roles-container");
+    const roleDropdown = document.getElementById("role");
+
+    if (rolesContainer.style.display === "none" || !roleDropdown.value) {
+        roleDropdown.removeAttribute("required");
     }
 });
 

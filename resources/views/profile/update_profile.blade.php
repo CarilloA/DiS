@@ -1,4 +1,4 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app')
 @include('common.navbar')
 
 @section('content')
@@ -79,7 +79,7 @@
                 <div class="text card-header text-center" style="background-color: #3a8f66">{{ __('Update User Account') }}</div>
                 <div class="card-body">
                     {{-- error handling alert message --}}
-                    @include('common.alert')
+          {{--}}          @include('common.alert')
                     @if(session('error'))
                         <div class="alert alert-danger">
                             {{ session('error') }}
@@ -206,4 +206,4 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection --}}

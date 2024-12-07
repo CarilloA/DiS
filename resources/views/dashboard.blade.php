@@ -257,10 +257,21 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h3>Discrepancy Summary</h3>
+                                        <div class="chart-filters">
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'weekly')">Weekly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'monthly')">Monthly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'yearly')">Yearly</button>
+                                        </div>
+                                        
                                         <canvas id="discrepancySummaryChart"></canvas>
                                     </div>
                                     <div class="col-md-6">
                                         <h3>Quantity on Hand Discrepancy</h3>
+                                        <div class="chart-filters">
+                                            <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'weekly')">Weekly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'monthly')">Monthly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'yearly')">Yearly</button>
+                                        </div>
                                         <canvas id="quantityComparisonChart"></canvas>
                                     </div>
                                 </div>
@@ -268,176 +279,512 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h3>Discrepancy Trends Over Time</h3>
+                                        <div class="chart-filters">
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'weekly')">Weekly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'monthly')">Monthly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'yearly')">Yearly</button>
+                                        </div>
                                         <canvas id="discrepancyTrendsChart"></canvas>
                                     </div>
                                     <div class="col-md-6">
                                         <h3>Previous vs New Stock Discrepancy</h3>
+                                        <div class="chart-filters">
+                                            <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'weekly')">Weekly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'monthly')">Monthly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'yearly')">Yearly</button>
+                                        </div>
                                         <canvas id="newVsOldChart"></canvas>
                                     </div>
                                 </div>
                             </div>
-
-                            <script>
-                                // Discrepancy Summary Bar Chart
-                                const discrepancySummaryCtx = document.getElementById('discrepancySummaryChart').getContext('2d');
-                                new Chart(discrepancySummaryCtx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: ['Stockroom Discrepancy', 'Store Discrepancy'],
-                                        datasets: [{
-                                            label: 'Discrepancy Amount',
-                                            data: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
-                                            backgroundColor: ['#3a8f66', '#64edbd'],
-                                            borderColor: '#ffffff',
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: { display: false },
-                                        },
-                                        scales: {
-                                            x: { 
-                                                ticks: { color: 'white' },
-                                            },
-                                            y: {
-                                                ticks: { color: 'white' },
-                                            }
-                                        }
-                                    }
-                                });
-                            
-                                // Quantity on Hand vs Store Quantity Line Chart
-                                const quantityComparisonCtx = document.getElementById('quantityComparisonChart').getContext('2d');
-                                new Chart(quantityComparisonCtx, {
-                                    type: 'line',
-                                    data: {
-                                        labels: {!! json_encode($auditDates) !!},
-                                        datasets: [
-                                            {
-                                                label: 'Previous Quantity on Hand',
-                                                data: {!! json_encode($quantityOnHand) !!},
-                                                borderColor: '#3a8f66',
-                                                backgroundColor: 'transparent',
-                                                fill: false,
-                                            },
-                                            {
-                                                label: 'New Quantity on Hand',
-                                                data: {!! json_encode($newQuantityOnHand) !!},
-                                                borderColor: '#64edbd',
-                                                backgroundColor: 'transparent',
-                                                fill: false,
-                                            },
-                                        ]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: { display: true, 
-                                                labels: { color: 'white' }
-                                            },
-                                        },
-                                        scales: {
-                                            x: {
-                                                ticks: { color: 'white' },
-                                            },
-                                            y: {
-                                                ticks: { color: 'white' },
-                                            }
-                                        }
-                                    }
-                                });
-                            
-                                // new Vs Old Chart
-                                const newVsOldCtx = document.getElementById('newVsOldChart').getContext('2d');
-                                new Chart(newVsOldCtx, {
-                                    type: 'line',
-                                    data: {
-                                        labels: {!! json_encode($auditDates) !!},
-                                        datasets: [
-                                            {
-                                                label: 'Previous Store Quantity',
-                                                data: {!! json_encode($storeQuantities) !!},
-                                                borderColor: '#3a8f66',
-                                                backgroundColor: 'transparent',
-                                                fill: false,
-                                            },
-                                            {
-                                                label: 'Previous Stockroom Quantity',
-                                                data: {!! json_encode($stockroomQuantities) !!},
-                                                borderColor: '#71f5c2',
-                                                backgroundColor: 'transparent',
-                                                fill: false,
-                                            },
-                                            {
-                                                label: 'New Store Quantity',
-                                                data: {!! json_encode($newStoreQuantities) !!},
-                                                borderColor: '#967403',
-                                                backgroundColor: 'transparent',
-                                                fill: false,
-                                            },
-                                            {
-                                                label: 'New Stockroom Quantity',
-                                                data: {!! json_encode($newStockroomQuantities) !!},
-                                                borderColor: '#edcb5a',
-                                                backgroundColor: 'transparent',
-                                                fill: false,
-                                            }
-                                        ]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: { display: true, 
-                                                labels: { color: 'white' }
-                                            },
-                                        },
-                                        scales: {
-                                            x: {
-                                                ticks: { color: 'white' },
-                                            },
-                                            y: {
-                                                ticks: { color: 'white' },
-                                            }
-                                        }
-                                    }
-                                });
-                            
-                                // Discrepancy Trends Over Time Line Chart
-                                const discrepancyTrendsCtx = document.getElementById('discrepancyTrendsChart').getContext('2d');
-                                new Chart(discrepancyTrendsCtx, {
-                                    type: 'line',
-                                    data: {
-                                        labels: {!! json_encode($auditDates) !!},
-                                        datasets: [{
-                                            label: 'Total Discrepancy',
-                                            data: {!! json_encode($discrepancyData) !!},
-                                            borderColor: '#64edbd',
-                                            backgroundColor: 'transparent',
-                                            fill: false,
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: { display: false },
-                                        },
-                                        scales: {
-                                            x: {
-                                                ticks: { color: 'white' },
-                                            },
-                                            y: {
-                                                ticks: { color: 'white' },
-                                            }
-                                        }
-                                    }
-                                });
-                            </script>
                         </div>
                     </div>
                 </div>
             </div>
         @endif 
     </div>
+
+    <script>
+
+
+// function filterChart(chartId, timeFrame) {
+//     let chartData;
+//     let chartLabels;
+
+//     const data = {
+//         discrepancySummaryChart: {
+//             weekly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+//             monthly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+//             yearly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+//         },
+//         quantityComparison: {
+//             weekly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+//             monthly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+//             yearly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+//         },
+//         discrepancyTrends: {
+//             weekly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+//             monthly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+//             yearly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+//         },
+//         newVsOld: {
+//             weekly: [{!! json_encode($discrepancyData) !!}],
+//             monthly: [{!! json_encode($discrepancyData) !!}],
+//             yearly: [{!! json_encode($discrepancyData) !!}],
+//         }
+//     };
+
+//     // Check for invalid chartId or timeFrame
+//     if (!data[chartId] || !data[chartId][timeFrame]) {
+//         console.error("Invalid chartId or timeFrame");
+//         return;
+//     }
+
+//     chartData = data[chartId][timeFrame];
+
+//     // Define labels based on the selected time frame
+//     if (timeFrame === 'weekly') {
+//         chartLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+//     } else if (timeFrame === 'monthly') {
+//         chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+//     } else if (timeFrame === 'yearly') {
+//         chartLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+//     }
+
+
+
+//     function updateChart(chart, chartData, chartLabels) {
+//     // Ensure chart data and labels are not empty
+//     if (!chartData || !chartLabels || chartData.length === 0 || chartLabels.length === 0) {
+//         console.error("Invalid chart data or labels");
+//         return;
+//     }
+
+//     // Update chart labels and datasets
+//     chart.data.labels = chartLabels;
+//     chart.data.datasets.forEach((dataset, index) => {
+//         if (chartData[index] && Array.isArray(chartData[index])) {
+//             dataset.data = chartData[index]; // Assign valid dataset data
+//         } else {
+//             console.error("Dataset data is invalid for index:", index);
+//         }
+//     });
+
+//     // Update the chart to reflect changes
+//     chart.update();
+// }
+
+
+//     // Update the relevant chart based on the chartId
+//     if (chartId === 'discrepancySummaryChart') {
+//         updateChart(discrepancySummaryChart, chartData, chartLabels);
+//     } else if (chartId === 'quantityComparison') {
+//         updateChart(quantityComparisonChart, chartData, chartLabels);
+//     } else if (chartId === 'discrepancyTrends') {
+//         updateChart(discrepancyTrendsChart, chartData, chartLabels);
+//     } else if (chartId === 'newVsOld') {
+//         updateChart(newVsOldChart, chartData, chartLabels);
+//     }
+// }
+
+
+
+
+
+
+// Helper function to get the start of the week (Monday)
+function getStartOfWeek(date) {
+    const start = new Date(date);
+    const day = start.getDay(),
+          diff = start.getDate() - day + (day == 0 ? -6 : 1); // Adjust for Sunday as 0
+    start.setDate(diff);
+    return start;
+}
+
+// Helper function to update the chart data and labels
+function updateChart(chartId, chartData, filteredAuditDates, chartLabels) {
+    if (!filteredAuditDates || filteredAuditDates.length === 0) {
+        console.error("No data available for the selected time frame.");
+        return;
+    }
+
+    const chart = getChartInstance(chartId);
+    
+    // Update the chart data with filtered audit dates
+    chart.data.labels = chartLabels;
+    chart.data.datasets.forEach((dataset, index) => {
+        if (chartData[index] && Array.isArray(chartData[index])) {
+            dataset.data = filterDataByDates(chartData[index], filteredAuditDates);
+        }
+    });
+    
+    chart.update();
+}
+
+// Helper function to get chart instance based on chartId
+function getChartInstance(chartId) {
+    switch (chartId) {
+        case 'discrepancySummaryChart':
+            return discrepancySummaryChart;
+        case 'quantityComparison':
+            return quantityComparisonChart;
+        case 'discrepancyTrends':
+            return discrepancyTrendsChart;
+        case 'newVsOld':
+            return newVsOldChart;
+        default:
+            console.error("Invalid chartId");
+            return null;
+    }
+}
+
+// Helper function to filter data by dates
+function filterDataByDates(data, filteredAuditDates) {
+    return data.slice(0, filteredAuditDates.length);
+}
+
+// Now your filterChart function can call these helper functions
+function filterChart(chartId, timeFrame) {
+    let chartData;
+    let chartLabels;
+    let filteredAuditDates = [];
+    const today = new Date();  // Get the current date
+
+    const data = {
+        discrepancySummaryChart: {
+            weekly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+            monthly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+            yearly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+        },
+        quantityComparison: {
+            weekly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+            monthly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+            yearly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+        },
+        discrepancyTrends: {
+            weekly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+            monthly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+            yearly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+        },
+        newVsOld: {
+            weekly: [{!! json_encode($discrepancyData) !!}],
+            monthly: [{!! json_encode($discrepancyData) !!}],
+            yearly: [{!! json_encode($discrepancyData) !!}],
+        }
+    };
+
+    // Check for invalid chartId or timeFrame
+    if (!data[chartId] || !data[chartId][timeFrame]) {
+        console.error("Invalid chartId or timeFrame");
+        return;
+    }
+
+    chartData = data[chartId][timeFrame];
+
+    // Define labels and filter data based on time frame
+    if (timeFrame === 'weekly') {
+        filteredAuditDates = filterByWeek(today, {!! json_encode($auditDates) !!});
+        chartLabels = generateWeeklyLabels(filteredAuditDates);
+    } else if (timeFrame === 'monthly') {
+        filteredAuditDates = filterByMonth(today, {!! json_encode($auditDates) !!});
+        chartLabels = generateMonthlyLabels(filteredAuditDates);
+    } else if (timeFrame === 'yearly') {
+        filteredAuditDates = filterByYear(today, {!! json_encode($auditDates) !!});
+        chartLabels = generateYearlyLabels(filteredAuditDates);
+    }
+
+    // Update the chart with the filtered data
+    updateChart(chartId, chartData, filteredAuditDates, chartLabels);
+}
+
+// Generate dynamic weekly labels based on available audit dates
+function generateWeeklyLabels(filteredAuditDates) {
+    const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    let labels = [];
+    
+    // Determine the first day of the week (start of the week)
+    const startOfWeek = getStartOfWeek(new Date());
+    let currentDay = startOfWeek;
+    
+    // Loop through the filtered audit dates and generate the labels
+    filteredAuditDates.forEach(date => {
+        const auditDate = new Date(date);
+        if (auditDate >= startOfWeek && auditDate < new Date(currentDay.setDate(currentDay.getDate() + 7))) {
+            labels.push(weekDays[currentDay.getDay()]);
+        }
+    });
+
+    return labels;
+}
+
+// Generate dynamic monthly labels based on available audit dates
+function generateMonthlyLabels(filteredAuditDates) {
+    let labels = [];
+    const months = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+    
+    filteredAuditDates.forEach((date, index) => {
+        const auditDate = new Date(date);
+        labels.push(months[auditDate.getMonth()]);
+    });
+
+    return labels;
+}
+
+// Generate dynamic yearly labels based on available audit dates
+function generateYearlyLabels(filteredAuditDates) {
+    let labels = [];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    filteredAuditDates.forEach(date => {
+        const auditDate = new Date(date);
+        labels.push(months[auditDate.getMonth()]);
+    });
+
+    return labels;
+}
+
+// Modify filter functions to account for data availability
+function filterByWeek(currentDate, auditDates) {
+    const startOfWeek = getStartOfWeek(currentDate);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // End of the week (7 days later)
+    
+    // Filter auditDates for only the current week's data or just the available date
+    return auditDates.filter(date => {
+        const auditDate = new Date(date);
+        return auditDate >= startOfWeek && auditDate <= endOfWeek && isDataAvailable(auditDate, currentDate);
+    });
+}
+
+// Modify to check if data is available for today
+function isDataAvailable(auditDate, currentDate) {
+    return auditDate.toDateString() === currentDate.toDateString();
+}
+
+// Modify filterByMonth to only show data for the current month or available data
+function filterByMonth(currentDate, auditDates) {
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // End of the month
+    
+    // Filter auditDates for only the current month's data or just the available date
+    return auditDates.filter(date => {
+        const auditDate = new Date(date);
+        return auditDate >= startOfMonth && auditDate <= endOfMonth && isDataAvailable(auditDate, currentDate);
+    });
+}
+
+// Modify filterByYear to show data for the current year or available data
+function filterByYear(currentDate, auditDates) {
+    const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+    const endOfYear = new Date(currentDate.getFullYear(), 11, 31); // End of the year
+    
+    // Filter auditDates for only the current year's data or just the available date
+    return auditDates.filter(date => {
+        const auditDate = new Date(date);
+        return auditDate >= startOfYear && auditDate <= endOfYear && isDataAvailable(auditDate, currentDate);
+    });
+}
+
+
+// Global references to store the chart instances
+let discrepancySummaryChart, quantityComparisonChart, discrepancyTrendsChart, newVsOldChart;
+
+        // Discrepancy Summary Bar Chart
+        const discrepancySummaryCtx = document.getElementById('discrepancySummaryChart').getContext('2d');
+        discrepancySummaryChart = new Chart(discrepancySummaryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Stockroom Discrepancy', 'Store Discrepancy'],
+                datasets: [{
+                    label: 'Discrepancy Amount',
+                    data: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+                    backgroundColor: ['#3a8f66', '#64edbd'],
+                    borderColor: '#ffffff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: { 
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Discrepancy Location', // x-axis title
+                            color: 'white',
+                        },
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Discrepancy Quantity', // x-axis title
+                            color: 'white',
+                        },
+                    }
+                }
+            }
+        });
+    
+        // Quantity on Hand vs Store Quantity Line Chart
+        const quantityComparisonCtx = document.getElementById('quantityComparisonChart').getContext('2d');
+        quantityComparisonChart = new Chart(quantityComparisonCtx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($auditDates) !!},
+                datasets: [
+                    {
+                        label: 'Previous Quantity on Hand',
+                        data: {!! json_encode($quantityOnHand) !!},
+                        borderColor: '#3a8f66',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                    },
+                    {
+                        label: 'New Quantity on Hand',
+                        data: {!! json_encode($newQuantityOnHand) !!},
+                        borderColor: '#64edbd',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, 
+                        labels: { color: 'white' }
+                    },
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Date Audited', // x-axis title
+                            color: 'white',
+                        },
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Discrepancy Quantity', // x-axis title
+                            color: 'white',
+                        },
+                    }
+                }
+            }
+        });
+    
+        // new Vs Old Chart
+        const newVsOldCtx = document.getElementById('newVsOldChart').getContext('2d');
+        newVsOldChart = new Chart(newVsOldCtx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($auditDates) !!},
+                datasets: [
+                    {
+                        label: 'Previous Store Quantity',
+                        data: {!! json_encode($storeQuantities) !!},
+                        borderColor: '#3a8f66',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                    },
+                    {
+                        label: 'Previous Stockroom Quantity',
+                        data: {!! json_encode($stockroomQuantities) !!},
+                        borderColor: '#71f5c2',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                    },
+                    {
+                        label: 'New Store Quantity',
+                        data: {!! json_encode($newStoreQuantities) !!},
+                        borderColor: '#967403',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                    },
+                    {
+                        label: 'New Stockroom Quantity',
+                        data: {!! json_encode($newStockroomQuantities) !!},
+                        borderColor: '#edcb5a',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, 
+                        labels: { color: 'white' }
+                    },
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Date Audited', // x-axis title
+                            color: 'white',
+                        },
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Discrepancy Quantity', // x-axis title
+                            color: 'white',
+                        },
+                    }
+                }
+            }
+        });
+    
+        // Discrepancy Trends Over Time Line Chart
+        const discrepancyTrendsCtx = document.getElementById('discrepancyTrendsChart').getContext('2d');
+        discrepancyTrendsChart = new Chart(discrepancyTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($auditDates) !!},
+                datasets: [{
+                    label: 'Total Discrepancy',
+                    data: {!! json_encode($discrepancyData) !!},
+                    borderColor: '#64edbd',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Date Audited', // x-axis title
+                            color: 'white',
+                        },
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        title: {
+                            display: true,
+                            text: 'Discrepancy Quantity', // x-axis title
+                            color: 'white',
+                        },
+                    }
+                }
+            }
+        });
+    </script>
+
+
 @endsection

@@ -277,12 +277,12 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="form-group">
-                                                        <label for="return_quantity">Quantity to be Returned</label>
+                                                        <label for="return_quantity">Quantity to be Returned <i>*Required</i></label>
                                                         <input type="number" style="color:" class="form-control return-quantity" id="return_quantity_{{ $data->sales_details_id }}" name="return_quantity" pattern="^\d{1,6}$" required>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label for="total_return_amount_{{ $data->sales_details_id }}">Total Amount to Refund</label>
-                                                        <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_details_id }}" name="total_return_amount" readonly>
+                                                        <input type="text" class="form-control total-return-amount" id="total_return_amount_{{ $data->sales_details_id }}" name="total_return_amount" placeholder="This is a readonly field" readonly>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label for="return_reason">Reason</label>

@@ -21,8 +21,8 @@ class LoginController extends Controller
 {
     // Validate the form data
     $credentials = $request->validate([
-        'role' => 'required|string',
-        'email' => 'required|string',
+        'role' => 'nullable|string',
+        'email' => 'required|string|email',
         'password' => 'required|string',
     ]);
 

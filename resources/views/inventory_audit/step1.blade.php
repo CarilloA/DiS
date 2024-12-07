@@ -23,8 +23,8 @@
                     <thead>
                         <tr>
                             <th>Product Name</th>
-                            <th>Count Stock in the Store</th>
-                            <th>Count Stock in the Stockroom</th>
+                            <th>Count Stock in the Store <i>*Required</i></th>
+                            <th>Count Stock in the Stockroom <i>*Required</i></th>
                             <th>Quantity on Hand</th>
                         </tr>
                     </thead>
@@ -38,9 +38,9 @@
                                 <input type="hidden" name="previous_quantity_on_hand[]" value="{{ $data->in_stock }}">
                                 <input type="hidden" name="previous_product_quantity[]" value="{{ $data->product_quantity }}">
                 
-                                <td><input class="form-control" type="number" oninput="calculateQoH({{ $key }})" id="count_store_stock_{{ $key }}" name="count_store_quantity[]" required></td>
-                                <td><input class="form-control" type="number" oninput="calculateQoH({{ $key }})" id="count_stockroom_stock_{{ $key }}" name="count_stockroom_quantity[]" required></td>
-                                <td><input class="form-control" type="number" id="count_qoh_{{ $key }}" name="count_quantity_on_hand[]" readonly></td>
+                                <td><input class="form-control" type="number" oninput="calculateQoH({{ $key }})" id="count_store_stock_{{ $key }}" name="count_store_quantity[]" placeholder="Input numbers only" required></td>
+                                <td><input class="form-control" type="number" oninput="calculateQoH({{ $key }})" id="count_stockroom_stock_{{ $key }}" name="count_stockroom_quantity[]" placeholder="Input numbers only" required></td>
+                                <td><input class="form-control" type="number" id="count_qoh_{{ $key }}" name="count_quantity_on_hand[]" placeholder="This is a read only field" readonly></td>
                             </tr>
                         @empty
                             <tr>

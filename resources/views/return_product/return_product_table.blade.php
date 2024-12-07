@@ -139,11 +139,7 @@
                             </div>
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="confirm_username">Confirm Username</label>
-                                    <input type="text" class="form-control" id="confirm_username" name="confirm_username" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="confirm_password">Confirm Password</label>
+                                    <label for="confirm_password">Confirm Password <i>*Required</i></label>
                                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                                 </div>
 

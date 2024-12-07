@@ -43,7 +43,7 @@
                                 <th>Discrepancy (Store Stock)</th>
                                 <th>Discrepancy (Stockroom Stock)</th>
                                 <th>Discrepancy (QoH)</th>
-                                <th>Reason for Discrepancy</th>
+                                <th>Reason for Discrepancy <i>*Required</i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -59,7 +59,7 @@
                                     <td>{{ $discrepancy['variance_store_stock'] }}</td>
                                     <td>{{ $discrepancy['variance_stockroom_quantity'] }}</td>
                                     <td>{{ $discrepancy['variance_in_stock'] }}</td>
-                                    <td><input type="text" name="reason[{{ $key }}]" placeholder="Type here" required></td>
+                                    <td><input type="text" class="form-control" name="reason[{{ $key }}]" placeholder="Type here" required></td>
                                 </tr>
                             @endforeach
                         </tbody>
