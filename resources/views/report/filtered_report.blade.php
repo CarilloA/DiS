@@ -71,6 +71,57 @@
             display: none;
         }
 
+         /* Signature upload and footer styling */
+        .signature-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        #signature-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .prepared-by-container {
+            display: flex;
+            flex-direction: column; /* Stack signature and name vertically */
+            justify-content: flex-start; /* Align to the left */
+            align-items: flex-start; /* Align text and signature to the left */
+            margin-top: 40px;
+            border-top: none; /* No top border in print view */
+            padding-top: 20px;
+        }
+
+        #signature-container {
+            margin-right: 15px; /* Space between signature and text */
+            flex-shrink: 0; /* Prevent the signature from shrinking */
+        }
+
+        #signature-preview img {
+            max-width: 120px;  /* Adjust image size for printing */
+            max-height: 60px;
+            visibility: visible !important;  /* Ensure the signature is visible */
+        }
+
+        .prepared-by {
+            font-size: 12pt;
+            font-style: italic;
+            color: #333;
+            text-align: left;
+            line-height: 1.6;
+            margin-top: 10px; /* Add spacing between signature and the name */
+        }
+
+        .prepared-by h5 {
+            font-weight: normal;
+            margin-left: 15px; /* Space between signature and name */
+        }
+
+        /* Hide signature upload form and button during printing */
+        .signature-form {
+            display: none;
+        }
+
         /* Ensure the content fits within the bond paper size */
         /* @page {
             size: 8.5in 11in;
@@ -104,6 +155,73 @@
 
     .printButton {
         margin-bottom: 1em;
+    }
+
+    /* Footer */
+    /* Signature upload and footer styling */
+    .signature-section {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    #signature-preview {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .prepared-by-container {
+        display: flex;
+        justify-content: flex-start; /* Align to the left for a formal report */
+        align-items: center;
+        margin-top: 40px;
+        border-top: 2px solid #000;
+        padding-top: 20px;
+    }
+
+    #signature-container {
+        margin-right: 15px; /* Space between signature and text */
+        flex-shrink: 0; /* Prevent the signature from shrinking */
+    }
+
+    #signature-preview img {
+        max-width: 150px;  /* Adjust image width */
+        max-height: 80px;  /* Ensure the signature is not too big */
+    }
+
+    .prepared-by {
+        font-size: 12pt;
+        font-style: italic;
+        color: #333;
+        text-align: left;
+        line-height: 1.6;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .prepared-by h5 {
+        font-weight: normal;
+        margin-left: 15px; /* Space between signature and name */
+    }
+
+    #signature-upload-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .signature-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .signature-form input[type="file"] {
+        margin-bottom: 10px;
+    }
+
+    .signature-form button {
+        margin-top: 10px;
     }
 
 </style>
@@ -238,14 +356,68 @@
                 </tbody>
             </table>
 
-             <!-- Footer: Prepared By -->
-             <div class="prepared-by">
-                <?php 
-                    $user = auth()->user();
-                ?>
-                <h5><strong>Prepared By:</strong> {{ $user->first_name }} {{ $user->last_name }}</h5>
+            <!-- Signature Upload Section -->
+            <div id="signature-upload" class="signature-section">
+                <form id="signature-form" enctype="multipart/form-data" class="signature-form">
+                    <h3 id="signature-upload-title">Upload Signature</h3>
+                    <label for="signature">Choose a signature image:</label>
+                    <input type="file" name="signature" id="signature" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary">Upload Signature</button>
+                </form>
+            </div>
+
+            <!-- Footer: Prepared By -->
+            <div class="prepared-by-container">
+                <div id="signature-container">
+                    <!-- This will hold the uploaded signature -->
+                    <div id="signature-preview">
+                        <!-- Signature preview will appear here -->
+                    </div>
+                </div>
+
+                <div class="prepared-by">
+                    <?php 
+                        $user = auth()->user();
+                    ?>
+                    <h5><strong>Prepared By:</strong> {{ $user->first_name }} {{ $user->last_name }}</h5>
+                </div>
             </div>
         </div>
     </main>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#signature-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent the form from submitting the traditional way
+
+            // Create a FormData object to hold the file data
+            var formData = new FormData(this);
+
+            // Send the form data via AJAX
+            $.ajax({
+                url: "{{ route('upload.signature') }}",  // Adjust the route as necessary
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status == 'success') {
+                        // Display the uploaded signature in a preview
+                        $('#signature-preview').html('<img src="' + response.signature_url + '" alt="Signature" style="max-width: 200px;">');
+                    } else {
+                        alert('Failed to upload signature. Please try again.');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+
 @endsection

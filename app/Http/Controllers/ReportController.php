@@ -56,8 +56,10 @@ class ReportController extends Controller
         // Set the report title
         $reportTitle = 'Inventory Overview from ' . \Carbon\Carbon::parse($startDate)->format('F j, Y') . ' to ' . \Carbon\Carbon::parse($endDate)->format('F j, Y');
 
+        $signaturePath = null;
+
         // Return the view with the report data
-        return view('report.filtered_report', compact('inventoryItems', 'startDate', 'endDate', 'stockTransferJoined', 'reportTitle'));
+        return view('report.filtered_report', compact('inventoryItems', 'startDate', 'endDate', 'stockTransferJoined', 'reportTitle', 'signaturePath'));
     }
 
     public function generateFilteredReport(Request $request)
@@ -143,8 +145,9 @@ class ReportController extends Controller
         $reportTitle = !empty($reportTitleParts) ? 
             'Inventory Overview by ' . implode(', ', $reportTitleParts) : 'Inventory Overview';
 
+        $signaturePath = null;
 
-        return view('report.filtered_report', compact('inventoryItems', 'stockTransferJoined', 'reportTitle'));
+        return view('report.filtered_report', compact('inventoryItems', 'stockTransferJoined', 'reportTitle', 'signaturePath'));
     }
 
     private function parseArrayInput($input)
@@ -192,8 +195,10 @@ class ReportController extends Controller
         // Set the report title
         $reportTitle = 'Stock Discrepancy: An Audit Report from ' . \Carbon\Carbon::parse($startDate)->format('F j, Y') . ' to ' . \Carbon\Carbon::parse($endDate)->format('F j, Y');
 
+        $signaturePath = null;
+
         // Return the view with the report data
-        return view('report.audit_inventory_report', compact('auditLogs', 'startDate', 'endDate', 'inventoryJoined', 'reportTitle'));
+        return view('report.audit_inventory_report', compact('auditLogs', 'startDate', 'endDate', 'inventoryJoined', 'reportTitle', 'signaturePath'));
     }
 
     public function generateAuditFilteredReport(Request $request)
@@ -269,9 +274,40 @@ class ReportController extends Controller
             ->select('inventory.*', 'product.*', 'category.*', 'supplier.*', 'stock_transfer.*', 'stockroom.*')
             ->whereIn('inventory.inventory_id', $inventoryIds)
             ->get();
+
+        $signaturePath = null;
     
-        return view('report.audit_inventory_report', compact('auditLogs', 'inventoryJoined', 'reportTitle'));
+        return view('report.audit_inventory_report', compact('auditLogs', 'inventoryJoined', 'reportTitle', 'signaturePath'));
     }
+
+    public function uploadSignature(Request $request)
+{
+    // Validate the uploaded file
+    $request->validate([
+        'signature' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // Get the file from the request
+    $file = $request->file('signature');
+
+    // Generate a unique file name based on the original file name and current timestamp
+    $fileNameWithExt = $file->getClientOriginalName();
+    $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+    $extension = $file->getClientOriginalExtension();
+    $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
+
+    // Move the file to the public directory (e.g., 'public/signatures')
+    $filePath = public_path('signatures/' . $fileNameToStore);
+    $file->move(public_path('signatures'), $fileNameToStore);
+
+    // Return the URL of the uploaded file for display
+    return response()->json([
+        'status' => 'success',
+        'signature_url' => asset('signatures/' . $fileNameToStore), // Make the file accessible via a URL
+    ]);
+}
+
+    
     
     
 }

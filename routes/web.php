@@ -157,6 +157,7 @@ Route::post('inventory_report', [ReportController::class, 'generateReport'])->na
 Route::post('generate_filter_report', [ReportController::class, 'generateFilteredReport'])->name('generate_filter_report');
 Route::post('audit_inventory_report', [ReportController::class, 'generateAuditReport'])->name('audit.report.generate');
 Route::post('generate_audit_filter_report', [ReportController::class, 'generateAuditFilteredReport'])->name('generate_audit_filter_report');
+Route::post('/upload-signature', [ReportController::class, 'uploadSignature'])->name('upload.signature');
 
 
 use App\Http\Controllers\ScrapController;
