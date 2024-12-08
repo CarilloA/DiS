@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 08, 2024 at 09:56 AM
+-- Generation Time: Dec 02, 2024 at 01:12 PM
 -- Server version: 5.7.40
 -- PHP Version: 8.0.26
 
@@ -32,22 +32,16 @@ CREATE TABLE IF NOT EXISTS `category` (
   `category_id` int(8) NOT NULL AUTO_INCREMENT,
   `category_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=98009676 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=62251422 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `category`
 --
 
 INSERT INTO `category` (`category_id`, `category_name`) VALUES
-(18673629, 'Vehicle Parts'),
-(22295743, 'Wheels'),
-(36200226, 'Accessories'),
-(43435445, 'Fluids'),
-(45992576, 'Tools'),
-(48312275, 'Batteries'),
-(51431926, 'Tires'),
-(62251421, 'Oils'),
-(98009675, 'Electricals');
+(45992576, 'wheel'),
+(51431926, 'Battery'),
+(62251421, 'hinahawakan');
 
 -- --------------------------------------------------------
 
@@ -68,20 +62,16 @@ CREATE TABLE IF NOT EXISTS `inventory` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`inventory_id`),
   KEY `inventory_productFK` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=95974034 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59712525 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `inventory`
 --
 
 INSERT INTO `inventory` (`inventory_id`, `product_id`, `purchase_price_per_unit`, `sale_price_per_unit`, `unit_of_measure`, `in_stock`, `reorder_level`, `created_at`, `updated_at`) VALUES
-(17191477, 46004118, '24.00', '32.00', 'pcs', 22, 10, '2024-12-03 03:02:35', '2024-12-08 07:22:09'),
-(19826892, 40739618, '55000.00', '62000.00', 'pcs', 21, 2, '2024-12-02 02:36:49', '2024-12-08 07:22:09'),
-(59712524, 31299885, '24.00', '32.00', 'pcs', 19, 1, '2024-12-02 11:43:27', '2024-12-08 07:22:09'),
-(82984096, 18975177, '5000.00', '1100.00', 'pair', 38, 5, '2024-12-06 01:27:02', '2024-12-08 07:22:09'),
-(85845553, 84495846, '6400.00', '7635.00', 'pcs', 22, 5, '2024-12-06 01:36:05', '2024-12-08 07:22:09'),
-(95154263, 65174824, '24.00', '32.00', 'pcs', 24, 1, '2024-12-02 14:20:39', '2024-12-08 07:22:09'),
-(95974033, 15076522, '15000.00', '18000.00', 'pcs', 15, 8, '2024-12-06 00:19:22', '2024-12-08 07:22:09');
+(19826892, 40739618, '55000.00', '62000.00', 'pcs', 14, 2, '2024-12-02 02:36:49', '2024-12-02 11:25:24'),
+(31141065, 50220795, '36.00', '37.00', 'pcs', 16, 2, '2024-11-26 14:54:02', '2024-12-02 11:25:24'),
+(59712524, 31299885, '24.00', '32.00', 'pcs', 10, 1, '2024-12-02 11:43:27', '2024-12-02 11:43:27');
 
 -- --------------------------------------------------------
 
@@ -109,26 +99,20 @@ CREATE TABLE IF NOT EXISTS `inventory_audit` (
   PRIMARY KEY (`audit_id`),
   KEY `audit_inventoryFK` (`inventory_id`),
   KEY `audit_userFK` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=98145452 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=98300098 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `inventory_audit`
 --
 
 INSERT INTO `inventory_audit` (`audit_id`, `inventory_id`, `user_id`, `previous_quantity_on_hand`, `new_quantity_on_hand`, `previous_store_quantity`, `new_store_quantity`, `previous_stockroom_quantity`, `new_stockroom_quantity`, `in_stock_discrepancy`, `store_stock_discrepancy`, `stockroom_stock_discrepancy`, `discrepancy_reason`, `resolve_steps`, `audit_date`) VALUES
-(12055344, 82984096, 20240002, 24, 38, 22, 23, 2, 15, -7, -18, 11, 'Human Error', 'sd', '2024-12-08 07:22:09'),
-(19357741, 95154263, 20240002, 5, 24, 2, 16, 3, 8, 12, 0, 12, 'Missing Item', 'das', '2024-12-08 07:22:09'),
-(43316826, 85845553, 20240002, 3, 22, 2, 15, 1, 7, 32, 1, 31, 'Incorrect Count', 'sda', '2024-12-08 07:22:09'),
-(47511657, 95974033, 20240003, 24, 3, 14, 2, 10, 1, -15, -14, -1, 'Missing Item', 'sadasd', '2024-12-07 06:19:06'),
-(50166081, 82984096, 20240003, 16, 24, 12, 22, 4, 2, -5, -7, 2, 'Human error', 'asddad', '2024-12-07 02:56:35'),
-(60822280, 85845553, 20240003, 14, 3, 8, 2, 6, 1, 3, 0, 3, 'Human Error', 'asda', '2024-12-07 02:56:35'),
-(68355796, 19826892, 20240002, 5, 21, 4, 12, 1, 9, 21, -1, 22, 'Human Error', 'dasd', '2024-12-08 07:22:09'),
-(78106695, 95974033, 20240002, 3, 15, 2, 6, 1, 9, 17, 2, 15, 'Incorrect Input', 'ddsa', '2024-12-08 07:22:09'),
-(82007279, 59712524, 20240002, 5, 19, 2, 11, 3, 8, 49, 40, 9, 'Human error', 'sd', '2024-12-08 07:22:09'),
-(88326748, 95154263, 20240003, 8, 5, 4, 2, 4, 3, 7, 4, 3, 'Incorrect Count', 'sad', '2024-12-07 02:56:35'),
-(93138172, 59712524, 20240003, 14, 5, 4, 2, 10, 3, 47, 2, 45, 'Human Error', 'sadda', '2024-12-07 02:56:35'),
-(95885452, 17191477, 20240002, 6, 22, 3, 12, 3, 10, 11, 1, 10, 'Incorrect count', 'dasd', '2024-12-08 07:22:09'),
-(98145451, 17191477, 20240003, 50, 6, 42, 3, 8, 3, -45, -39, -6, 'Incorrect count', 'step 1', '2024-12-07 06:19:51');
+(14173389, 19826892, 20240001, 11, 10, 8, 5, 3, 5, -1, -3, 2, 'Incorrect', 'dutch resolve here', '2024-12-02 09:38:47'),
+(29776903, 31141065, 20240001, 3, 10, 1, 5, 2, 5, -2, -3, 1, 'Human Error', 'kambyo here', '2024-12-02 10:00:48'),
+(49998956, 19826892, 20240001, 12, 12, 8, 6, 4, 6, 0, -2, 2, 'Incorrect', 'dutch here', '2024-12-02 10:00:48'),
+(52610482, 31141065, 20240001, 10, 16, 5, 8, 5, 8, 6, 3, 3, 'Human Error', 'kambyo here', '2024-12-02 11:25:24'),
+(53272814, 19826892, 20240001, 12, 14, 6, 7, 6, 7, 2, 1, 1, 'Incorrect', 'dutch here', '2024-12-02 11:25:24'),
+(57563330, 31141065, 20240001, 16, 17, 9, 12, 7, 5, 1, 3, -2, 'Incorrect count', '1. Actions Taken to Resolve Discrepancies Here.', '2024-12-01 23:27:17'),
+(98300097, 19826892, 20240001, 11, 8, 8, 4, 3, 4, -3, -4, 1, 'Human Error', 'kambyo resolve here', '2024-12-02 09:38:47');
 
 -- --------------------------------------------------------
 
@@ -157,15 +141,15 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`password_reset_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `password_resets`
 --
 
 INSERT INTO `password_resets` (`password_reset_id`, `email`, `token`, `created_at`) VALUES
-(10, '20223765@s.ubaguio.edu', '$2y$10$mOm9TS5XKlj7eXl62aNBdOmXJPqgyaWHWwMwkwYzS1xbdOmN56Jl2', '2024-12-08 06:08:53'),
-(7, 'carilloaira@gmail.com', '$2y$10$eSv7oUmj/p3xtj/579YypO04KuiMCxq.Myi4aHfuDf2iuU0HTKiTK', '2024-12-03 02:20:17');
+(2, '20223765@s.ubaguio.edu', '$2y$10$y9eVatZeVXtPxZ0Y/8xVGu9C01bGiRip0yX3NJTosRAjc6T9VqktC', '2024-10-24 09:13:02'),
+(3, 'carilloaira@gmail.com', '$2y$10$ENEnzDvIwf2yg.YszrGXBeyy/0QOSM5cRW0Nhmzw4r2uJVL8Z0EzK', '2024-11-26 13:09:16');
 
 -- --------------------------------------------------------
 
@@ -178,26 +162,21 @@ CREATE TABLE IF NOT EXISTS `product` (
   `product_id` int(8) NOT NULL AUTO_INCREMENT,
   `category_id` int(8) NOT NULL,
   `supplier_id` int(8) NOT NULL,
-  `image_url` varchar(75) COLLATE utf8mb4_unicode_ci NOT NULL,
   `product_name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`product_id`),
   KEY `product_categoryFK` (`category_id`),
   KEY `product_supplierFK` (`supplier_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=84495847 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=50220796 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`product_id`, `category_id`, `supplier_id`, `image_url`, `product_name`, `description`) VALUES
-(15076522, 18673629, 88922363, 'Screenshot 2024-09-05 144341_1733444362.png', 'product1', '{\"color\":null,\"size\":\"large\",\"description\":\"for cars\"}'),
-(18975177, 98009675, 95562004, 'Screenshot 2024-09-05 144341_1733448422.png', 'product2', '{\"color\":null,\"size\":null,\"description\":\"for cars\"}'),
-(31299885, 51431926, 84444515, '', 'Mill', '{\"color\":null,\"size\":null,\"description\":\"AA Battery\"}'),
-(40739618, 45992576, 64213870, '', 'Dutch', '{\"color\":\"black\",\"size\":\"large\",\"description\":\"this is an item\"}'),
-(46004118, 36200226, 91869735, '', 'Side Mirror', '{\"color\":\"Black\",\"size\":\"25\",\"description\":\"AA Battery\"}'),
-(65174824, 18673629, 38859181, '', 'Lcal', '{\"color\":null,\"size\":null,\"description\":\"AA Battery\"}'),
-(84495846, 48312275, 95562004, 'Screenshot 2024-09-05 224041_1733448965.png', 'product3', '{\"color\":null,\"size\":null,\"description\":\"Lead-Acid Batteries\"}');
+INSERT INTO `product` (`product_id`, `category_id`, `supplier_id`, `product_name`, `description`) VALUES
+(31299885, 51431926, 84444515, 'Mill', '{\"color\":null,\"size\":null,\"description\":\"AA Battery\"}'),
+(40739618, 45992576, 64213870, 'Dutch', '{\"color\":\"black\",\"size\":\"large\",\"description\":\"this is an item\"}'),
+(50220795, 62251421, 49056642, 'kambyo', '{\"color\":\"pink\",\"size\":\"small\",\"description\":\"this is an item\"}');
 
 -- --------------------------------------------------------
 
@@ -217,19 +196,16 @@ CREATE TABLE IF NOT EXISTS `return_product` (
   PRIMARY KEY (`return_product_id`),
   KEY `return_product_userFK` (`user_id`),
   KEY `return_product_scrapFK` (`scrap_product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=99481542 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=98811517 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `return_product`
 --
 
 INSERT INTO `return_product` (`return_product_id`, `return_quantity`, `total_return_amount`, `return_reason`, `return_date`, `scrap_product_id`, `user_id`) VALUES
-(50382363, 1, 62000, 'Damaged Product', '2024-12-08 06:19:10', NULL, 20240002),
 (83851557, 1, 37, 'Damaged Product', '2024-12-02 07:11:34', NULL, 20240000),
-(88942119, 1, 62000, 'Damaged Product', '2024-12-02 07:10:45', 96143478, 20240000),
-(89176778, 6, 222, 'Damaged Product', '2024-12-02 14:38:41', 50979433, 20240000),
-(98811516, 2, 74, 'Damaged Product', '2024-12-02 07:01:32', 98504950, 20240000),
-(99481541, 1, 62000, 'Damaged Product', '2024-12-07 12:47:14', 38612763, 20240002);
+(88942119, 1, 62000, 'Damaged Product', '2024-12-02 07:10:45', NULL, 20240000),
+(98811516, 2, 74, 'Damaged Product', '2024-12-02 07:01:32', NULL, 20240000);
 
 -- --------------------------------------------------------
 
@@ -245,7 +221,7 @@ CREATE TABLE IF NOT EXISTS `sales` (
   `sales_date` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`sales_id`),
   KEY `sales_userFK` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=94080479 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=75275549 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `sales`
@@ -254,13 +230,11 @@ CREATE TABLE IF NOT EXISTS `sales` (
 INSERT INTO `sales` (`sales_id`, `user_id`, `total_amount`, `sales_date`) VALUES
 (22725940, 20240000, '37.00', '2024-12-02 03:29:31'),
 (24995497, 20240000, '185.00', '2024-12-02 06:15:28'),
-(27709313, 20240000, '4526000.00', '2024-12-02 14:54:39'),
-(41031817, 20240000, '37.00', '2024-12-02 03:39:02'),
-(54819379, 20240000, '62037.00', '2024-12-02 03:29:57'),
+(41031817, 20240000, '62037.00', '2024-12-02 03:39:02'),
+(54819379, 20240000, '124037.00', '2024-12-02 03:29:57'),
 (61052879, 20240000, '62111.00', '2024-12-02 06:26:36'),
 (70205673, 20240000, '310000.00', '2024-12-02 04:21:08'),
-(75275548, 20240000, '185.00', '2024-12-02 08:50:15'),
-(94080478, 20240000, '133.00', '2024-12-02 14:37:04');
+(75275548, 20240000, '185.00', '2024-12-02 08:50:15');
 
 -- --------------------------------------------------------
 
@@ -282,19 +256,23 @@ CREATE TABLE IF NOT EXISTS `sales_details` (
   KEY `sales_details_returnProductFK` (`return_product_id`),
   KEY `sales_details_productFK` (`product_id`),
   KEY `sales_id` (`sales_id`,`product_id`,`return_product_id`,`inventory_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=92939157 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=83763224 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `sales_details`
 --
 
 INSERT INTO `sales_details` (`sales_details_id`, `sales_id`, `product_id`, `return_product_id`, `inventory_id`, `sales_quantity`, `amount`) VALUES
-(37536115, 41031817, 40739618, 99481541, 19826892, 0, '0.00'),
-(57018646, 27709313, 40739618, NULL, 19826892, 73, '4526000.00'),
+(28693595, 75275548, 50220795, NULL, 31141065, 5, '185.00'),
+(30043645, 41031817, 50220795, 83851557, 31141065, 1, '37.00'),
+(34569205, 61052879, 50220795, NULL, 31141065, 3, '111.00'),
+(37536115, 41031817, 40739618, NULL, 19826892, 1, '62000.00'),
 (64155091, 61052879, 40739618, NULL, 19826892, 1, '62000.00'),
-(67240953, 54819379, 40739618, 50382363, 19826892, 1, '-62000.00'),
-(83763223, 70205673, 40739618, 88942119, 19826892, 5, '310000.00'),
-(92939156, 94080478, 31299885, NULL, 59712524, 3, '96.00');
+(65423007, 22725940, 50220795, NULL, 31141065, 1, '0.00'),
+(67240953, 54819379, 40739618, NULL, 19826892, 2, '0.00'),
+(74423025, 54819379, 50220795, NULL, 31141065, 1, '0.00'),
+(79125718, 24995497, 50220795, 98811516, 31141065, 5, '259.00'),
+(83763223, 70205673, 40739618, 88942119, 19826892, 5, '310000.00');
 
 -- --------------------------------------------------------
 
@@ -310,17 +288,7 @@ CREATE TABLE IF NOT EXISTS `scrap_product` (
   `scrap_date` timestamp NOT NULL,
   PRIMARY KEY (`scrap_product_id`),
   KEY `scrap_userFK` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=98504951 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `scrap_product`
---
-
-INSERT INTO `scrap_product` (`scrap_product_id`, `user_id`, `scrap_quantity`, `scrap_date`) VALUES
-(38612763, 20240002, 1, '2024-12-07 12:47:28'),
-(50979433, 20240000, 6, '2024-12-02 14:40:02'),
-(96143478, 20240000, 1, '2024-12-02 15:33:02'),
-(98504950, 20240000, 2, '2024-12-02 15:33:02');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -337,21 +305,16 @@ CREATE TABLE IF NOT EXISTS `stockroom` (
   `category_id` int(8) NOT NULL,
   PRIMARY KEY (`stockroom_id`),
   KEY `stockroom_categoryFK` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=95596317 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=94821359 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `stockroom`
 --
 
 INSERT INTO `stockroom` (`stockroom_id`, `aisle_number`, `cabinet_level`, `product_quantity`, `category_id`) VALUES
-(29923391, 1, 1, 9, 45992576),
-(31876767, 1, 1, 6, 62251421),
-(64511234, 1, 5, 7, 48312275),
-(77336261, 3, 1, 9, 18673629),
-(80898093, 1, 1, 10, 36200226),
-(92056880, 1, 1, 8, 18673629),
-(94821358, 2, 1, 8, 51431926),
-(95596316, 3, 4, 15, 98009675);
+(29923391, 1, 1, 7, 45992576),
+(31876767, 1, 1, 8, 62251421),
+(94821358, 2, 1, 8, 51431926);
 
 -- --------------------------------------------------------
 
@@ -373,27 +336,26 @@ CREATE TABLE IF NOT EXISTS `stock_transfer` (
   KEY `stock_transfer_from_stockroomFK` (`from_stockroom_id`),
   KEY `stock_transfer_to_stockroomFK` (`to_stockroom_id`),
   KEY `stock_transfer_userFK` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=95625574 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=95226749 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `stock_transfer`
 --
 
 INSERT INTO `stock_transfer` (`stock_transfer_id`, `product_id`, `user_id`, `from_stockroom_id`, `to_stockroom_id`, `transfer_quantity`, `transfer_date`) VALUES
-(17926354, 40739618, 20240002, 29923391, 29923391, 1, '2024-12-06 15:24:31'),
-(22232209, 18975177, 20240002, NULL, 95596316, 4, '2024-12-06 01:27:02'),
 (24840858, 40739618, 20240000, NULL, 29923391, 2, '2024-12-02 06:00:21'),
 (31237881, 40739618, 20240000, NULL, 29923391, 1, '2024-12-02 06:08:55'),
-(41993101, 46004118, 20240000, NULL, 80898093, 8, '2024-12-03 03:02:35'),
-(42484241, 84495846, 20240002, NULL, 64511234, 6, '2024-12-06 01:36:05'),
+(42592048, 50220795, 20240000, 31876767, NULL, 1, '2024-12-02 08:51:02'),
 (52147713, 40739618, 20240000, NULL, 29923391, 7, '2024-12-02 02:36:49'),
+(52544926, 50220795, 20240000, NULL, 31876767, 7, '2024-11-26 14:54:02'),
 (57771144, 40739618, 20240000, 29923391, NULL, 7, '2024-12-02 05:18:54'),
 (58564383, 31299885, 20240000, NULL, 94821358, 8, '2024-12-02 11:43:27'),
-(62462124, 31299885, 20240000, 94821358, NULL, 1, '2024-12-02 14:37:04'),
+(58654608, 50220795, 20240000, 31876767, NULL, 2, '2024-12-02 08:50:15'),
 (66397573, 40739618, 20240000, NULL, 29923391, 2, '2024-12-02 06:14:20'),
-(76411566, 65174824, 20240000, NULL, 92056880, 8, '2024-12-02 14:20:39'),
-(85055718, 15076522, 20240002, NULL, 77336261, 10, '2024-12-06 15:21:04'),
-(95625573, 40739618, 20240000, 29923391, NULL, 66, '2024-12-02 14:54:39');
+(66763632, 50220795, 20240000, NULL, 31876767, 5, '2024-12-02 06:25:14'),
+(80232968, 50220795, 20240000, 31876767, NULL, 1, '2024-12-02 06:16:09'),
+(82975880, 50220795, 20240000, 31876767, NULL, 1, '2024-12-02 06:31:04'),
+(95226748, 50220795, 20240000, 31876767, NULL, 3, '2024-12-02 06:24:47');
 
 -- --------------------------------------------------------
 
@@ -410,20 +372,16 @@ CREATE TABLE IF NOT EXISTS `supplier` (
   `email` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `address` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`supplier_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=95562005 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=84444516 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `supplier`
 --
 
 INSERT INTO `supplier` (`supplier_id`, `company_name`, `contact_person`, `mobile_number`, `email`, `address`) VALUES
-(38859181, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
 (49056642, 'ABC', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
 (64213870, 'XYZ', 'prim', '09264444555', 'prig@gmail.com', '123moo'),
-(84444515, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
-(88922363, 'Supplier2', 'Denise Bayawa', '09666320931', 'denise@gmail.com', 'La Trinidad, Benguet'),
-(91869735, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
-(95562004, 'Supplier1', 'Shane Robiego', '09666323330', 'shane@gmail.com', 'Baguio City');
+(84444515, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo');
 
 -- --------------------------------------------------------
 
@@ -434,33 +392,30 @@ INSERT INTO `supplier` (`supplier_id`, `company_name`, `contact_person`, `mobile
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `user_id` int(8) NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `last_name` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `image_url` varchar(75) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mobile_number` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `first_name` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_url` varchar(75) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mobile_number` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(65) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_roles` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `permanent_address` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `current_address` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `emergency_contact` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `emergency_contact_number` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(65) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `role` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `default_password` varchar(65) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `email_verification_sent_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20240004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20240003 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `image_url`, `mobile_number`, `email`, `password`, `role`, `user_roles`, `permanent_address`, `current_address`, `emergency_contact`, `emergency_contact_number`, `created_at`, `email_verified_at`, `email_verification_sent_at`, `updated_at`) VALUES
-(20240000, 'Aira', 'Carillo', 'Screenshot 2024-09-05 144341_1729083003.png', '09264003199', '20223765@s.ubaguio.edu', '$2y$10$STY2KVbXJyoB76pvJo8yzuqUL0dEWMz1a6HGIxM4TxAB3TMJug0ki', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-16 12:50:03', '2024-12-08 02:23:24', '2024-12-08 02:23:08', '2024-12-08 06:10:46'),
-(20240002, 'Shane', 'Robiego', 'Screenshot 2024-09-05 144341_1733325608.png', '09265004188', 'hiddenskylink@gmail.com', '$2y$10$YYrwA0m8EJBY.4D3hW1DYeAgwIhgM.JxP3PnN8aszCEcgtoMeWzYa', NULL, 'Administrator, Inventory Manager, Auditor', 'permanent address here with', 'current address here', 'contact person', '09555112999', '2024-12-04 02:34:42', '2024-12-04 14:12:07', '2024-12-04 14:08:48', '2024-12-08 09:52:55'),
-(20240003, 'Preyl', 'Carillo', NULL, '09264111534', 'carilloaira@gmail.com', '$2y$10$iGRloW9vCqF7S4ankLXZeek8B5323N.jlHwK1uVaIrTw2M.k3teVa', NULL, 'Administrator, Auditor', NULL, NULL, NULL, NULL, '2024-12-05 07:52:26', '2024-12-05 07:52:49', '2024-12-05 07:52:26', '2024-12-07 03:36:11');
+INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `image_url`, `mobile_number`, `email`, `username`, `password`, `role`, `default_password`, `created_at`, `email_verified_at`, `updated_at`) VALUES
+(1, 'Admin', 'Dumpstreet', 'Screenshot 2024-07-15 224616_1729079763.png', '09555111222', 'admin@gmail.com', 'admin', '$2y$10$Bv9Rch9DpeNPMMcK4GXP2.PP5ZzpI1JsLaio.hqYKSe8ujERkffrS', 'Administrator', '', '2024-10-16 03:56:03', NULL, '2024-10-16 03:56:03'),
+(20240000, 'Aira', 'Carillo', 'Screenshot 2024-09-05 144341_1729083003.png', '09264003199', '20223765@s.ubaguio.edu', 'aira', '$2y$10$.s55mEkQtzbhhAcuDtlvjui4Hvm2KhKEM3kpHprJ3FnMHUrPnN1eW', 'Inventory Manager', '', '2024-10-16 12:50:03', '2024-10-16 12:51:26', '2024-10-16 13:14:52'),
+(20240001, 'Preyl', 'Carillo', 'Screenshot 2024-09-05 224041_1730378345.png', '09264111555', 'carilloaira@gmail.com', 'preyl', '$2y$10$8yxROKHCtdvP2m/c8aDM8OKxTqQK47x89qytfhBEMT1V4HpWLq4tq', 'Auditor', '', '2024-10-31 12:39:05', '2024-10-31 12:39:59', '2024-12-01 23:58:45'),
+(20240002, 'Aira', 'Carillo', 'Screenshot 2024-09-05 144341_1733124319.png', '09260003223', 'hiddenskylink@gmail.com', 'airaC', '$2y$10$KZvnHYHuufEMBe1bVyLW5eJcyld.5uHt/iOCCTco71E2fubW5YDHW', 'Inventory Manager', NULL, '2024-12-02 07:25:19', '2024-12-02 07:25:47', '2024-12-02 11:54:21');
 
 --
 -- Constraints for dumped tables
