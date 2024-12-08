@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\ConfirmRegistration;
+use App\Mail\ConfirmationNotice;
 use App\Mail\RejectRegistration;
 use Illuminate\Support\Facades\Mail;
  use Illuminate\Support\Facades\Log;
@@ -41,12 +42,12 @@ class AccountManagementController extends Controller
                 // Get the total number of users that need to be confirmed/rejected
                 $pendingConfirmRejectCount = DB::table('user')
                 ->whereNull('user_roles')
+                ->where('email_verified_at', '!=', null)
                 ->count();
 
                 // Get the total number of users that need to be confirmed/rejected
                 $pendingResendLinkCount = DB::table('user')
                 ->whereNull('email_verified_at')
-                ->where('user_roles', 'NOT LIKE', '%Administrator%')
                 ->count();
 
                 // Join `user`, `credentials`, and `contact_details` to get user details
@@ -335,7 +336,15 @@ class AccountManagementController extends Controller
             User::where('user_id', $user->user_id)->update($updateData);
         });
 
-        return redirect()->route('accounts_table')->with('success', 'User account confirmed with roles: ' . implode(', ', $request->roles));
+        try {
+            // Send the rejection email
+            Mail::to($user->email)->send(new ConfirmationNotice($user));
+
+            return redirect()->route('accounts_table')->with('success', 'User account confirmed with roles: ' . implode(', ', $request->roles). ' & email confirmation notice has been sent to the user');
+        } catch (\Exception $e) {
+            Log::error('Failed to send confirmation notice to the email of the user ' . $user->id . ': ' . $e->getMessage());
+            return redirect()->route('accounts_table')->with('error', 'Failed to send rejection email.');
+        }
     }
 
     public function rejectAccount(Request $request, $id)
@@ -364,7 +373,7 @@ class AccountManagementController extends Controller
             // Finally, delete the user
             $user->delete();
 
-            return redirect()->route('accounts_table')->with('success', 'Rejection email sent. The account will be remove from our records');
+            return redirect()->route('accounts_table')->with('success', 'Rejection email notice has been sent to the user. The account will be remove from our records');
         } catch (\Exception $e) {
             Log::error('Failed to send rejection email for user ' . $user->id . ': ' . $e->getMessage());
             return redirect()->route('accounts_table')->with('error', 'Failed to send rejection email.');

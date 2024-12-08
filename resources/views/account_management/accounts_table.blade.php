@@ -83,7 +83,7 @@
     }
 
     /* filter button style */
-    .filter-button {
+    /* .filter-button {
         background-color: #007bff;
         color: white;
         border: none;
@@ -92,22 +92,22 @@
         border-radius: 5px;
         cursor: pointer;
         position: relative; /* For positioning the notification circle */
-    }
+   /* }
 
     .filter-button:hover {
         background-color: #0056b3;
-    }
+    } */
 
     /* Positioning for the notification circle inside <th> */
-        th {
+        .filterBtn {
         position: relative; /* Make <th> the reference point for absolute positioning */
     }
 
     /* Notification Circle Style */
     .notification-circle {
         position: absolute;
-        top: 0px; /* Adjust the top position if necessary */
-        right: 25px; /* Adjust the right position if necessary */
+        top: -1em; /* Adjust the top position if necessary */
+        right: -1em; /* Adjust the right position if necessary */
         background-color: #dc3545; /* Red background for the circle */
         color: white;
         width: 20px; /* Circle width */
@@ -150,7 +150,35 @@
 
                      <!-- Dropdown with Buttons -->
                      <div class="row d-flex justify-content-end"> <!-- Align the row to the right -->
-                        <div class="col-auto"> <!-- Display All button in dropdown -->
+                        <div class="col-auto">
+                            <a type="button" class="btn btn-success mb-2" href="{{ route('accounts_table') }}">
+                                Display All
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a type="button" class="btn filterBtn btn-success mb-2" href="{{ route('accounts_table.resend_link_filter') }}">
+                                Resend Verification Link
+                                @if($pendingResendLinkCount >= 0)
+                                    <div class="notification-circle">
+                                        {{ $pendingResendLinkCount }}
+                                    </div>
+                                @endif
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a type="button" class="btn filterBtn btn-success mb-2" href="{{ route('accounts_table.confirm_reject_filter') }}">
+                                Confirm/Reject Account
+                                @if($pendingConfirmRejectCount >= 0)
+                                    <div class="notification-circle">
+                                        {{ $pendingConfirmRejectCount }}
+                                    </div>
+                                @endif    
+                            </a>
+                        </div>
+
+
+
+                        {{-- <div class="col-auto"> <!-- Display All button in dropdown -->
                             <div class="dropdown">
                                 <button class="filter-button dropdown-toggle" type="button" id="displayAllDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     Display Options
@@ -173,7 +201,7 @@
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
 
                     
@@ -192,19 +220,19 @@
                                 <th>Email Verified At</th>
                                 <th>
                                     Resend Link
-                                    @if($pendingResendLinkCount >= 0)
+                                    {{-- @if($pendingResendLinkCount >= 0)
                                         <div class="notification-circle">
                                             {{ $pendingResendLinkCount }}
                                         </div>
-                                    @endif
+                                    @endif --}}
                                 </th>
                                 <th colspan="2">
                                     Confirm User Login
-                                    @if($pendingConfirmRejectCount >= 0)
+                                    {{-- @if($pendingConfirmRejectCount >= 0)
                                         <div class="notification-circle">
                                             {{ $pendingConfirmRejectCount }}
                                         </div>
-                                    @endif
+                                    @endif --}}
                                 </th>
                                 <th>Delete Account</th>
                             </tr>
@@ -230,7 +258,7 @@
                                                 </form>
                                             </td>
                                         @endif
-                                        @if($data->user_roles ===null)
+                                        @if($data->user_roles === null && $data->email_verified_at !=null)
                                             <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmModal{{ $data->user_id }}">Confirm</button></td>
                                             <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal{{ $data->user_id }}">Reject</button></td>
                                         @else
@@ -239,10 +267,11 @@
                                         @endif
                                         <td>
                                             <!-- Trigger the modal with a button -->
-                                            <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">
-                                                <div class="circle-icon" title="Delete">
+                                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">
+                                                Delete
+                                                {{-- <div class="circle-icon" title="Delete">
                                                     <i class="bi bi-person-x" style="font-size: 1rem;"></i>
-                                                </div>
+                                                </div> --}}
                                             </button>
                                         </td>
 
