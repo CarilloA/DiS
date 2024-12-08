@@ -147,7 +147,7 @@
 
                                 {{-- display the user_roles associated with the entered email of the user --}}
                                 <div class="mb-3" id="roles-container" style="display: none;">
-                                    <label for="role" style="color: #fff;">Choose a role to login <i>*Required</i>: </label>
+                                    <label for="role">Choose a role to login <i>*Required</i>: </label>
                                     <select name="role" id="role" class="form-control">
                                         @foreach ($roles as $role)
                                             <option value="{{ $role }}">{{ ucfirst($role) }}</option>
@@ -247,7 +247,7 @@ document.getElementById("email").addEventListener("blur", function () {
                         // Populate dropdown with multiple roles
                         const defaultOption = document.createElement("option");
                         defaultOption.value = "";
-                        defaultOption.textContent = "Select a role";
+                        defaultOption.textContent = "Click here to select a role";
                         defaultOption.disabled = true;
                         defaultOption.selected = true;
                         roleDropdown.appendChild(defaultOption);
