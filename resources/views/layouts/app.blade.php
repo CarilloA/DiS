@@ -23,7 +23,6 @@
 
     <!-- Bootstrap JS -->
     {{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/date-fns@latest"></script> --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {{-- for chart --}}

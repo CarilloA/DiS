@@ -388,18 +388,27 @@
 // }
 
 
-
+const today = new Date();
 const auditDates = {!! json_encode($auditDates) !!}; // This will be an array of timestamps
+const filteredAuditDates = filterByWeek(today, {!! json_encode($auditDates) !!}); // Filter dates by week
 
+// Helper function to format the timestamp as a readable date string
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // You can adjust the format as needed
+}
 
 // Helper function to get the start of the week (Monday)
-function getStartOfWeek(date) {
+// Helper function to get the start of the week (Sunday or Monday based on your requirement)
+function getStartOfWeek(date, startOfWeekDay = 0) { // Default: Sunday (0)
     const start = new Date(date);
-    const day = start.getDay(),
-          diff = start.getDate() - day + (day == 0 ? -6 : 1); // Adjust for Sunday as 0
+    const day = start.getDay();
+    const diff = start.getDate() - day + startOfWeekDay; // Adjust to the start day (Sunday = 0, Monday = 1)
     start.setDate(diff);
+    start.setHours(0, 0, 0, 0); // Set time to midnight for consistent comparison
     return start;
 }
+
 
 // Helper function to update the chart data and labels
 function updateChart(chartId, chartData, filteredAuditDates, chartLabels) {
@@ -409,17 +418,18 @@ function updateChart(chartId, chartData, filteredAuditDates, chartLabels) {
     }
 
     const chart = getChartInstance(chartId);
-    
+
     // Update the chart data with filtered audit dates
-    chart.data.labels = chartLabels;
+    chart.data.labels = chartLabels; // Pass the correct labels (weekly, monthly, yearly)
     chart.data.datasets.forEach((dataset, index) => {
         if (chartData[index] && Array.isArray(chartData[index])) {
             dataset.data = filterDataByDates(chartData[index], filteredAuditDates);
         }
     });
-    
+
     chart.update();
 }
+
 
 // Helper function to get chart instance based on chartId
 function getChartInstance(chartId) {
@@ -444,11 +454,9 @@ function filterDataByDates(data, filteredAuditDates) {
 }
 
 // Now your filterChart function can call these helper functions
+// Now your filterChart function can call these helper functions
 function filterChart(chartId, timeFrame) {
-    let chartData;
-    let chartLabels;
-    let filteredAuditDates = [];
-    const today = new Date();  // Get the current date
+    const today = new Date();  // Ensure 'today' is defined
 
     const data = {
         discrepancySummaryChart: {
@@ -462,9 +470,9 @@ function filterChart(chartId, timeFrame) {
             yearly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
         },
         discrepancyTrends: {
-            weekly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
-            monthly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
-            yearly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
+            weekly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
+            monthly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
+            yearly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
         },
         newVsOld: {
             weekly: [{!! json_encode($discrepancyData) !!}],
@@ -473,7 +481,10 @@ function filterChart(chartId, timeFrame) {
         }
     };
 
-    // Check for invalid chartId or timeFrame
+    let chartData;
+    let chartLabels;
+    let filteredAuditDates = [];
+
     if (!data[chartId] || !data[chartId][timeFrame]) {
         console.error("Invalid chartId or timeFrame");
         return;
@@ -497,87 +508,106 @@ function filterChart(chartId, timeFrame) {
     updateChart(chartId, chartData, filteredAuditDates, chartLabels);
 }
 
+
 // Generate dynamic weekly labels based on available audit dates
 function generateWeeklyLabels(filteredAuditDates) {
-    const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     let labels = [];
+    let groupedData = {'Sunday': [],'Monday': [],'Tuesday': [],'Wednesday': [],'Thursday': [],'Friday': [],'Saturday': []};
+
+    // Sort the dates in ascending order to ensure correct labeling
+    filteredAuditDates.sort((a, b) => new Date(a) - new Date(b));
 
     filteredAuditDates.forEach(date => {
         const auditDate = new Date(date);
-        const startOfWeek = getStartOfWeek(auditDate);
-        labels.push(weekDays[startOfWeek.getDay()]); // Get day of the week
+        const startOfWeek = getStartOfWeek(auditDate); // Get the start of the week (Sunday or Monday)
+        const dayName = weekDays[startOfWeek.getDay()]; // Correctly identify the weekday name
+        groupedData[dayName].push(formatTimestamp(date)); // Group data under the correct weekday
     });
+
+    // Convert groupedData object into an array of labels for the chart
+    for (const day in groupedData) {
+        if (groupedData[day].length > 0) {
+            const firstDate = new Date(groupedData[day][0]); // Use the first date for each group
+            labels.push(`${day}: ${firstDate.toLocaleDateString()}`); // Label as "Day: Date"
+        }
+    }
 
     return labels;
 }
-
 
 // Generate dynamic monthly labels based on available audit dates
 function generateMonthlyLabels(filteredAuditDates) {
-    let labels = [];
-    filteredAuditDates.forEach(date => {
-        const auditDate = new Date(date);
-        const weekNumber = Math.floor((auditDate.getDate() - 1) / 7) + 1; // Calculate week number in the month
-        labels.push(`Week ${weekNumber}`);
-    });
-
-    return labels;
-}
-
-
-// Generate dynamic yearly labels based on available audit dates
-function generateYearlyLabels(filteredAuditDates) {
     let labels = [];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     filteredAuditDates.forEach(date => {
         const auditDate = new Date(date);
-        labels.push(months[auditDate.getMonth()]); // Get month name
+        const monthName = months[auditDate.getMonth()];
+        labels.push(`${monthName} ${auditDate.getFullYear()}`); // Label as "Month Year"
     });
+
+    // Remove duplicates (if same month appears multiple times)
+    labels = [...new Set(labels)];
+    
+    return labels;
+}
+
+// Generate dynamic yearly labels based on available audit dates
+function generateYearlyLabels(filteredAuditDates) {
+    let labels = [];
+    filteredAuditDates.forEach(date => {
+        const auditDate = new Date(date);
+        const year = auditDate.getFullYear();
+        labels.push(`Year ${year}`); // Label as "Year"
+    });
+
+    // Remove duplicates (if same year appears multiple times)
+    labels = [...new Set(labels)];
 
     return labels;
 }
 
-
-// Modify filter functions to account for data availability
+// Modify filterByWeek to filter by week based on the current date
 function filterByWeek(currentDate, auditDates) {
-    const startOfWeek = getStartOfWeek(currentDate);
+    const startOfWeek = getStartOfWeek(currentDate); // Get start of the week
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // End of the week (7 days later)
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // End of the week (6 days after start)
 
-    return auditDates.filter(date => {
-        const auditDate = new Date(date); // Convert timestamp to Date object
-        return auditDate >= startOfWeek && auditDate <= endOfWeek;
+    const filteredDates = auditDates.filter(date => {
+        const auditDate = new Date(date);
+        return auditDate >= startOfWeek && auditDate <= endOfWeek; // Ensure date is within the week
     });
+
+    console.log("Filtered Week Dates:", filteredDates);  // Log the filtered dates for debugging
+    return filteredDates;
 }
 
-
-// Modify to check if data is available for today
-function isDataAvailable(auditDate, currentDate) {
-    return auditDate.toDateString() === currentDate.toDateString();
-}
-
-// Modify filterByMonth to only show data for the current month or available data
+// Modify filterByMonth to filter by current month
 function filterByMonth(currentDate, auditDates) {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // End of the month
 
     return auditDates.filter(date => {
-        const auditDate = new Date(date); // Convert timestamp to Date object
+        const auditDate = new Date(date);
         return auditDate >= startOfMonth && auditDate <= endOfMonth;
     });
 }
 
-
-// Modify filterByYear to show data for the current year or available data
+// Modify filterByYear to filter by the current year
 function filterByYear(currentDate, auditDates) {
     const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
     const endOfYear = new Date(currentDate.getFullYear(), 11, 31); // End of the year
 
     return auditDates.filter(date => {
-        const auditDate = new Date(date); // Convert timestamp to Date object
+        const auditDate = new Date(date);
         return auditDate >= startOfYear && auditDate <= endOfYear;
     });
+}
+
+// Modify to check if data is available for today
+function isDataAvailable(auditDate, currentDate) {
+    return auditDate.toDateString() === currentDate.toDateString();
 }
 
 
@@ -587,43 +617,46 @@ let discrepancySummaryChart, quantityComparisonChart, discrepancyTrendsChart, ne
 
         // Discrepancy Summary Bar Chart
         const discrepancySummaryCtx = document.getElementById('discrepancySummaryChart').getContext('2d');
-        discrepancySummaryChart = new Chart(discrepancySummaryCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Stockroom Discrepancy', 'Store Discrepancy'],
-                datasets: [{
-                    label: 'Discrepancy Amount',
-                    data: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
-                    backgroundColor: ['#3a8f66', '#64edbd'],
-                    borderColor: '#ffffff',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
+discrepancySummaryChart = new Chart(discrepancySummaryCtx, {
+    type: 'line', // Change type to 'line' for a line chart
+    data: {
+        labels: ['Stockroom Discrepancy', 'Store Discrepancy'], // Keep your labels as is
+        datasets: [{
+            label: 'Discrepancy Amount',
+            data: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}], // Your data
+            borderColor: '#3a8f66', // Set line color (green)
+            backgroundColor: 'rgba(58, 143, 102, 0.2)', // Optional: add a slight background color for the area under the line
+            borderWidth: 2, // Adjust the line width
+            fill: true, // Optional: fill the area under the line with color
+            tension: 0.3 // Adjust tension to make the line smooth
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+        },
+        scales: {
+            x: { 
+                ticks: { color: 'white' },
+                title: {
+                    display: true,
+                    text: 'Discrepancy Location', // x-axis title
+                    color: 'white',
                 },
-                scales: {
-                    x: { 
-                        ticks: { color: 'white' },
-                        title: {
-                            display: true,
-                            text: 'Discrepancy Location', // x-axis title
-                            color: 'white',
-                        },
-                    },
-                    y: {
-                        ticks: { color: 'white' },
-                        title: {
-                            display: true,
-                            text: 'Discrepancy Quantity', // x-axis title
-                            color: 'white',
-                        },
-                    }
-                }
+            },
+            y: {
+                ticks: { color: 'white' },
+                title: {
+                    display: true,
+                    text: 'Discrepancy Quantity', // y-axis title
+                    color: 'white',
+                },
             }
-        });
+        }
+    }
+});
+
     
         // Quantity on Hand vs Store Quantity Line Chart
         const quantityComparisonCtx = document.getElementById('quantityComparisonChart').getContext('2d');
