@@ -14,38 +14,6 @@
         align-items: center; 
     }
 
-    .form-control::placeholder {
-        color: white;
-    }
-
-    .form-control {
-        background-color: #565656;
-        color: white;
-        border: 0.8px solid white; 
-        border-radius: .25rem; 
-        font-family: Arial, sans-serif;
-    }
-
-    input::placeholder {
-        color: white;
-        font-weight: 100;
-    }
-
-    input {
-        background-color: #212529;
-        color: white;
-        border: 2px solid white; 
-        font-family: Arial, sans-serif;
-        border: none !important; /* Remove border */
-    }
-
-    input:focus {
-        background-color: #2c2f32; /* Change to a slightly different color on focus */
-        color: white; /* Ensure text color is white */
-        outline: none; /* Remove the default focus outline */
-        border: 2px solid #1abc9c; /* Optional: Add border to highlight focus */
-    }
-
     .card {
         border: none; 
         min-height: 400px;
@@ -77,32 +45,6 @@
         margin-bottom: 1.5rem;
         text-align: center;
         font-weight: bold;
-    }
-
-    .input-group {
-        position: relative; 
-    }
-
-    .input-group .form-control {
-        padding-right: 40px; 
-        background-color: #212529; 
-        color: white; 
-        border: 0.8px solid white; 
-        border-radius: .25rem; 
-        font-family: Arial, sans-serif;
-    }
-
-    .input-group .input-group-text {
-        position: absolute; 
-        right: 10px; 
-        top: 50%; 
-        transform: translateY(-50%); 
-        background-color: transparent; 
-        border: none; 
-        color: white; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
     }
 
     .btn {
@@ -188,10 +130,13 @@
                                 <!-- Email Input -->
                                 <div class="mb-3">
                                     <div class="input-group">
-                                        <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
                                         <span class="input-group-text" id="basic-addon1">
                                             <i class="fa fa-user fa-lg"></i>
                                         </span>
+                                        <input id="email" type="email" placeholder="Email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+                                        {{-- <span class="input-group-text" id="basic-addon1">
+                                            <i class="fa fa-user fa-lg"></i>
+                                        </span> --}}
                                     </div>
                                     @error('email')
                                         <span class="invalid-feedback" role="alert" style="color: #dc3545;">
@@ -213,10 +158,13 @@
                                 <!-- Password Input -->
                                 <div class="mb-3">
                                     <div class="input-group">
-                                        <input id="password" type="password" placeholder="Password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" required>
                                         <span class="input-group-text" id="basic-addon2">
                                             <i class="fa fa-key fa-lg"></i>
                                         </span>
+                                        <input id="password" type="password" placeholder="Password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" required>
+                                        {{-- <span class="input-group-text" id="basic-addon2">
+                                            <i class="fa fa-key fa-lg"></i>
+                                        </span> --}}
                                     </div>
                                     @error('password')
                                         <span class="invalid-feedback" role="alert" style="color: #dc3545;">

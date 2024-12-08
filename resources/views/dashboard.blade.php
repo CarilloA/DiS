@@ -389,7 +389,7 @@
 
 
 
-
+const auditDates = {!! json_encode($auditDates) !!}; // This will be an array of timestamps
 
 
 // Helper function to get the start of the week (Monday)
@@ -501,60 +501,56 @@ function filterChart(chartId, timeFrame) {
 function generateWeeklyLabels(filteredAuditDates) {
     const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     let labels = [];
-    
-    // Determine the first day of the week (start of the week)
-    const startOfWeek = getStartOfWeek(new Date());
-    let currentDay = startOfWeek;
-    
-    // Loop through the filtered audit dates and generate the labels
+
     filteredAuditDates.forEach(date => {
         const auditDate = new Date(date);
-        if (auditDate >= startOfWeek && auditDate < new Date(currentDay.setDate(currentDay.getDate() + 7))) {
-            labels.push(weekDays[currentDay.getDay()]);
-        }
+        const startOfWeek = getStartOfWeek(auditDate);
+        labels.push(weekDays[startOfWeek.getDay()]); // Get day of the week
     });
 
     return labels;
 }
+
 
 // Generate dynamic monthly labels based on available audit dates
 function generateMonthlyLabels(filteredAuditDates) {
     let labels = [];
-    const months = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-    
-    filteredAuditDates.forEach((date, index) => {
+    filteredAuditDates.forEach(date => {
         const auditDate = new Date(date);
-        labels.push(months[auditDate.getMonth()]);
+        const weekNumber = Math.floor((auditDate.getDate() - 1) / 7) + 1; // Calculate week number in the month
+        labels.push(`Week ${weekNumber}`);
     });
 
     return labels;
 }
+
 
 // Generate dynamic yearly labels based on available audit dates
 function generateYearlyLabels(filteredAuditDates) {
     let labels = [];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
+
     filteredAuditDates.forEach(date => {
         const auditDate = new Date(date);
-        labels.push(months[auditDate.getMonth()]);
+        labels.push(months[auditDate.getMonth()]); // Get month name
     });
 
     return labels;
 }
+
 
 // Modify filter functions to account for data availability
 function filterByWeek(currentDate, auditDates) {
     const startOfWeek = getStartOfWeek(currentDate);
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6); // End of the week (7 days later)
-    
-    // Filter auditDates for only the current week's data or just the available date
+
     return auditDates.filter(date => {
-        const auditDate = new Date(date);
-        return auditDate >= startOfWeek && auditDate <= endOfWeek && isDataAvailable(auditDate, currentDate);
+        const auditDate = new Date(date); // Convert timestamp to Date object
+        return auditDate >= startOfWeek && auditDate <= endOfWeek;
     });
 }
+
 
 // Modify to check if data is available for today
 function isDataAvailable(auditDate, currentDate) {
@@ -565,25 +561,25 @@ function isDataAvailable(auditDate, currentDate) {
 function filterByMonth(currentDate, auditDates) {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // End of the month
-    
-    // Filter auditDates for only the current month's data or just the available date
+
     return auditDates.filter(date => {
-        const auditDate = new Date(date);
-        return auditDate >= startOfMonth && auditDate <= endOfMonth && isDataAvailable(auditDate, currentDate);
+        const auditDate = new Date(date); // Convert timestamp to Date object
+        return auditDate >= startOfMonth && auditDate <= endOfMonth;
     });
 }
+
 
 // Modify filterByYear to show data for the current year or available data
 function filterByYear(currentDate, auditDates) {
     const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
     const endOfYear = new Date(currentDate.getFullYear(), 11, 31); // End of the year
-    
-    // Filter auditDates for only the current year's data or just the available date
+
     return auditDates.filter(date => {
-        const auditDate = new Date(date);
-        return auditDate >= startOfYear && auditDate <= endOfYear && isDataAvailable(auditDate, currentDate);
+        const auditDate = new Date(date); // Convert timestamp to Date object
+        return auditDate >= startOfYear && auditDate <= endOfYear;
     });
 }
+
 
 
 // Global references to store the chart instances

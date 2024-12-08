@@ -25,11 +25,11 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     }
 
-    .form-control {
+    /* .form-control {
         background-color: #212529 !important; /* input group background */
-        border: none !important; /* Remove borders */
-        color: #fff !important; /* White text */
-    }
+    /*    border: none !important; /* Remove borders */
+    /*    color: #fff !important; /* White text */
+   /* } */
 
 </style>
 @section('content')

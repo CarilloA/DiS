@@ -29,38 +29,6 @@
         color: #ffffff !important;
     }
 
-    /*Delete Icon*/
-    .circle-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px; /* Set the width of the circle */
-        height: 30px; /* Set the height of the circle */
-        border-radius: 50%; /* Makes it a circle */
-        background-color: #dc3545; /* Light red background */
-        color: white; /* Icon color */
-        font-size: 1.5rem; /* Adjust icon size */
-        transition: background-color 0.3s; /* Smooth transition for background color */
-    }
-
-    .circle-icon:hover {
-        background-color: #c82333; /* Darker red on hover */
-    }
-
-    /* Styling for input boxes */
-    .modal-content input {
-        background-color: #212529;
-        font-family: Arial, sans-serif;
-        border: none; /* Remove border */
-        color: #fff;
-    }
-
-    .modal-content input:focus {
-        background-color: #212529; /* Maintain the same background color */
-        color: white; /* Ensure text color is white */
-        outline: none; /* Remove the default focus outline */
-    }
-
     .modal-content{
         background-color:#565656 !important;
         color: #fff !important;
@@ -81,22 +49,6 @@
     .custom-close:hover {
         color: #ccc; /* Optional: change color on hover */
     }
-
-    /* filter button style */
-    /* .filter-button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px;
-        font-size: 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        position: relative; /* For positioning the notification circle */
-   /* }
-
-    .filter-button:hover {
-        background-color: #0056b3;
-    } */
 
     /* Positioning for the notification circle inside <th> */
         .filterBtn {
@@ -269,9 +221,6 @@
                                             <!-- Trigger the modal with a button -->
                                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">
                                                 Delete
-                                                {{-- <div class="circle-icon" title="Delete">
-                                                    <i class="bi bi-person-x" style="font-size: 1rem;"></i>
-                                                </div> --}}
                                             </button>
                                         </td>
 

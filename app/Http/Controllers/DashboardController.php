@@ -187,7 +187,14 @@ class DashboardController extends Controller
                 $newStockroomQuantities[] = $audit->new_stockroom_quantity;
                 
                 // Prepare audit dates for the discrepancy trends graph
-                $auditDates[] = $audit->audit_date;
+                // $auditDates[] = $audit->audit_date;
+                // PHP side: Convert the PHP dates to a JSON array
+// Assuming $audits is an Eloquent collection
+$auditDates = $audits->pluck('audit_date')->map(function($auditDate) {
+    return strtotime($auditDate) * 1000; // Convert to milliseconds for JS Date compatibility
+})->toArray();
+
+
                 
                 // Prepare discrepancy reasons and total discrepancies for the doughnut chart
                 $discrepancyData[] = $audit->in_stock_discrepancy + $audit->store_stock_discrepancy + $audit->stockroom_stock_discrepancy;
