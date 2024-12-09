@@ -1,225 +1,131 @@
 @extends('layouts.app')
 
-<!-- Wrap navbar in a div with a specific class for print -->
+<!-- Wrap navbar for print view -->
 <div class="navbar-print-hide">
     @include('common.navbar')
 </div>
 
 @section('content')
 <style>
-    /* Styling for printing */
+/* General Print Styles */
 @media print {
-    .navbar-print-hide {
-        display: none; /* Hide the navbar during printing */
+    .navbar-print-hide, .printButton, .signature-form {
+        display: none; /* Hide non-essential elements */
     }
 
     body {
-        background-image: none; /* Remove background image in print */
-        font-size: 10pt; /* Ensure font size is appropriate for the report */
         margin: 0;
         padding: 0;
-        line-height: 1.6; /* Improve line spacing for readability */
+        font-size: 10pt;
+        line-height: 1.6;
+        background: none;
     }
 
+    .container-fluid {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    #main-content {
+        padding: 40px 30px;
+        background-color: transparent;
+        color: #000;
+        box-shadow: none;
+    }
+
+    /* Table Styles for Print */
     .table {
         width: 100%;
-        font-size: 9pt;
         border-collapse: collapse;
+        font-size: 9pt;
+    }
+
+    .table th {
+        /* background-color: #3a8f66; */
+        color: #000;
+        font-weight: bold;
+        text-align: center;
     }
 
     .table th, .table td {
         padding: 6px;
-        text-align: left;
         border: 1px solid #dee2e6;
     }
 
-    .table th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
-
-    /* Container for the main content */
-    .container-fluid {
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
-    #main-content {
-        background-color: transparent !important;
-        color: #000 !important;
-        box-shadow: none !important;
-        padding: 40px 30px;
-        margin: 0;
-    }
-
-    .printButton {
-        display: none;
-    }
-
-    /* Signature upload and footer styling */
-    .signature-section {
-        margin-bottom: 30px;
-        text-align: center;
-    }
-
-    #signature-preview {
-        margin-top: 20px;
-        text-align: center;
-    }
-
     .prepared-by-container {
-        display: flex;
-        flex-direction: column; /* Stack signature and name vertically */
-        justify-content: flex-start; /* Align to the left */
-        align-items: flex-start; /* Align text and signature to the left */
         margin-top: 40px;
-        border-top: none; /* No top border in print view */
-        padding-top: 20px;
-    }
-
-    #signature-container {
-        margin-right: 15px; /* Space between signature and text */
-        flex-shrink: 0; /* Prevent the signature from shrinking */
+        text-align: left;
     }
 
     #signature-preview img {
-        max-width: 120px;  /* Adjust image size for printing */
+        max-width: 120px;
         max-height: 60px;
-        visibility: visible !important;  /* Ensure the signature is visible */
     }
-
-    .prepared-by {
-        font-size: 12pt;
-        font-style: italic;
-        color: #333;
-        text-align: left;
-        line-height: 1.6;
-        margin-top: 10px; /* Add spacing between signature and the name */
-    }
-
-    .prepared-by h5 {
-        font-weight: normal;
-        margin-left: 15px; /* Space between signature and name */
-    }
-
-    /* Hide signature upload form and button during printing */
-    .signature-form {
-        display: none;
-    }
-
-    /* Ensure the content fits within the bond paper size */
-    /* @page {
-        size: 8.5in 11in;
-        margin: 1in;
-    } */
 }
 
+/* Normal View Styles */
+body {
+    font-family: Arial, sans-serif;
 }
 
+.container-fluid, .main-content {
+    margin-top: 0;
+    padding: 0;
+}
 
-    /* Styling for report title and sections in normal view */
-    .container-fluid,
-    .main-content {
-        margin-top: 0;
-        padding-top: 0;
-    }
+#main-content {
+    background-color: #fff;
+    border-radius: 10px;
+}
 
-    #main-content {
-        background-color: #fff; /* White background for normal view */
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
+.table {
+    margin-top: 30px;
+    width: 100%;
+    border: 1px solid #dee2e6;
+    font-size: 10pt;
+    border-radius: 5px;
+}
 
-    .table td,
-    .table th {
-        text-align: left; /* Align text to the left for better readability */
-    }
-
-    .table {
-        margin-top: 30px;
-        width: 100%;
-        border: 1px solid #dee2e6;
-        font-size: 10pt;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-
-    .table-bordered td,
-    .table-bordered th {
-        padding: 8px;
-    }
-
-    /* Footer */
-    /* Signature upload and footer styling */
-    .signature-section {
-        margin-bottom: 30px;
-        text-align: center;
-    }
-
-    #signature-preview {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    .prepared-by-container {
-        display: flex;
-        justify-content: flex-start; /* Align to the left for a formal report */
-        align-items: center;
-        margin-top: 40px;
-        border-top: 2px solid #000;
-        padding-top: 20px;
-    }
-
-    #signature-container {
-        margin-right: 15px; /* Space between signature and text */
-        flex-shrink: 0; /* Prevent the signature from shrinking */
-    }
-
-    #signature-preview img {
-        max-width: 150px;  /* Adjust image width */
-        max-height: 80px;  /* Ensure the signature is not too big */
-    }
-
-    .prepared-by {
-        font-size: 12pt;
-        font-style: italic;
-        color: #333;
-        text-align: left;
-        line-height: 1.6;
-        display: flex;
-        align-items: flex-start;
-    }
-
-    .prepared-by h5 {
-        font-weight: normal;
-        margin-left: 15px; /* Space between signature and name */
-    }
-
-    #signature-upload-title {
-        font-size: 16px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-
-    .signature-form label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 14px;
+.table th {
+        /* background-color: #3a8f66; */
+        color: #000;
         font-weight: bold;
     }
 
-    .signature-form input[type="file"] {
-        margin-bottom: 10px;
-    }
+.table th, .table td {
+    padding: 8px;
+    text-align: left;
+}
 
-    .signature-form button {
-        margin-top: 10px;
-    }
+.signature-section {
+    margin-top: 40px;
+    text-align: left;
+}
 
+#signature-preview {
+    margin-top: 20px;
+    text-align: left;
+}
 
+#signature-preview img {
+    max-width: 150px;
+    max-height: 80px;
+}
 
+/* Print Button */
+.printButton {
+    margin-top: 20px;
+    text-align: right;
+}
 
+.printButton button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
 </style>
 
 <div class="container-fluid">
@@ -230,18 +136,18 @@
 
             <!-- Report Header -->
             <div class="report-header">
-                <h1>{{ $reportTitle }}</h1>
-                <h5>Report generated on {{ \Carbon\Carbon::now()->format('F j, Y') }}</h5>
+                <h3>{{ $reportTitle }}</h3>
+                <label>Report generated on {{ now()->format('F j, Y') }}</label>
             </div>
 
             <!-- Print Button -->
-            <div class="printButton">
-                <button type="button" onclick="window.print();">
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary ms-2 me-2 printButton" id="printButton" onclick="checkSignatureAndPrint();">
                     <i class="fa-solid fa-print"></i> Print Report
                 </button>
             </div>
 
-            <!-- Table for audit logs -->
+            <!-- Audit Logs Table -->
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -277,58 +183,57 @@
                             <td>{{ $log->stockroom_stock_discrepancy }}</td>
                             <td>{{ $log->in_stock_discrepancy }}</td>
                             <td>{{ $log->discrepancy_reason }}</td>
-                            <td>{{ \Carbon\Carbon::parse($log->audit_date)->format('F j, Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($log->audit_date)->format('m/d/Y') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="14" class="text-center">No audit logs found for the selected filters.</td>
+                            <td colspan="14" class="text-center">No audit logs found.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
 
-           <!-- Signature Upload Section -->
-            <div id="signature-upload" class="signature-section">
+            <!-- Signature Section -->
+            <div  id="signature-upload"  class="signature-section">
                 <form id="signature-form" enctype="multipart/form-data" class="signature-form">
-                    <h3 id="signature-upload-title">Upload Signature</h3>
-                    <label for="signature">Choose a signature image:</label>
-                    <input type="file" name="signature" id="signature" accept="image/*" required>
+                    <h3>Upload Signature</h3>
+                    <label>Choose a signature image:</label>
+                    <input type="file" name="signature" id="signature" accept="image/*">
                     <button type="submit" class="btn btn-primary">Upload Signature</button>
                 </form>
             </div>
 
-            <!-- Footer: Prepared By -->
+            <!-- Footer -->
             <div class="prepared-by-container">
-                <div id="signature-container">
-                    <!-- This will hold the uploaded signature -->
-                    <div id="signature-preview">
-                        <!-- Signature preview will appear here -->
-                    </div>
-                </div>
-
-                <div class="prepared-by">
-                    <?php 
-                        $user = auth()->user();
-                    ?>
-                    <h5><strong>Prepared By:</strong> {{ $user->first_name }} {{ $user->last_name }}</h5>
+                <div id="signature-preview" class="signature"></div>
+                <div>
+                    <label>Prepared By: {{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</label>
                 </div>
             </div>
-
-
-
         </div>
     </main>
 </div>
 
 <script>
+    function checkSignatureAndPrint() {
+        var signaturePreview = document.getElementById('signature-preview').innerHTML;
+        
+        if (!signaturePreview) {
+            alert('You must upload a signature before printing the report.');
+            // Scroll to the signature upload section
+            document.getElementById('signature-upload').scrollIntoView({behavior: 'smooth'});
+        } else {
+            window.print();
+        }
+    }
+
+    // jQuery to handle signature upload and preview
     $(document).ready(function() {
         $('#signature-form').on('submit', function(e) {
             e.preventDefault(); // Prevent the form from submitting the traditional way
 
-            // Create a FormData object to hold the file data
             var formData = new FormData(this);
 
-            // Send the form data via AJAX
             $.ajax({
                 url: "{{ route('upload.signature') }}",  // Adjust the route as necessary
                 type: 'POST',
@@ -340,7 +245,6 @@
                 },
                 success: function(response) {
                     if (response.status == 'success') {
-                        // Display the uploaded signature in a preview
                         $('#signature-preview').html('<img src="' + response.signature_url + '" alt="Signature" style="max-width: 200px;">');
                     } else {
                         alert('Failed to upload signature. Please try again.');
@@ -353,6 +257,4 @@
         });
     });
 </script>
-
-
 @endsection

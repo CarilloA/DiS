@@ -140,6 +140,11 @@ class ReportController extends Controller
         if ($supplierIds) {
             $reportTitleParts[] = 'Product Suppliers';
         }
+
+        // Decode description to array
+        foreach ($inventoryJoined as $item) {
+            $item->descriptionArray = json_decode($item->description, true);
+        }
         
         // Join the parts into a string and build the report title
         $reportTitle = !empty($reportTitleParts) ? 
