@@ -112,6 +112,11 @@ class ProfileController extends Controller
                 'user_roles' => implode(', ', $request->roles), // Save roles as a comma-separated string
                 'role' => null,
             ]);
+
+            //for logout
+            Auth::logout(); // Log out the user
+            $request->session()->invalidate(); // Invalidate the session
+            $request->session()->regenerateToken(); // Regenerate CSRF token
     
             return redirect('/login')->with('success', 'Roles updated successfully!');
         }
@@ -133,6 +138,11 @@ class ProfileController extends Controller
 
             // Send confirmation email
             Mail::to($request['email'])->send(new ConfirmRegistration($user));
+
+            //for logout
+            Auth::logout(); // Log out the user
+            $request->session()->invalidate(); // Invalidate the session
+            $request->session()->regenerateToken(); // Regenerate CSRF token
 
             return redirect('/login')->with('success', 'Email updated successfully! A confirmation email has been sent to your email address.');
         }
@@ -160,6 +170,11 @@ class ProfileController extends Controller
                 'password' => Hash::make($request->new_password), // Hash the new password before storing
                 'role' => null,
             ]);
+
+            //for logout
+            Auth::logout(); // Log out the user
+            $request->session()->invalidate(); // Invalidate the session
+            $request->session()->regenerateToken(); // Regenerate CSRF token
 
             return redirect('/login')->with('success', 'Password updated successfully!');
         }

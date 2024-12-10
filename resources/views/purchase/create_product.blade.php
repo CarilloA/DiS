@@ -297,7 +297,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="input-group-text" for="in_stock">
-                                    <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Purchased Quantity&nbsp;<i>*Required</i>
+                                    <i class="fa-solid fa-warehouse" style="margin-right: 5px;"></i> Total Purchased Quantity&nbsp;<i>*Required</i>
                                 </label>
                                 <input id="in_stock" type="text" class="form-control @error('in_stock') is-invalid @enderror" name="in_stock" value="{{ old('in_stock') }}" pattern="^\d{1,6}$" required>
                                 @error('in_stock')
@@ -430,12 +430,12 @@
                         </div>
 
                         <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
+                            <div class="col-md-12 text-end">
                                 <button type="submit" name="create" class="btn btn-primary">
                                     {{ __('Add Product') }}
                                 </button>
                             </div>
-                        </div>
+                        </div>                        
                     </form>
                 </div>
             </div>

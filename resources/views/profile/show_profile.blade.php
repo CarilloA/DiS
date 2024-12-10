@@ -86,7 +86,7 @@
     <div class="main-content">
         @include('common.alert')
 
-        @if ($errors->any())
+        {{-- @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -94,7 +94,7 @@
                     @endforeach
                 </ul>
             </div>
-        @endif
+        @endif --}}
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
             <h1 class="h2">Profile Management</h1>

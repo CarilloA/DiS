@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Mail\ConfirmRegistration;
 use App\Mail\ConfirmationNotice;
 use App\Mail\RejectRegistration;
+use App\Mail\UpdateNotice;
 use Illuminate\Support\Facades\Mail;
  use Illuminate\Support\Facades\Log;
  use Exception;
@@ -53,9 +54,9 @@ class AccountManagementController extends Controller
                 // Join `user`, `credentials`, and `contact_details` to get user details
                 $userSQL = DB::table('user')
                 ->select('user.*')
+                ->where('user_id', '!=', $user->user_id)
                 ->whereNotNull('created_at')
-                ->where('user_roles', 'NOT LIKE', '%Administrator%') // Exclude Administrators
-                ->orWhere('user_roles', '=', null)
+                // ->orWhere('user_roles', '=', null)
                 ->get();
     
                 // Pass the user details to the view
@@ -78,8 +79,8 @@ class AccountManagementController extends Controller
     {
         // Fetch users with 'user_roles' as null
         $userSQL = DB::table('user')
-            ->select('user.*')
             ->whereNull('user_roles')
+            ->where('email_verified_at', '!=', null)
             ->get();
 
         // Count users with 'user_roles' as null
@@ -87,8 +88,8 @@ class AccountManagementController extends Controller
 
         // Get the total number of users that need to be confirmed/rejected
         $pendingResendLinkCount = DB::table('user')
-            ->whereNull('email_verified_at')
-            ->count();
+                ->whereNull('email_verified_at')
+                ->count();
 
         // Pass the data to the view
         return view('account_management.accounts_table', [
@@ -110,8 +111,9 @@ class AccountManagementController extends Controller
 
         // Get the total number of users that need to be confirmed/rejected
         $pendingConfirmRejectCount = DB::table('user')
-            ->whereNull('user_roles')
-            ->count();
+                ->whereNull('user_roles')
+                ->where('email_verified_at', '!=', null)
+                ->count();
 
         // Pass the data to the view
         return view('account_management.accounts_table', [
@@ -121,120 +123,6 @@ class AccountManagementController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('account_management.create_account');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    // public function store(Request $request)
-    // {
-    //     // Validate the incoming request data
-    //     $validatedData = $request->validate([
-    //         'image_url' => ['nullable', 'image'],
-    //         'first_name' => ['required', 'string', 'max:15'],
-    //         'last_name' => ['required', 'string', 'max:15'],
-    //         'mobile_number' => ['required', 'digits:11', 'unique:user'],
-    //         'email' => ['required', 'string', 'email', 'max:30', 'unique:user'],
-    //         'role' => ['required'],
-    //         'password' => ['required', 'string', 'min:8', 'confirmed'],
-    //     ]);
-
-    //     // Handle file upload with a default image if no file is provided
-    //     $fileNameToStore = 'noimage.jpg'; 
-    //     if ($request->hasFile('image_url')) {
-    //         $fileNameToStore = $this->handleFileUpload($request->file('image_url'));
-    //     }
-
-    //     // Generate a custom user ID
-    //     $userId = $this->generateUserId();
-
-    //     // Use a transaction to ensure data integrity
-    //     $user = DB::transaction(function () use ($validatedData, $fileNameToStore, $userId) {
-
-    //         // Create the user
-    //         $user = User::create([
-    //             'user_id' => $userId,
-    //             'first_name' => $validatedData['first_name'],
-    //             'last_name' => $validatedData['last_name'],
-    //             'image_url' => $fileNameToStore,
-    //             'mobile_number' => $validatedData['mobile_number'],
-    //             'email' => $validatedData['email'],
-    //             'password' => Hash::make($validatedData['password']),
-    //             'role' => $validatedData['role'],
-    //         ]);
-
-    //         Log::info('New user created with ID: ' . $user->user_id); // Log the new user ID
-    //         return $user; // Return the user object
-    //     });
-
-    //     // Send confirmation email
-    //     Mail::to($validatedData['email'])->send(new ConfirmRegistration($user));
-    //     Log::info('Sending confirmation email for user: ', $user->toArray()); // Log email sending
-
-    //     return redirect()->route('accounts_table')->with('success', 'User registered successfully! A confirmation email has been sent.');
-    // }
-
-    /**
-     * Handle file upload and return the filename.
-     *
-     * @param  \Illuminate\Http\UploadedFile  $file
-     * @return string
-     */
-    // private function handleFileUpload($file)
-    // {
-    //     $fileNameWithExt = $file->getClientOriginalName();
-    //     $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
-    //     $extension = $file->getClientOriginalExtension();
-    //     $fileNameToStore = $fileName . '_' . time() . '.' . $extension;
-    //     $file->storeAs('public/userImage', $fileNameToStore);
-
-    //     return $fileNameToStore;
-    // }
-
-    /**
-     * Generate a custom user ID based on the current year and latest user ID.
-     *
-     * @return string
-     */
-    // private function generateUserId()
-    // {
-    //     $currentYear = date('Y');
-    //     $latestUser = DB::table('user')
-    //                     ->where('user_id', 'like', "{$currentYear}%")
-    //                     ->orderBy('user_id', 'desc')
-    //                     ->first();
-
-    //     Log::info('Latest user found: ', (array)$latestUser); // Log latest user information
-
-    //     // Initialize newIdNumber to 1
-    //     $newIdNumber = '0000';
-
-    //     if ($latestUser) {
-    //         // Extract the last four digits and increment them
-    //         $latestIdNumber = substr($latestUser->user_id, -4); // Get the last 4 digits of user_id
-    //         Log::info('Latest ID Number: ' . $latestIdNumber); // Log the latest ID Number
-            
-    //         $incrementedIdNumber = (int)$latestIdNumber + 1; // Increment the ID Number
-    //         $newIdNumber = str_pad($incrementedIdNumber, 4, '0', STR_PAD_LEFT); // Format to 4 digits
-    //     }
-
-    //     // Concatenate year with new ID number
-    //     $generatedUserId = $currentYear . $newIdNumber; // e.g., '20240001'
-    //     Log::info('Generated User ID: ' . $generatedUserId); // Log the generated User ID
-        
-    //     return $generatedUserId; // Return the new User ID
-    // }
 
     public function confirmEmail($id)
     {
@@ -376,6 +264,50 @@ class AccountManagementController extends Controller
             return redirect()->route('accounts_table')->with('success', 'Rejection email notice has been sent to the user. The account will be remove from our records');
         } catch (\Exception $e) {
             Log::error('Failed to send rejection email for user ' . $user->id . ': ' . $e->getMessage());
+            return redirect()->route('accounts_table')->with('error', 'Failed to send rejection email.');
+        }
+    }
+
+
+    public function updateRole(Request $request, $id)
+    {
+        // Find the user by their ID
+        $user = User::find($id);
+
+        if (!$user) {
+            return redirect()->route('accounts_table')->with('error', 'User not found.');
+        }
+
+        // Validate the input
+        $request->validate([
+            'admin_password' => 'required|string',
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'in:Administrator,Inventory Manager,Auditor',
+        ]);
+
+        // Check if the admin's current password is correct
+        if (!Hash::check($request->admin_password, auth()->user()->password)) {
+            return back()->withErrors(['update_admin_password' => 'Error: Current password is incorrect.'])->withInput();
+        }
+
+        // Perform the role update within a transaction
+        DB::transaction(function () use ($request, $user) {
+            // Prepare the update data
+            $updateData = [
+                'user_roles' => implode(', ', $request->roles), // Join the roles into a comma-separated string
+            ];
+    
+            // Update the user's role
+            User::where('user_id', $user->user_id)->update($updateData);
+        });
+
+        try {
+            // Send the email
+            Mail::to($user->email)->send(new UpdateNotice($user));
+
+            return redirect()->route('accounts_table')->with('success', 'User account confirmed with roles: ' . implode(', ', $request->roles). ' & update notice has been sent to the user');
+        } catch (\Exception $e) {
+            Log::error('Failed to send confirmation notice to the email of the user ' . $user->id . ': ' . $e->getMessage());
             return redirect()->route('accounts_table')->with('error', 'Failed to send rejection email.');
         }
     }

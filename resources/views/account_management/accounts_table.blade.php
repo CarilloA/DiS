@@ -127,33 +127,6 @@
                                 @endif    
                             </a>
                         </div>
-
-
-
-                        {{-- <div class="col-auto"> <!-- Display All button in dropdown -->
-                            <div class="dropdown">
-                                <button class="filter-button dropdown-toggle" type="button" id="displayAllDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Display Options
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="displayAllDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('accounts_table') }}">
-                                            Display All
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('accounts_table.confirm_reject_filter') }}">
-                                            Confirm/Reject Account
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('accounts_table.resend_link_filter') }}">
-                                            Resend Verification Link
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div> --}}
                     </div>
 
                     
@@ -172,21 +145,11 @@
                                 <th>Email Verified At</th>
                                 <th>
                                     Resend Link
-                                    {{-- @if($pendingResendLinkCount >= 0)
-                                        <div class="notification-circle">
-                                            {{ $pendingResendLinkCount }}
-                                        </div>
-                                    @endif --}}
                                 </th>
                                 <th colspan="2">
-                                    Confirm User Login
-                                    {{-- @if($pendingConfirmRejectCount >= 0)
-                                        <div class="notification-circle">
-                                            {{ $pendingConfirmRejectCount }}
-                                        </div>
-                                    @endif --}}
+                                    Confirm User Account
                                 </th>
-                                <th>Delete Account</th>
+                                <th colspan="2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -218,9 +181,13 @@
                                             <td><button type="button" class="btn btn-danger" disabled>Reject</button></td>
                                         @endif
                                         <td>
-                                            <!-- Trigger the modal with a button -->
-                                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">
-                                                Delete
+                                            <!-- Trigger the update modal with a button -->
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal{{ $data->user_id }}" title="Update">
+                                                <i class="fa-solid fa-user-pen"></i>
+                                            </button>
+                                             <!-- Trigger the delete modal with a button -->
+                                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ $data->user_id }}" title="Delete">
+                                                <i class="fa-solid fa-user-minus"></i>
                                             </button>
                                         </td>
 
@@ -229,7 +196,7 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h4 class="modal-title">Reject User Login</h4>
+                                                        <h4 class="modal-title">Reject User Account</h4>
                                                         <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
                                                     </div>
                                                     <div class="modal-body">
@@ -267,7 +234,7 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h4 class="modal-title">Confirm User Login</h4>
+                                                        <h4 class="modal-title">Confirm User Account</h4>
                                                         <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
                                                     </div>
                                                     <div class="modal-body">
@@ -317,7 +284,72 @@
                                                             
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                <button type="submit" class="btn btn-primary">Confirm User Login</button>
+                                                                <button type="submit" class="btn btn-primary">Confirm User Account</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                         {{-- Update Modal --}}
+                                         <div id="updateModal{{ $data->user_id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Update User Role</h4>
+                                                        <button type="button" class="close custom-close" data-dismiss="modal">&times;</button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="{{ route('update_role', $data->user_id) }}" method="POST">
+                                                            @csrf
+                                                            
+                                                            <input type="hidden" name="user_id" value="{{ $data->user_id }}">
+                                                            <input type="hidden" name="action" value="update">
+                                                            
+                                                            <!-- Admin Password Input -->
+                                                            <div class="form-group mb-4">
+                                                                <label for="admin_password">Current Password <i>*Required</i></label>
+                                                                <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
+                                                                       id="admin_password_{{ $data->user_id }}" name="admin_password" required>
+                                                                <small class="form-text text-light mt-2">
+                                                                    Note: Please enter your current password for confirmation.
+                                                                </small>
+                                                                @error('update_admin_password')
+                                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                                @enderror
+                                                            </div>
+                                                            
+                                                            <!-- Roles Selection -->
+                                                            <div class="form-group mb-4">
+                                                                <label>Select User Roles <i>*Required</i>: </label>
+                                                                <div class="form-check">
+                                                                    <input id="Administrator" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Administrator">
+                                                                    <label for="Administrator" class="form-check-label">Administrator</label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input id="inventory_manager" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Inventory Manager">
+                                                                    <label for="inventory_manager" class="form-check-label">Inventory Manager</label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input id="auditor" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Auditor">
+                                                                    <label for="auditor" class="form-check-label">Auditor</label>
+                                                                </div>
+                                                                @error('roles')
+                                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                                @enderror
+                                                                <small class="form-text text-light mt-2">
+                                                                    Note: You can select single or multiple roles.
+                                                                </small>
+                                                            </div>
+                                                            
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                <button type="submit" class="btn btn-primary">Confirm User Update</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -370,7 +402,7 @@
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="10" class="text-center">No user found.</td>
+                                    <td colspan="11" class="text-center">No user found.</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -392,6 +424,8 @@
                 $('#rejectModal' + userId).modal('show');
             } else if (action === 'confirm') {
                 $('#confirmModal' + userId).modal('show');
+            } else if (action === 'update') {
+                $('#updateModal' + userId).modal('show');
             } else if (action === 'delete') {
                 $('#deleteModal' + userId).modal('show');
             }

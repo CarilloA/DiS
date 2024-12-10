@@ -437,7 +437,7 @@
                         </div>
 
                         <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
+                            <div class="col-md-12 text-end">
                                 <button type="submit" name="create" class="btn btn-primary">
                                     {{ __('Update Product') }}
                                 </button>

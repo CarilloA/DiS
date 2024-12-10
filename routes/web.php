@@ -66,6 +66,7 @@ Route::post('confirm_account/{id}', [AccountManagementController::class, 'confir
 Route::post('reject_account/{id}', [AccountManagementController::class, 'rejectAccount'])->name('reject_account');
 Route::get('accounts_table', [AccountManagementController::class, 'index'])->name('accounts_table');
 Route::get('create', [AccountManagementController::class, 'create'])->name('create_account');
+Route::post('update_role/{id}', [AccountManagementController::class, 'updateRole'])->name('update_role');
 Route::delete('delete/{id}', [AccountManagementController::class, 'destroy'])->name('delete_account');
 
 //filter accounts

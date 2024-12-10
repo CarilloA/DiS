@@ -173,6 +173,12 @@ class PurchaseController extends Controller
             'product_quantity' => ['numeric'],
         ]);
 
+
+        //error handling for product in-stock
+        if($validatedData['in_stock'] < $validatedData['product_quantity']) {
+            return redirect()->back()->with('error', "The entered total product stock cannot be less than the specified product stock in the stockroom.");
+        }
+
          // Handle file upload with a default image if no file is provided
          $fileNameToStore = 'noimage.jpg'; 
          if ($request->hasFile('image_url')) {

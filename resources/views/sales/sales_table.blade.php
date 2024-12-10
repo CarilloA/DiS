@@ -129,17 +129,34 @@
                 @include('common.alert')
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
                     <h1 class="h2">Sales Management</h1>
-                    <div class="d-flex">
+                    {{-- <div class="d-flex">
                         <a class="btn btn-success" href="{{ route('sales.create') }}">+ Sale Product</a>
                         <a class="btn btn-warning ms-2" href="{{ route('return_product_table') }}" style="margin-left: -5px;">Returned Products View</a>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <!-- Search Bar -->
-                <form class="d-flex" role="search" id="searchForm">
-                    <input class="form-control me-2" type="search" placeholder="Search by Sales ID" aria-label="Search" id="searchInput">
-                    <button class="btn btn-success" type="submit">Search</button>
-                </form>
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Search Form -->
+                    <form class="d-flex align-items-center" role="search" id="searchForm" style="gap: 0.5rem;">
+                        <input 
+                            class="form-control" 
+                            type="search" 
+                            placeholder="Search by Sales ID" 
+                            aria-label="Search" 
+                            id="searchInput" 
+                            style="width: 30em; padding: 5px; font-size: 14px;"
+                        >
+                        <button class="btn btn-success" type="submit">Search</button>
+                    </form>
+
+                    <!-- Action Buttons -->
+                    <div class="ms-auto">
+                        <a class="btn btn-success" href="{{ route('sales.create') }}">+ Sale Product</a>
+                        <a class="btn btn-warning ms-2" href="{{ route('return_product_table') }}">Returned Products View</a>
+                    </div>
+                </div>
+
                 <div id="searchResults" class="dropdown mt-2" style="display: none;">
                     <ul class="dropdown-menu" id="resultsList"></ul>
                 </div>
@@ -178,7 +195,7 @@
                             <th>Sale Price</th>
                             <th>Amount</th>
                             <th>Total Amount</th>
-                            <th>Sales Timestamp</th>
+                            <th>Transaction Date</th>
                             <th>Description</th>
                             <th>Action</th>
                         </tr>

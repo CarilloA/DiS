@@ -122,7 +122,7 @@
                     </table>
             
                     <!-- Batch Disposal Button -->
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDisposeModal">
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDisposeModal" disabled>
                         Dispose Selected
                     </button>
                 </div>
@@ -141,6 +141,11 @@
                                 <div class="form-group">
                                     <label for="confirm_password">Confirm Password <i>*Required</i></label>
                                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    <small class="form-text text-danger mt-2" style="color: red">
+                                        <p class="text">
+                                            Note: Please enter your current password here for confirmation.
+                                        </p>
+                                    </small>
                                 </div>
 
                                 <!-- Modal Validation Error Alert Message-->
@@ -179,12 +184,20 @@
     document.addEventListener('DOMContentLoaded', function() {
         const selectAllCheckbox = document.getElementById('selectAll');
         const productCheckboxes = document.querySelectorAll('input[name="selected_products[]"]');
+        const disposeButton = document.querySelector('.btn.btn-danger[data-target="#confirmDisposeModal"]');
+
+        // Function to update dispose button state
+        function updateDisposeButtonState() {
+            const anyChecked = Array.from(productCheckboxes).some(checkbox => checkbox.checked);
+            disposeButton.disabled = !anyChecked;
+        }
 
         // Function to handle "Select All" toggle
         selectAllCheckbox.addEventListener('change', function() {
             productCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+            updateDisposeButtonState();
         });
 
         // Update "Select All" state when individual checkboxes change
@@ -192,8 +205,12 @@
             checkbox.addEventListener('change', function() {
                 // Check if all are selected, if not, uncheck "Select All"
                 selectAllCheckbox.checked = Array.from(productCheckboxes).every(cb => cb.checked);
+                updateDisposeButtonState();
             });
         });
+
+        // Initialize button state on page load
+        updateDisposeButtonState();
     });
 </script>
 
