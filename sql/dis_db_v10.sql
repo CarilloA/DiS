@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 16, 2024 at 02:40 AM
+-- Generation Time: Dec 08, 2024 at 09:56 AM
 -- Server version: 5.7.40
 -- PHP Version: 8.0.26
 
@@ -75,14 +75,13 @@ CREATE TABLE IF NOT EXISTS `inventory` (
 --
 
 INSERT INTO `inventory` (`inventory_id`, `product_id`, `purchase_price_per_unit`, `sale_price_per_unit`, `unit_of_measure`, `in_stock`, `reorder_level`, `created_at`, `updated_at`) VALUES
-(17191477, 46004118, '24.00', '32.00', 'pcs', 19, 10, '2024-12-03 03:02:35', '2024-12-08 07:22:09'),
-(19826892, 40739618, '55000.00', '62000.00', 'pcs', 17, 2, '2024-12-02 02:36:49', '2024-12-08 07:22:09'),
-(30678416, 73086209, '15000.00', '18000.00', 'box', 16, 1, '2024-12-16 01:21:58', '2024-12-16 01:21:58'),
-(59712524, 31299885, '24.00', '32.00', 'pcs', 14, 1, '2024-12-02 11:43:27', '2024-12-08 07:22:09'),
-(82984096, 18975177, '5000.00', '1100.00', 'pair', 37, 5, '2024-12-06 01:27:02', '2024-12-08 07:22:09'),
+(17191477, 46004118, '24.00', '32.00', 'pcs', 22, 10, '2024-12-03 03:02:35', '2024-12-08 07:22:09'),
+(19826892, 40739618, '55000.00', '62000.00', 'pcs', 21, 2, '2024-12-02 02:36:49', '2024-12-08 07:22:09'),
+(59712524, 31299885, '24.00', '32.00', 'pcs', 19, 1, '2024-12-02 11:43:27', '2024-12-08 07:22:09'),
+(82984096, 18975177, '5000.00', '1100.00', 'pair', 38, 5, '2024-12-06 01:27:02', '2024-12-08 07:22:09'),
 (85845553, 84495846, '6400.00', '7635.00', 'pcs', 22, 5, '2024-12-06 01:36:05', '2024-12-08 07:22:09'),
 (95154263, 65174824, '24.00', '32.00', 'pcs', 24, 1, '2024-12-02 14:20:39', '2024-12-08 07:22:09'),
-(95974033, 15076522, '15000.00', '18000.00', 'pcs', 15, 8, '2024-12-06 00:19:22', '2024-12-10 17:42:41');
+(95974033, 15076522, '15000.00', '18000.00', 'pcs', 15, 8, '2024-12-06 00:19:22', '2024-12-08 07:22:09');
 
 -- --------------------------------------------------------
 
@@ -158,14 +157,14 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`password_reset_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `password_resets`
 --
 
 INSERT INTO `password_resets` (`password_reset_id`, `email`, `token`, `created_at`) VALUES
-(11, '20223765@s.ubaguio.edu', '$2y$10$KTaDuVyyN9wN0MnylznroeWFIKzAg47RBeC7NWpkhZmkiJ1pD1fBG', '2024-12-10 08:39:29'),
+(10, '20223765@s.ubaguio.edu', '$2y$10$mOm9TS5XKlj7eXl62aNBdOmXJPqgyaWHWwMwkwYzS1xbdOmN56Jl2', '2024-12-08 06:08:53'),
 (7, 'carilloaira@gmail.com', '$2y$10$eSv7oUmj/p3xtj/579YypO04KuiMCxq.Myi4aHfuDf2iuU0HTKiTK', '2024-12-03 02:20:17');
 
 -- --------------------------------------------------------
@@ -198,7 +197,6 @@ INSERT INTO `product` (`product_id`, `category_id`, `supplier_id`, `image_url`, 
 (40739618, 45992576, 64213870, '', 'Dutch', '{\"color\":\"black\",\"size\":\"large\",\"description\":\"this is an item\"}'),
 (46004118, 36200226, 91869735, '', 'Side Mirror', '{\"color\":\"Black\",\"size\":\"25\",\"description\":\"AA Battery\"}'),
 (65174824, 18673629, 38859181, '', 'Lcal', '{\"color\":null,\"size\":null,\"description\":\"AA Battery\"}'),
-(73086209, 48312275, 77830888, 'dis_erd.drawio (5)_1734312117.png', 'product6', '{\"color\":null,\"size\":null,\"description\":null}'),
 (84495846, 48312275, 95562004, 'Screenshot 2024-09-05 224041_1733448965.png', 'product3', '{\"color\":null,\"size\":null,\"description\":\"Lead-Acid Batteries\"}');
 
 -- --------------------------------------------------------
@@ -226,9 +224,7 @@ CREATE TABLE IF NOT EXISTS `return_product` (
 --
 
 INSERT INTO `return_product` (`return_product_id`, `return_quantity`, `total_return_amount`, `return_reason`, `return_date`, `scrap_product_id`, `user_id`) VALUES
-(42006337, 2, 124000, 'Damaged Product', '2024-12-10 14:32:38', 27385634, 20240002),
-(50382363, 1, 62000, 'Damaged Product', '2024-12-08 06:19:10', 91766211, 20240002),
-(77122285, 1, 62000, 'Damaged Product', '2024-12-10 17:20:17', NULL, 20240002),
+(50382363, 1, 62000, 'Damaged Product', '2024-12-08 06:19:10', NULL, 20240002),
 (83851557, 1, 37, 'Damaged Product', '2024-12-02 07:11:34', NULL, 20240000),
 (88942119, 1, 62000, 'Damaged Product', '2024-12-02 07:10:45', 96143478, 20240000),
 (89176778, 6, 222, 'Damaged Product', '2024-12-02 14:38:41', 50979433, 20240000),
@@ -257,17 +253,13 @@ CREATE TABLE IF NOT EXISTS `sales` (
 
 INSERT INTO `sales` (`sales_id`, `user_id`, `total_amount`, `sales_date`) VALUES
 (22725940, 20240000, '37.00', '2024-12-02 03:29:31'),
-(23249319, 20240000, '62096.00', '2024-12-10 13:39:09'),
 (24995497, 20240000, '185.00', '2024-12-02 06:15:28'),
 (27709313, 20240000, '4526000.00', '2024-12-02 14:54:39'),
-(32333087, 20240002, '400.00', '2024-12-10 14:32:07'),
 (41031817, 20240000, '37.00', '2024-12-02 03:39:02'),
 (54819379, 20240000, '62037.00', '2024-12-02 03:29:57'),
-(55617457, 20240003, '91100.00', '2024-12-16 01:25:20'),
 (61052879, 20240000, '62111.00', '2024-12-02 06:26:36'),
 (70205673, 20240000, '310000.00', '2024-12-02 04:21:08'),
 (75275548, 20240000, '185.00', '2024-12-02 08:50:15'),
-(85216851, 20240000, '160.00', '2024-12-10 12:50:41'),
 (94080478, 20240000, '133.00', '2024-12-02 14:37:04');
 
 -- --------------------------------------------------------
@@ -290,25 +282,19 @@ CREATE TABLE IF NOT EXISTS `sales_details` (
   KEY `sales_details_returnProductFK` (`return_product_id`),
   KEY `sales_details_productFK` (`product_id`),
   KEY `sales_id` (`sales_id`,`product_id`,`return_product_id`,`inventory_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=93788145 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=92939157 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `sales_details`
 --
 
 INSERT INTO `sales_details` (`sales_details_id`, `sales_id`, `product_id`, `return_product_id`, `inventory_id`, `sales_quantity`, `amount`) VALUES
-(22448519, 32333087, 40739618, 42006337, 19826892, 0, '0.00'),
-(25563083, 55617457, 15076522, NULL, 95974033, 5, '90000.00'),
 (37536115, 41031817, 40739618, 99481541, 19826892, 0, '0.00'),
 (57018646, 27709313, 40739618, NULL, 19826892, 73, '4526000.00'),
-(63492342, 23249319, 46004118, NULL, 17191477, 3, '96.00'),
 (64155091, 61052879, 40739618, NULL, 19826892, 1, '62000.00'),
 (67240953, 54819379, 40739618, 50382363, 19826892, 1, '-62000.00'),
-(74880949, 85216851, 31299885, NULL, 59712524, 5, '160.00'),
 (83763223, 70205673, 40739618, 88942119, 19826892, 5, '310000.00'),
-(91836385, 23249319, 40739618, 77122285, 19826892, 1, '62000.00'),
-(92939156, 94080478, 31299885, NULL, 59712524, 3, '96.00'),
-(93788144, 55617457, 18975177, NULL, 82984096, 1, '1100.00');
+(92939156, 94080478, 31299885, NULL, 59712524, 3, '96.00');
 
 -- --------------------------------------------------------
 
@@ -331,10 +317,8 @@ CREATE TABLE IF NOT EXISTS `scrap_product` (
 --
 
 INSERT INTO `scrap_product` (`scrap_product_id`, `user_id`, `scrap_quantity`, `scrap_date`) VALUES
-(27385634, 20240002, 2, '2024-12-10 14:33:39'),
 (38612763, 20240002, 1, '2024-12-07 12:47:28'),
 (50979433, 20240000, 6, '2024-12-02 14:40:02'),
-(91766211, 20240002, 1, '2024-12-10 14:33:39'),
 (96143478, 20240000, 1, '2024-12-02 15:33:02'),
 (98504950, 20240000, 2, '2024-12-02 15:33:02');
 
@@ -362,12 +346,10 @@ CREATE TABLE IF NOT EXISTS `stockroom` (
 INSERT INTO `stockroom` (`stockroom_id`, `aisle_number`, `cabinet_level`, `product_quantity`, `category_id`) VALUES
 (29923391, 1, 1, 9, 45992576),
 (31876767, 1, 1, 6, 62251421),
-(52669463, 1, 1, 6, 48312275),
 (64511234, 1, 5, 7, 48312275),
-(77336261, 3, 1, 7, 18673629),
+(77336261, 3, 1, 9, 18673629),
 (80898093, 1, 1, 10, 36200226),
 (92056880, 1, 1, 8, 18673629),
-(93949212, 3, 5, 20, 43435445),
 (94821358, 2, 1, 8, 51431926),
 (95596316, 3, 4, 15, 98009675);
 
@@ -400,13 +382,10 @@ CREATE TABLE IF NOT EXISTS `stock_transfer` (
 INSERT INTO `stock_transfer` (`stock_transfer_id`, `product_id`, `user_id`, `from_stockroom_id`, `to_stockroom_id`, `transfer_quantity`, `transfer_date`) VALUES
 (17926354, 40739618, 20240002, 29923391, 29923391, 1, '2024-12-06 15:24:31'),
 (22232209, 18975177, 20240002, NULL, 95596316, 4, '2024-12-06 01:27:02'),
-(23230396, 15076522, 20240002, NULL, 77336261, 5, '2024-12-10 17:42:41'),
 (24840858, 40739618, 20240000, NULL, 29923391, 2, '2024-12-02 06:00:21'),
 (31237881, 40739618, 20240000, NULL, 29923391, 1, '2024-12-02 06:08:55'),
-(39434407, 15076522, 20240002, 77336261, NULL, 7, '2024-12-10 17:41:37'),
 (41993101, 46004118, 20240000, NULL, 80898093, 8, '2024-12-03 03:02:35'),
 (42484241, 84495846, 20240002, NULL, 64511234, 6, '2024-12-06 01:36:05'),
-(47629510, 73086209, 20240003, NULL, 52669463, 6, '2024-12-16 01:21:58'),
 (52147713, 40739618, 20240000, NULL, 29923391, 7, '2024-12-02 02:36:49'),
 (57771144, 40739618, 20240000, 29923391, NULL, 7, '2024-12-02 05:18:54'),
 (58564383, 31299885, 20240000, NULL, 94821358, 8, '2024-12-02 11:43:27'),
@@ -438,11 +417,9 @@ CREATE TABLE IF NOT EXISTS `supplier` (
 --
 
 INSERT INTO `supplier` (`supplier_id`, `company_name`, `contact_person`, `mobile_number`, `email`, `address`) VALUES
-(37403692, 'Supplier5', 'Denise Bayawa', '09260003225', 'denise@gmail.com', 'Baguio City'),
 (38859181, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
 (49056642, 'ABC', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
 (64213870, 'XYZ', 'prim', '09264444555', 'prig@gmail.com', '123moo'),
-(77830888, 'ert', 'Preyl Carillo', '09264111500', 'preyl@gmail.com', 'La Trinidad, Benguet'),
 (84444515, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
 (88922363, 'Supplier2', 'Denise Bayawa', '09666320931', 'denise@gmail.com', 'La Trinidad, Benguet'),
 (91869735, 'DCB', 'prig', '09264444555', 'prig@gmail.com', '123moo'),
@@ -481,9 +458,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 --
 
 INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `image_url`, `mobile_number`, `email`, `password`, `role`, `user_roles`, `permanent_address`, `current_address`, `emergency_contact`, `emergency_contact_number`, `created_at`, `email_verified_at`, `email_verification_sent_at`, `updated_at`) VALUES
-(20240000, 'Aira', 'Carillo', 'Screenshot 2024-09-05 224041_1733851798.png', '09264003199', '20223765@s.ubaguio.edu', '$2y$10$YwMna1d6QUYGuvTHhRK6UOAtBj8x1VOHRWeGIUf5VcWfrPOxaT1aK', NULL, 'Inventory Manager, Auditor', NULL, NULL, NULL, NULL, '2024-10-16 12:50:03', '2024-12-10 15:17:22', '2024-12-10 14:10:57', '2024-12-16 01:48:55'),
-(20240002, 'Shane', 'Robiego', 'Screenshot 2024-09-05 144341_1733325608.png', '09265004188', 'hiddenskylink@gmail.com', '$2y$10$YYrwA0m8EJBY.4D3hW1DYeAgwIhgM.JxP3PnN8aszCEcgtoMeWzYa', NULL, 'Administrator, Inventory Manager, Auditor', 'permanent address here with', 'current address here', 'contact person', '09555112999', '2024-12-04 02:34:42', '2024-12-04 14:12:07', '2024-12-04 14:08:48', '2024-12-16 02:38:44'),
-(20240003, 'Preyl', 'Carillo', 'Screenshot 2024-09-05 144341_1733840216.png', '09264111534', 'carilloaira@gmail.com', '$2y$10$iGRloW9vCqF7S4ankLXZeek8B5323N.jlHwK1uVaIrTw2M.k3teVa', NULL, 'Inventory Manager, Administrator', 'Baguio City', NULL, NULL, NULL, '2024-12-05 07:52:26', '2024-12-05 07:52:49', '2024-12-05 07:52:26', '2024-12-16 01:25:45');
+(20240000, 'Aira', 'Carillo', 'Screenshot 2024-09-05 144341_1729083003.png', '09264003199', '20223765@s.ubaguio.edu', '$2y$10$STY2KVbXJyoB76pvJo8yzuqUL0dEWMz1a6HGIxM4TxAB3TMJug0ki', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-16 12:50:03', '2024-12-08 02:23:24', '2024-12-08 02:23:08', '2024-12-08 06:10:46'),
+(20240002, 'Shane', 'Robiego', 'Screenshot 2024-09-05 144341_1733325608.png', '09265004188', 'hiddenskylink@gmail.com', '$2y$10$YYrwA0m8EJBY.4D3hW1DYeAgwIhgM.JxP3PnN8aszCEcgtoMeWzYa', NULL, 'Administrator, Inventory Manager, Auditor', 'permanent address here with', 'current address here', 'contact person', '09555112999', '2024-12-04 02:34:42', '2024-12-04 14:12:07', '2024-12-04 14:08:48', '2024-12-08 09:52:55'),
+(20240003, 'Preyl', 'Carillo', NULL, '09264111534', 'carilloaira@gmail.com', '$2y$10$iGRloW9vCqF7S4ankLXZeek8B5323N.jlHwK1uVaIrTw2M.k3teVa', NULL, 'Administrator, Auditor', NULL, NULL, NULL, NULL, '2024-12-05 07:52:26', '2024-12-05 07:52:49', '2024-12-05 07:52:26', '2024-12-07 03:36:11');
 
 --
 -- Constraints for dumped tables
