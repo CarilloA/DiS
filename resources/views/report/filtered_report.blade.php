@@ -34,7 +34,7 @@
     }
 
     .report-header img {
-            width: 80px; /* Adjust logo size */
+            width: 13em; /* Adjust logo size */
             height: auto;
         }
 
@@ -133,7 +133,7 @@ body {
 }
 
 .report-header img {
-            width: 80px; /* Adjust logo size */
+            width: 13em; /* Adjust logo size */
             height: auto;
         }
 </style>
@@ -144,12 +144,23 @@ body {
             <!-- Alert Messages -->
             @include('common.alert')
 
-            <!-- Report Header -->
-            <div class="report-header">
-                <h1><img src="{{ asset('storage/logo/logo.png') }}" alt="Logo"class="mb-4"><strong>Dumpstreet</strong></h1>
-                <h3>{{ $reportTitle }}</h3>
-                <label>Report generated on {{ \Carbon\Carbon::now()->format('F j, Y') }}</label>
+           <!-- Report Header -->
+           <div class="report-header py-3 border-bottom">
+                <div class="align-items-center">
+                    <!-- Logo Section -->
+                    <div class="text-center">
+                        <img src="{{ asset('storage/logo/logo.png') }}" alt="Logo" class="img-fluid mb-2">
+                    </div>
+                    <!-- Title Section -->
+                    <div class="text-center">
+                        <h3 class="mb-1">{{ $reportTitle }}</h3>
+                        <p class="text-muted mb-0">
+                            Report generated on {{ \Carbon\Carbon::now()->format('F j, Y') }}
+                        </p>
+                    </div>
+                </div>
             </div>
+
 
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-primary ms-2 me-2 printButton" id="printButton" onclick="checkSignatureAndPrint();">
@@ -159,7 +170,7 @@ body {
 
             <!-- Inventory Table -->
             <table class="table table-bordered">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mt-4">
                     <h5>Product Details</h5> 
                 </div>
                 <thead>

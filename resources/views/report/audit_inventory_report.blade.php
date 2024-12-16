@@ -34,9 +34,9 @@
     }
 
     .report-header img {
-        width: 80px; /* Adjust logo size */
-        height: auto;
-    }
+            width: 13em; /* Adjust logo size */
+            height: auto;
+        }
 
     /* Table Styles for Print */
     .table {
@@ -133,9 +133,9 @@ body {
 }
 
 .report-header img {
-    width: 80px; /* Adjust logo size */
-    height: auto;
-}
+            width: 13em; /* Adjust logo size */
+            height: auto;
+        }
 </style>
 
 <div class="container-fluid">
@@ -145,10 +145,20 @@ body {
             @include('common.alert')
 
             <!-- Report Header -->
-            <div class="report-header">
-                <h1><img src="{{ asset('storage/logo/logo.png') }}" alt="Logo"class="mb-4"><strong>Dumpstreet</strong></h1>
-                <h3>{{ $reportTitle }}</h3>
-                <label>Report generated on {{ now()->format('F j, Y') }}</label>
+            <div class="report-header py-3 border-bottom">
+                <div class="align-items-center">
+                    <!-- Logo Section -->
+                    <div class="text-center">
+                        <img src="{{ asset('storage/logo/logo.png') }}" alt="Logo" class="img-fluid mb-2">
+                    </div>
+                    <!-- Title Section -->
+                    <div class="text-center">
+                        <h3 class="mb-1">{{ $reportTitle }}</h3>
+                        <p class="text-muted mb-0">
+                            Report generated on {{ now()->format('F j, Y') }}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Print Button -->
