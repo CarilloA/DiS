@@ -232,7 +232,7 @@
                     title: `${product.product_name || 'Product Info'}`,
                     html: productDetails,
                     icon: 'info',
-                    showCancelButton: true,
+                    // showCancelButton: true,
                     confirmButtonText: 'Close',
                 });
 

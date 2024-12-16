@@ -33,6 +33,11 @@
         box-shadow: none;
     }
 
+    .report-header img {
+            width: 80px; /* Adjust logo size */
+            height: auto;
+        }
+
     /* Table Styles for Print */
     .table {
         width: 100%;
@@ -126,6 +131,11 @@ body {
     cursor: pointer;
     border-radius: 5px;
 }
+
+.report-header img {
+            width: 80px; /* Adjust logo size */
+            height: auto;
+        }
 </style>
 
 <div class="container-fluid">
@@ -136,6 +146,7 @@ body {
 
             <!-- Report Header -->
             <div class="report-header">
+                <h1><img src="{{ asset('storage/logo/logo.png') }}" alt="Logo"class="mb-4"><strong>Dumpstreet</strong></h1>
                 <h3>{{ $reportTitle }}</h3>
                 <label>Report generated on {{ \Carbon\Carbon::now()->format('F j, Y') }}</label>
             </div>
