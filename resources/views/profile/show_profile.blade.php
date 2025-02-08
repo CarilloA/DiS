@@ -189,6 +189,10 @@
                                 <button class="iconBtn" id="email-edit-btn" onclick="toggleEdit('email')">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
+
+                                @error('email')
+                                    <div style="color: red">{{ $message }}</div>
+                                @enderror
                             </li>
                             <li class="list-group-item">Password: <strong>********</strong>
                                 <button class="iconBtn" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
