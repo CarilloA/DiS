@@ -261,8 +261,8 @@
                                             <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'weekly')">Weekly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'monthly')">Monthly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'yearly')">Yearly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancySummaryChart', 'alltime')">All-Time</button>
                                         </div>
-                                        
                                         <canvas id="discrepancySummaryChart"></canvas>
                                     </div>
                                     <div class="col-md-6">
@@ -271,6 +271,7 @@
                                             <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'weekly')">Weekly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'monthly')">Monthly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'yearly')">Yearly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('quantityComparison', 'alltime')">All-Time</button>
                                         </div>
                                         <canvas id="quantityComparisonChart"></canvas>
                                     </div>
@@ -283,6 +284,7 @@
                                             <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'weekly')">Weekly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'monthly')">Monthly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'yearly')">Yearly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('discrepancyTrends', 'alltime')">All-Time</button>
                                         </div>
                                         <canvas id="discrepancyTrendsChart"></canvas>
                                     </div>
@@ -292,6 +294,7 @@
                                             <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'weekly')">Weekly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'monthly')">Monthly</button>
                                             <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'yearly')">Yearly</button>
+                                            <button class="btn btn-secondary" onclick="filterChart('newVsOld', 'alltime')">All-Time</button>
                                         </div>
                                         <canvas id="newVsOldChart"></canvas>
                                     </div>
@@ -304,90 +307,7 @@
         @endif 
     </div>
 
-    <script>
-
-
-// function filterChart(chartId, timeFrame) {
-//     let chartData;
-//     let chartLabels;
-
-//     const data = {
-//         discrepancySummaryChart: {
-//             weekly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
-//             monthly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
-//             yearly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
-//         },
-//         quantityComparison: {
-//             weekly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
-//             monthly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
-//             yearly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
-//         },
-//         discrepancyTrends: {
-//             weekly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
-//             monthly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
-//             yearly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}, {!! json_encode($newStoreQuantities) !!}, {!! json_encode($newStockroomQuantities) !!}],
-//         },
-//         newVsOld: {
-//             weekly: [{!! json_encode($discrepancyData) !!}],
-//             monthly: [{!! json_encode($discrepancyData) !!}],
-//             yearly: [{!! json_encode($discrepancyData) !!}],
-//         }
-//     };
-
-//     // Check for invalid chartId or timeFrame
-//     if (!data[chartId] || !data[chartId][timeFrame]) {
-//         console.error("Invalid chartId or timeFrame");
-//         return;
-//     }
-
-//     chartData = data[chartId][timeFrame];
-
-//     // Define labels based on the selected time frame
-//     if (timeFrame === 'weekly') {
-//         chartLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-//     } else if (timeFrame === 'monthly') {
-//         chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-//     } else if (timeFrame === 'yearly') {
-//         chartLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-//     }
-
-
-
-//     function updateChart(chart, chartData, chartLabels) {
-//     // Ensure chart data and labels are not empty
-//     if (!chartData || !chartLabels || chartData.length === 0 || chartLabels.length === 0) {
-//         console.error("Invalid chart data or labels");
-//         return;
-//     }
-
-//     // Update chart labels and datasets
-//     chart.data.labels = chartLabels;
-//     chart.data.datasets.forEach((dataset, index) => {
-//         if (chartData[index] && Array.isArray(chartData[index])) {
-//             dataset.data = chartData[index]; // Assign valid dataset data
-//         } else {
-//             console.error("Dataset data is invalid for index:", index);
-//         }
-//     });
-
-//     // Update the chart to reflect changes
-//     chart.update();
-// }
-
-
-//     // Update the relevant chart based on the chartId
-//     if (chartId === 'discrepancySummaryChart') {
-//         updateChart(discrepancySummaryChart, chartData, chartLabels);
-//     } else if (chartId === 'quantityComparison') {
-//         updateChart(quantityComparisonChart, chartData, chartLabels);
-//     } else if (chartId === 'discrepancyTrends') {
-//         updateChart(discrepancyTrendsChart, chartData, chartLabels);
-//     } else if (chartId === 'newVsOld') {
-//         updateChart(newVsOldChart, chartData, chartLabels);
-//     }
-// }
-
-
+<script>
 const today = new Date();
 const auditDates = {!! json_encode($auditDates) !!}; // This will be an array of timestamps
 const filteredAuditDates = filterByWeek(today, {!! json_encode($auditDates) !!}); // Filter dates by week
@@ -398,7 +318,14 @@ function formatTimestamp(timestamp) {
     return date.toLocaleString(); // You can adjust the format as needed
 }
 
-// Helper function to get the start of the week (Monday)
+document.addEventListener('DOMContentLoaded', function() {
+    // Call the filterChart function with 'alltime' to load all-time data by default
+    filterChart('discrepancySummaryChart', 'alltime');
+    filterChart('quantityComparison', 'alltime');
+    filterChart('discrepancyTrends', 'alltime');
+    filterChart('newVsOld', 'alltime');
+});
+
 // Helper function to get the start of the week (Sunday or Monday based on your requirement)
 function getStartOfWeek(date, startOfWeekDay = 0) { // Default: Sunday (0)
     const start = new Date(date);
@@ -454,7 +381,6 @@ function filterDataByDates(data, filteredAuditDates) {
 }
 
 // Now your filterChart function can call these helper functions
-// Now your filterChart function can call these helper functions
 function filterChart(chartId, timeFrame) {
     const today = new Date();  // Ensure 'today' is defined
 
@@ -463,21 +389,25 @@ function filterChart(chartId, timeFrame) {
             weekly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
             monthly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
             yearly: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
+            alltime: [{!! json_encode($discrepancies['stockroom']) !!}, {!! json_encode($discrepancies['store']) !!}],
         },
         quantityComparison: {
             weekly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
             monthly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
             yearly: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
+            alltime: [{!! json_encode($quantityOnHand) !!}, {!! json_encode($newQuantityOnHand) !!}],
         },
         discrepancyTrends: {
             weekly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
             monthly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
             yearly: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
+            alltime: [{!! json_encode($storeQuantities) !!}, {!! json_encode($stockroomQuantities) !!}],
         },
         newVsOld: {
             weekly: [{!! json_encode($discrepancyData) !!}],
             monthly: [{!! json_encode($discrepancyData) !!}],
             yearly: [{!! json_encode($discrepancyData) !!}],
+            alltime: [{!! json_encode($discrepancyData) !!}],
         }
     };
 
@@ -502,11 +432,21 @@ function filterChart(chartId, timeFrame) {
     } else if (timeFrame === 'yearly') {
         filteredAuditDates = filterByYear(today, {!! json_encode($auditDates) !!});
         chartLabels = generateYearlyLabels(filteredAuditDates);
+    } else if (timeFrame === 'alltime') {
+        filteredAuditDates = {!! json_encode($auditDates) !!}; // Use all audit dates for the all-time filter
+        chartLabels = generateAllTimeLabels(filteredAuditDates); // Optionally create a new label generator for all-time
+    }
+
+    // Check if no data is available for the selected filter
+    if (!filteredAuditDates || filteredAuditDates.length === 0) {
+        alert("No available data for this filter.");
+        return;  // Exit the function if no data is available
     }
 
     // Update the chart with the filtered data
     updateChart(chartId, chartData, filteredAuditDates, chartLabels);
 }
+
 
 
 // Generate dynamic weekly labels based on available audit dates
@@ -567,6 +507,18 @@ function generateYearlyLabels(filteredAuditDates) {
 
     return labels;
 }
+
+// Generate dynamic all-time labels based on available audit dates
+function generateAllTimeLabels(filteredAuditDates) {
+    let labels = [];
+    filteredAuditDates.forEach(date => {
+        const auditDate = new Date(date);
+        labels.push(`Date: ${auditDate.toLocaleDateString()}`); // Label as "Date: MM/DD/YYYY"
+    });
+
+    return labels;
+}
+
 
 // Modify filterByWeek to filter by week based on the current date
 function filterByWeek(currentDate, auditDates) {

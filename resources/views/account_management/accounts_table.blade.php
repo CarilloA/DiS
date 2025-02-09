@@ -207,13 +207,13 @@
                                                             
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group">
-                                                                <label for="admin_password">Current Password <i>*Required</i></label>
+                                                                <label for="reject_admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
-                                                                       id="admin_password_{{ $data->user_id }}" name="admin_password" required>
+                                                                       id="reject_admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">
                                                                     Note: Please enter your current password for confirmation.
                                                                 </small>
-                                                                @error('admin_password')
+                                                                @error('reject_admin_password')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
@@ -245,13 +245,13 @@
                                                             
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group mb-4">
-                                                                <label for="admin_password">Current Password <i>*Required</i></label>
+                                                                <label for="confirm_admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
-                                                                       id="admin_password_{{ $data->user_id }}" name="admin_password" required>
+                                                                       id="confirm_admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">
                                                                     Note: Please enter your current password for confirmation.
                                                                 </small>
-                                                                @error('admin_password')
+                                                                @error('confirm_admin_password')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
@@ -260,19 +260,19 @@
                                                             <div class="form-group mb-4">
                                                                 <label>Select User Roles <i>*Required</i>: </label>
                                                                 <div class="form-check">
-                                                                    <input id="Administrator" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                    <input id="confirm_role_admin_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Administrator">
-                                                                    <label for="Administrator" class="form-check-label">Administrator</label>
+                                                                    <label for="confirm_role_admin_{{ $data->user_id }}" class="form-check-label">Administrator</label>
                                                                 </div>
                                                                 <div class="form-check">
-                                                                    <input id="inventory_manager" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                    <input id="confirm_role_inventory_manager_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Inventory Manager">
-                                                                    <label for="inventory_manager" class="form-check-label">Inventory Manager</label>
+                                                                    <label for="confirm_role_inventory_manager{{ $data->user_id }}" class="form-check-label">Inventory Manager</label>
                                                                 </div>
                                                                 <div class="form-check">
-                                                                    <input id="auditor" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                    <input id="confirm_role_auditor_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Auditor">
-                                                                    <label for="auditor" class="form-check-label">Auditor</label>
+                                                                    <label for="confirm_role_auditor_{{ $data->user_id }}" class="form-check-label">Auditor</label>
                                                                 </div>
                                                                 @error('roles')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -310,9 +310,9 @@
                                                             
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group mb-4">
-                                                                <label for="admin_password">Current Password <i>*Required</i></label>
+                                                                <label for="update_admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
-                                                                       id="admin_password_{{ $data->user_id }}" name="admin_password" required>
+                                                                       id="update_admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">
                                                                     Note: Please enter your current password for confirmation.
                                                                 </small>
@@ -325,19 +325,19 @@
                                                             <div class="form-group mb-4">
                                                                 <label>Select User Roles <i>*Required</i>: </label>
                                                                 <div class="form-check">
-                                                                    <input id="Administrator" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                    <input id="update_role_admin_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Administrator">
-                                                                    <label for="Administrator" class="form-check-label">Administrator</label>
+                                                                    <label for="update_role_admin_{{ $data->user_id }}" class="form-check-label">Administrator</label>
                                                                 </div>
                                                                 <div class="form-check">
-                                                                    <input id="inventory_manager" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                    <input id="update_role_inventory_manager_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Inventory Manager">
-                                                                    <label for="inventory_manager" class="form-check-label">Inventory Manager</label>
+                                                                    <label for="update_role_inventory_manager_{{ $data->user_id }}" class="form-check-label">Inventory Manager</label>
                                                                 </div>
                                                                 <div class="form-check">
-                                                                    <input id="auditor" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                    <input id="update_role_auditor_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Auditor">
-                                                                    <label for="auditor" class="form-check-label">Auditor</label>
+                                                                    <label for="update_role_auditor_{{ $data->user_id }}" class="form-check-label">Auditor</label>
                                                                 </div>
                                                                 @error('roles')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -377,13 +377,13 @@
                                                             
                                                             <!-- Admin Password Input -->
                                                             <div class="form-group">
-                                                                <label for="admin_password">Current Password <i>*Required</i></label>
+                                                                <label for="delete_admin_password">Current Password <i>*Required</i></label>
                                                                 <input type="password" class="form-control @error('admin_password') is-invalid @enderror" 
-                                                                       id="admin_password_{{ $data->user_id }}" name="admin_password" required>
+                                                                       id="delete_admin_password_{{ $data->user_id }}" name="admin_password" required>
                                                                 <small class="form-text text-light mt-2">
                                                                     Note: Please enter your current password for confirmation.
                                                                 </small>
-                                                                @error('admin_password')
+                                                                @error('delete_admin_password')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
