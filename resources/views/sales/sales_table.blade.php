@@ -153,7 +153,7 @@
                     <!-- Action Buttons -->
                     <div class="ms-auto">
                         <a class="btn btn-success" href="{{ route('sales.create') }}">+ Sale Product</a>
-                        <a class="btn btn-warning ms-2" href="{{ route('return_product_table') }}">Returned Products View</a>
+                        {{-- <a class="btn btn-warning ms-2" href="{{ route('return_product_table') }}">Returned Products View</a> --}}
                     </div>
                 </div>
 

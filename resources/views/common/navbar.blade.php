@@ -324,7 +324,7 @@
             <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
         </li>
         <li class="{{ Request::routeIs('return_product_table') ? 'active' : '' }}">
-            <a href="{{ route('return_product_table') }}"><i class="fa-solid fa-tags"></i> RETURNED PRODUCTS</a>
+            <a href="{{ route('return_product_table') }}" style="font-size: 0.9em"><i class="fa-solid fa-right-left"></i> RETURNED PRODUCTS</a>
         </li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
