@@ -106,7 +106,27 @@
                         <!-- Alert Messages -->
                         @include('common.alert')
 
-                        @if ($errors->any())
+                        @if(session('lockout_seconds'))
+                            <div id="lockout-message" class="alert alert-danger">
+                                Too many attempts. Try again in <span id="countdown">{{ session('lockout_seconds') }}</span> seconds.
+                            </div>
+
+                            <script>
+                                let seconds = {{ session('lockout_seconds') }};
+                                const countdownEl = document.getElementById('countdown');
+
+                                const interval = setInterval(() => {
+                                    seconds--;
+                                    countdownEl.textContent = seconds;
+
+                                    if (seconds <= 0) {
+                                        clearInterval(interval);
+                                        location.reload(); // optional: reload the page to enable the form again
+                                    }
+                                }, 1000);
+                            </script>
+
+                        @elseif($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
                                     @foreach ($errors->all() as $error)
@@ -115,7 +135,6 @@
                                 </ul>
                             </div>
                         @endif
-
 
                         <!-- Logo Image -->
                         <div class="text-center mb-4">

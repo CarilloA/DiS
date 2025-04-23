@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User; // User Model
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\ThrottlesLogins;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -17,6 +19,33 @@ class LoginController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    use ThrottlesLogins;
+
+    protected function throttleKey()
+    {
+        return strtolower($this->username()) . '|' . request()->ip();
+    }
+
+    protected function sendLockoutResponse(Request $request)
+    {
+        $seconds = $this->limiter()->availableIn(
+            $this->throttleKey($request)
+        );
+
+        return redirect()->back()
+            ->withInput($request->only('email'))
+            ->withErrors([
+                'email' => "Too many attempts. Try again in {$seconds} seconds.",
+            ])
+            ->with('lockout_seconds', $seconds); // 🔥 Send to frontend
+    }
+
+    public function username()
+    {
+        return 'email';
+    }
+
     public function login(Request $request)
 {
     // Validate the form data
@@ -25,6 +54,12 @@ class LoginController extends Controller
         'email' => 'required|string|email',
         'password' => 'required|string',
     ]);
+
+    // 🔒 Throttle check
+    if ($this->hasTooManyLoginAttempts($request)) {
+        $this->fireLockoutEvent($request);
+        return $this->sendLockoutResponse($request);
+    }
 
     // Fetch the user by email
     $credential = User::where('email', $credentials['email'])->first();
@@ -44,7 +79,7 @@ class LoginController extends Controller
                 
                 // Check if the email is verified
                 if ($credential->email_verified_at !== null) {
-                    if ($credential->user_roles !== null) {
+                    if (!empty($credential->user_roles)) {
                         // Log the user in
                         Auth::login($user);
                         
@@ -65,7 +100,8 @@ class LoginController extends Controller
                                 User::where('user_id', $user->user_id)->update($updateData);
                             });
 
-                            Auth::login($user);
+                            // Auth::login($user);
+                            $this->clearLoginAttempts($request);
                             return redirect('/dashboard')->with('success', "Successfully logged in as {$roles[0]}.");
                         }
 
@@ -80,20 +116,27 @@ class LoginController extends Controller
                                 User::where('user_id', $user->user_id)->update($updateData);
                             });
 
+                            $this->clearLoginAttempts($request);
                             return redirect('/dashboard')->with('success', "Successfully Logged in.");
                     } else {
+                        // Increment Failed login attempts
+                        $this->incrementLoginAttempts($request);
                         return back()->with('error', 'Your account is not verified yet.');
                     }
                 } else {
+                    $this->incrementLoginAttempts($request);
                     return back()->with('error', 'Your email is not verified yet. Please check your inbox.');
                 }
             } else {
+                $this->incrementLoginAttempts($request);
                 return back()->with('error', 'The provided credentials do not match our records.');
             }
         } else {
+            $this->incrementLoginAttempts($request);
             return back()->with('error', 'Incorrect Entered Password. Please login again.');
         }
     } else {
+        $this->incrementLoginAttempts($request);
         // If login fails, redirect back with an error message
         return back()->with('error', 'Incorrect Entered Email. The user does not exist.');
     }
@@ -142,6 +185,17 @@ class LoginController extends Controller
     
         // If no user or roles found, return an empty array
         return response()->json(['roles' => []]);
+    }
+
+    // Optional: Customize the max login attempts and lockout time
+    protected function maxAttempts()
+    {
+        return 2; // max 5 attempts
+    }
+
+    protected function decayMinutes()
+    {
+        return 1; // lockout for 2 minutes
     }
 
 }
