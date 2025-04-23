@@ -308,6 +308,8 @@
             
         </main>
     </div>
+@else
+    <h1 class="alert alert-danger mt-2">Sorry, you do not have access to this page. Please go <button onclick="window.history.back()" class="btn btn-secondary">← Back</button>.</h1>
 @endif
 
 <!-- JavaScript for Supplier Details -->

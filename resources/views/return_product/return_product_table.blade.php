@@ -70,7 +70,7 @@
 </style>
 
 @section('content')
-@if(Auth::user()->role === 'Administrator' || Auth::user()->role === 'Inventory Manager')
+@if(Auth::user()->role === 'Salesperson')
     <div class="container-fluid">
         <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
             <form action="{{ route('dispose_product') }}" method="POST" id="disposeForm">
@@ -176,6 +176,8 @@
             
         </main>
     </div>
+@else
+    <h1 class="alert alert-danger mt-2">Sorry, you do not have access to this page. Please go <button onclick="window.history.back()" class="btn btn-secondary">← Back</button>.</h1>
 @endif
 @endsection
 

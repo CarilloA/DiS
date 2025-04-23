@@ -169,6 +169,47 @@
 @endif
 
 <!-- Sidebar Navigation -->
+@if(Auth::user()->role == "Purchase Manager")
+<nav id="sidebar" class="vh-100 navbar-expand-lg">
+    <button class="navbar-toggler toggle-btn" type="button" onclick="toggleSidebar()">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="sidebar-header d-flex flex-row align-items-center py-3">
+        @if($userImage)
+            <img class="image rounded-circle" src="{{ asset('storage/userImage/' . $userImage) }}">
+        @else
+            <i class="fa-solid fa-circle-user fa-3x me-3"></i>
+        @endif
+
+        <div class="d-flex flex-column">
+            <h6>{{ $userRole }}</h6>
+            <h6>{{ $userName }}</h6>
+        </div>
+    </div>
+    <ul class="list-unstyled components">
+        <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> DASHBOARD</a>
+        </li>
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
+            <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
+        </li>
+        <li class="{{ Request::routeIs('purchase_table') ? 'active' : '' }}">
+            <a href="{{ route('purchase_table') }}"><i class="fa-solid fa-money-bill"></i> PRODUCTS</a>
+        </li>
+        <li>
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fa-solid fa-sign-out-alt"></i> LOGOUT
+            </a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
+        </li>
+    </ul>
+</nav>
+@endif
+
+<!-- Sidebar Navigation -->
 @if(Auth::user()->role == "Inventory Manager")
 <nav id="sidebar" class="vh-100 navbar-expand-lg">
     <button class="navbar-toggler toggle-btn" type="button" onclick="toggleSidebar()">
@@ -189,23 +230,14 @@
     </div>
     <ul class="list-unstyled components">
         <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
-            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
+            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> DASHBOARD</a>
         </li>
         <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
         </li>
-        <li class="{{ Request::routeIs('purchase_table') ? 'active' : '' }}">
-            <a href="{{ route('purchase_table') }}"><i class="fa-solid fa-money-bill"></i> PRODUCTS</a>
-        </li>
         <li class="{{ Request::routeIs('inventory_table') ? 'active' : '' }}">
             <a href="{{ route('inventory_table') }}"><i class="fa-solid fa-warehouse"></i> INVENTORY</a>
         </li>
-        <li class="{{ Request::routeIs('sales_table') ? 'active' : '' }}">
-            <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
-        </li>
-        {{-- <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
-            <a href="{{ route('show_profile') }}"><i class="fa-solid fa-file"></i> REPORT</a>
-        </li> --}}
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa-solid fa-sign-out-alt"></i> LOGOUT
@@ -239,7 +271,7 @@
     </div>
     <ul class="list-unstyled components">
         <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}">
-            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> HOME</a>
+            <a href="{{ route('dashboard') }}"><i class="fa-solid fa-user-shield"></i> DASHBOARD</a>
         </li>
         <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
             <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
@@ -265,7 +297,47 @@
 </nav>
 @endif
 
-<!-- Additional Sidebar for Inventory Manager and Auditor goes here -->
+<!-- Sidebar Navigation -->
+@if(Auth::user()->role == "Salesperson")
+<nav id="sidebar" class="vh-100 navbar-expand-lg">
+    <button class="navbar-toggler toggle-btn" type="button" onclick="toggleSidebar()">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="sidebar-header d-flex flex-row align-items-center py-3">
+        @if($userImage)
+            <img class="image rounded-circle" src="{{ asset('storage/userImage/' . $userImage) }}">
+        @else
+            <i class="fa-solid fa-circle-user fa-3x me-3"></i>
+        @endif
+
+        <div class="d-flex flex-column">
+            <h6>{{ $userRole }}</h6>
+            <h6>{{ $userName }}</h6>
+        </div>
+    </div>
+    <ul class="list-unstyled components">
+        <li class="{{ Request::routeIs('show_profile') ? 'active' : '' }}">
+            <a href="{{ route('show_profile') }}"><i class="fa-solid fa-user-shield"></i> PROFILE</a>
+        </li>
+        <li class="{{ Request::routeIs('sales_table') ? 'active' : '' }}">
+            <a href="{{ route('sales_table') }}"><i class="fa-solid fa-tags"></i> SALES</a>
+        </li>
+        <li class="{{ Request::routeIs('return_product_table') ? 'active' : '' }}">
+            <a href="{{ route('return_product_table') }}"><i class="fa-solid fa-tags"></i> RETURNED PRODUCTS</a>
+        </li>
+        <li>
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fa-solid fa-sign-out-alt"></i> LOGOUT
+            </a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
+        </li>
+    </ul>
+</nav>
+@endif
+
 
 <script>
     function toggleSidebar() {

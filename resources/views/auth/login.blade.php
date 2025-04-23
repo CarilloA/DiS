@@ -173,7 +173,7 @@
                                     @enderror
                                 </div>
 
-                                <!-- Remember Me & Forgot Password -->
+                                <!-- Forgot Password -->
                                 <div class="mb-4 d-flex justify-content-between align-items-center">
                                     <div class="ms-auto"> 
                                         @if (Route::has('password.request'))

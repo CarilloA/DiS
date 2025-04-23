@@ -1,4 +1,4 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app')
 @include('common.navbar')
 
 @section('content')
@@ -282,4 +282,4 @@
         document.getElementById('progressBar').innerText = Math.round(progressPercentage) + '%';
     });
 </script>
-@endsection
+@endsection --}}

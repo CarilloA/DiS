@@ -198,8 +198,12 @@ class DashboardController extends Controller
                 return redirect()->route('accounts_table')->with('success', 'You have successfully logged in.');
             }
 
+            if ($userSQL && $userSQL->role === "Salesperson") {
+                return redirect()->route('show_profile')->with('success', 'You have successfully logged in.');
+            }
+
             // Check if the user is an Administrator (role is in `credentials` table)
-            if ($userSQL && $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
+            if ($userSQL && $userSQL->role === "Purchase Manager" || $userSQL->role === "Inventory Manager" || $userSQL->role === "Auditor") {
                 // Pass the inventory managers and user role to the view
                 return view('dashboard', [
                     'userSQL' => $userSQL,

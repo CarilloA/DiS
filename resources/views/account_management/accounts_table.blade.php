@@ -265,6 +265,11 @@
                                                                     <label for="confirm_role_admin_{{ $data->user_id }}" class="form-check-label">Administrator</label>
                                                                 </div>
                                                                 <div class="form-check">
+                                                                    <input id="confirm_role_purchase_manager_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Purchase Manager">
+                                                                    <label for="confirm_role_purchase_manager{{ $data->user_id }}" class="form-check-label">Purchase Manager</label>
+                                                                </div>
+                                                                <div class="form-check">
                                                                     <input id="confirm_role_inventory_manager_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Inventory Manager">
                                                                     <label for="confirm_role_inventory_manager{{ $data->user_id }}" class="form-check-label">Inventory Manager</label>
@@ -273,6 +278,11 @@
                                                                     <input id="confirm_role_auditor_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Auditor">
                                                                     <label for="confirm_role_auditor_{{ $data->user_id }}" class="form-check-label">Auditor</label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input id="confirm_role_salesperson_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Salesperson">
+                                                                    <label for="confirm_role_salesperson_{{ $data->user_id }}" class="form-check-label">Salesperson</label>
                                                                 </div>
                                                                 @error('roles')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -330,6 +340,11 @@
                                                                     <label for="update_role_admin_{{ $data->user_id }}" class="form-check-label">Administrator</label>
                                                                 </div>
                                                                 <div class="form-check">
+                                                                    <input id="update_role_purchase_manager_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Purchase Manager">
+                                                                    <label for="update_role_purchase_manager_{{ $data->user_id }}" class="form-check-label">Purchase Manager</label>
+                                                                </div>
+                                                                <div class="form-check">
                                                                     <input id="update_role_inventory_manager_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Inventory Manager">
                                                                     <label for="update_role_inventory_manager_{{ $data->user_id }}" class="form-check-label">Inventory Manager</label>
@@ -338,6 +353,11 @@
                                                                     <input id="update_role_auditor_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
                                                                            name="roles[]" value="Auditor">
                                                                     <label for="update_role_auditor_{{ $data->user_id }}" class="form-check-label">Auditor</label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input id="update_role_salesperson_{{ $data->user_id }}" type="checkbox" class="form-check-input @error('roles') is-invalid @enderror" 
+                                                                           name="roles[]" value="Salesperson">
+                                                                    <label for="update_role_salesperson_{{ $data->user_id }}" class="form-check-label">Salesperson</label>
                                                                 </div>
                                                                 @error('roles')
                                                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -411,6 +431,8 @@
             </main>
         </div>
     </div>
+@else
+    <h1 class="alert alert-danger mt-2">Sorry, you do not have access to this page. Please go <button onclick="window.history.back()" class="btn btn-secondary">← Back</button>.</h1>
 @endif
 
 <script>

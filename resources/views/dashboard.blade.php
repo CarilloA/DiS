@@ -82,7 +82,7 @@
 @section('content')
     <div class="content"> <!-- Add the content class to prevent overlap -->
 
-        @if(Auth::user()->role == "Inventory Manager")
+        @if(Auth::user()->role == "Inventory Manager" || Auth::user()->role == "Purchase Manager")
             <div class="container">
                 <!-- Alert Messages -->
                 @include('common.alert')
@@ -91,27 +91,29 @@
                         <div class="main-content">
 
                             <!-- Notification Bell with Restock Buttons -->
-                            <div class="notification-bell">
-                                <!-- Restock Store Button with Notification -->
-                                <button class="restock-button" onclick="window.location.href='{{ route('filter_store_restock') }}'">
-                                    <i class="fas fa-bell"></i> Restock Store
-                                    @if($lowStoreStockCount > 0)
-                                        <span class="notification-circle">
-                                            {{ $lowStoreStockCount }}
-                                        </span>
-                                    @endif
-                                </button>
+                            @if(Auth::user()->role == "Purchase Manager")
+                                <div class="notification-bell">
+                                    <!-- Restock Store Button with Notification -->
+                                    <button class="restock-button" onclick="window.location.href='{{ route('filter_store_restock') }}'">
+                                        <i class="fas fa-bell"></i> Restock Store
+                                        @if($lowStoreStockCount > 0)
+                                            <span class="notification-circle">
+                                                {{ $lowStoreStockCount }}
+                                            </span>
+                                        @endif
+                                    </button>
 
-                                <!-- Restock Stockroom Button with Notification -->
-                                <button class="restock-button" onclick="window.location.href='{{ route('filter_stockroom_restock') }}'">
-                                    <i class="fas fa-bell"></i> Restock Stockroom
-                                    @if($lowStockroomStockCount > 0)
-                                        <span class="notification-circle">
-                                            {{ $lowStockroomStockCount }}
-                                        </span>
-                                    @endif
-                                </button>
-                            </div>
+                                    <!-- Restock Stockroom Button with Notification -->
+                                    <button class="restock-button" onclick="window.location.href='{{ route('filter_stockroom_restock') }}'">
+                                        <i class="fas fa-bell"></i> Restock Stockroom
+                                        @if($lowStockroomStockCount > 0)
+                                            <span class="notification-circle">
+                                                {{ $lowStockroomStockCount }}
+                                            </span>
+                                        @endif
+                                    </button>
+                                </div>
+                            @endif
 
 
 

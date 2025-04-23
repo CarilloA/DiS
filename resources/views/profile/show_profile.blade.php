@@ -82,6 +82,7 @@
     }
 </style>
 
+@if(Auth::user()->role == 'Administrator' || Auth::user()->role == 'Purchase Manager' || Auth::user()->role == 'Inventory Manager' || Auth::user()->role == 'Auditor' || Auth::user()->role == 'Salesperson') 
 <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
     <div class="main-content">
         @include('common.alert')
@@ -371,6 +372,10 @@
         </div>
     </div>
 </div>
+@else
+    <h1 class="alert alert-danger mt-2">Sorry, you do not have access to this page. Please go <button onclick="window.history.back()" class="btn btn-secondary">← Back</button>.</h1>
+@endif
+
 
 <script>
    function toggleEdit(field) {

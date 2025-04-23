@@ -49,10 +49,6 @@ Route::middleware(['auth', 'check.default_password'])->group(function () {
 });
 
 
-// use App\Http\Controllers\DashboardController;
-// Route::resource('dashboard', DashboardController::class);
-// Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-// // // Route::delete('/dashboard/{id}', [App\Http\Controllers\DashboardController::class, 'destroy']);
 
 use App\Http\Controllers\RegisterAccountController;
 Route::resource('register_account', RegisterAccountController::class);
